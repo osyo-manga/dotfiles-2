@@ -1,0 +1,43 @@
+" vimrc file for plugin development
+
+filetype plugin indent on
+set nocompatible
+syntax on
+
+set runtimepath+=$HOME/dropbox/dev/vim-psearch/
+"set runtimepath+=$HOME/dropbox/dev/vim-vand/
+let g:vand_sdk_location="/Users/giacomo/bin/android-sdk/"
+
+au BufWritePost .vimrc source $MYVIMRC
+au FileType vim setlocal foldmethod=marker
+
+set wildmenu          " make the command-line completion better
+set wildmode=longest,full  " show up completions
+set wildignore=*.dll,*.o,*.pyc,*.bak,*.exe,*$py.class,*.class,*.fasl
+set wildignore+=*.jpg,*.jpeg,*.png,*.gif,.DS_Store,.gitignore,.git,tags
+
+set laststatus=2  " always show status line
+set mouse=a
+
+set stl=
+set stl+=\ %w%r%m
+set stl+=\ %f
+set stl+=%=
+set stl+=%{strlen(&ft)?tolower(&ft).'\ ~\ ':''}
+set stl+=%{strlen(&fenc)?&fenc.',':''}%{&ff}\ 
+set stl+=~\ %1l:%02c\ ~\ %L:%P\ 
+
+set noswapfile
+set nobackup
+set nomodeline
+nnoremap Q :q<cr>
+
+" MAPPINGS
+
+let mapleader=","
+
+nnoremap <silent> <leader>r :e $MYVIMRC<CR>
+
+
+
+    "set hidden           " allow change buffers without saving
