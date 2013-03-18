@@ -1,14 +1,14 @@
 "  -----------------------------------------------------
 "  vim configuration file
 "  Maintainer: Giacomo Comitti (github.com/gcmt)
-"  Last Change: 20 Feb 2013
+"  Last Change: 16 Mar 2013
 "  -----------------------------------------------------
 
 " BASICS OPTIONS ------------------------- {{{ 
 
     set nocompatible
     filetype off
-
+ 
     set rtp+=~/.vim/bundle/vundle/
     call vundle#rc()
 
@@ -23,11 +23,10 @@
     Bundle 'sjl/vitality.vim'
     Bundle 'benmills/vimux'
     Bundle 'majutsushi/tagbar'
-    Bundle 'msanders/snipmate.vim'
     Bundle 'scrooloose/nerdtree'
     Bundle 'scrooloose/nerdcommenter'
-    Bundle 'scrooloose/snipmate-snippets'
-    Bundle 'alfredodeza/khuno.vim'
+    Bundle 'SirVer/ultisnips'
+    Bundle 'scrooloose/syntastic'
     Bundle 'sjl/gundo.vim'
     Bundle 'gcmt/taboo.vim'
     Bundle 'gcmt/tube.vim'
@@ -35,15 +34,19 @@
     Bundle 'gcmt/psearch.vim'
     Bundle 'kien/ctrlp.vim'
     Bundle 'skammer/vim-css-color'
-    Bundle 'alfredodeza/khuno.vim'
     Bundle 'vim-scripts/AutoComplPop'
-    Bundle 'ervandew/supertab'
+    "Bundle 'davidhalter/jedi-vim'
+    Bundle 'beyondmarc/opengl.vim'
+    Bundle 'Yggdroot/indentLine'
+    Bundle 'airblade/vim-gitgutter'
+    Bundle 'vim-scripts/a.vim'
 
     filetype plugin indent on
     syntax on
 
     " easy plugin development and git tracking
     set rtp+=$HOME/dropbox/dev/vim-vand/
+    "set rtp+=$HOME/dropbox/dev/vim-psearch/
 
     set viminfo=!,'100,\"100,:20,<50,s10,h,n~/.viminfo
     set encoding=utf-8
@@ -85,7 +88,7 @@
         au!
         au focusGained * echo ' Welcome back ' . $USER . "!"
         "au focusLost * wall " save all
-        au guiEnter * set columns=82 lines=40
+        au guiEnter * set columns=82 lines=45
         au vimResized * wincmd =
         au BufWinEnter * call RestoreCursorPosition()
         " automatically enter normal mode after 'updatetime' mseconds
@@ -141,9 +144,8 @@
     colorscheme Tomorrow 
     if has("gui_running")
         set guioptions=mc   " add 'e' to have macvim style tabs
-
         if has("gui_macvim")
-            set guifont=inconsolata-g:h13
+            set guifont=inconsolata-g:h12
         elseif has('gui_win32')
             set guifont=Consolas:h10:cANSI
         else
@@ -163,7 +165,7 @@
     set mousehide         " hides the mouse cursor while typing
 
     set virtualedit=onemore
-    set linespace=0       " don't insert any extra pixel lines between rows
+    set linespace=2       " don't insert any extra pixel lines between rows
     set title
     set titlestring=%F
     set completeopt=longest,menuone,preview
@@ -186,7 +188,7 @@
     set magic             " allow pattern matching with special charactrers
 
     set sidescrolloff=0
-    set scrolloff=2
+    set scrolloff=0
 
     set wrap
     set textwidth=79      " textwidth is 79 chars
@@ -239,7 +241,7 @@
     set stl+=%{strlen(&ft)?tolower(&ft).'\ ●\ ':''}
     set stl+=%{winwidth(winnr())>80?(strlen(&fenc)?&fenc.',':'').&ff.'\ ●\ ':''}
     set stl+=%1l:%02c\ ●\ %L:%P\   
-    set stl+=%#StatuslineErr#%{VandProjectErrors('[ERRORS]\ ')}%*
+    set stl+=%#StatuslineErr#%{VandProjectErrors()}%*\ "
 
     " tabline options
     set showtabline=1
@@ -265,6 +267,9 @@
     vnoremap K 3k
     vnoremap < <gv
     vnoremap > >gv
+
+    nnoremap <F5> :make<CR>
+    inoremap <F5> <ESC>:make<CR>
 
 " edit the vimrc file
     nnoremap <silent> <leader>r :e $MYVIMRC<CR>
@@ -420,11 +425,6 @@
     let g:buffergator_suppress_keymaps = 1
     nnoremap <silent> <leader>b :BuffergatorToggle<CR>
 
-" Indent Guides
-    let g:indent_guides_color_change_percent = 5
-    let g:indent_guides_guide_size = 1
-    let g:indent_guides_start_level = 2
-
 " Gundo
     let g:gundo_width = 30
 
@@ -433,7 +433,7 @@
 
 " Ozzy
     let g:ozzy_ignore = ['tags', '.env', '.gitignore']
-    let g:ozzy_track_only = ['/Users/giacomo/dropbox/']
+    let g:ozzy_track_only = ['/Users/giacomo/dropbox/', '/Users/giacomo/Dropbox/']
     nnoremap <leader>o :Ozzy<CR>
 
 " Psearch
@@ -455,6 +455,11 @@
     let g:vand_logcat_enable_colors = 1
     let g:vand_logcat_split_dimension = 40
 
+" IndentLine
+    let g:indentLine_color_gui = '#cccccc'
+    let g:indentLine_color_term = 250
+    let g:indentLine_char = '┆'  "┊┆
+
 " }}} 
 
 " FUNCTIONS ------------------------------ {{{  
@@ -468,7 +473,7 @@
     endfu
 
     fu! SetColorscheme()
-        let colorschemes = ['Tomorrow', 'Tomorrow-Dark']
+        let colorschemes = ['Tomorrow-Night', 'Tomorrow']
         let scheme = colorschemes[g:colorcount % len(colorschemes)]
         exec 'colorscheme ' . scheme
     endfu
@@ -535,10 +540,9 @@ import vim, os
 def android_project_root(path):
     if path == os.path.sep:
         return ''
+    elif 'AndroidManifest.xml' in os.listdir(path):
+        return path
     else:
-        for d in os.listdir(path):
-            if d == 'AndroidManifest.xml':
-                return path
         return android_project_root(os.path.split(path)[0])
 
 cwd = vim.eval('getcwd()')
