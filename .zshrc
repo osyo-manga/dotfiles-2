@@ -22,7 +22,7 @@ precmd() { print -rP "%{$fg[magenta]%}%n%{$reset_color%} at %{$fg[green]%}%m%{$r
 PROMPT='%{$fg_bold[blue]%}▸%{$reset_color%} '   #%nd : show last n parts of the paths
 
 export EDITOR="/Applications/MacVim.app/Contents/MacOS/Vim"
-export GREP_OPTIONS='--color=auto'
+export GREP_OPTIONS="--color=auto"
 export PATH="${HOME}/bin:${PATH}"
 export PATH="${HOME}/bin/android-sdk/tools:${PATH}"
 export PATH="${HOME}/bin/android-sdk/platform-tools:${PATH}"
@@ -31,11 +31,12 @@ export PATH="/usr/local/share/python:${PATH}"
 export PATH="/usr/local/sbin:${PATH}"
 export PATH="/usr/local/bin:${PATH}"
 export PATH="/bin:${PATH}"
+export PATH="/usr/local/cuda/bin:${PATH}"
+export DYLD_LIBRARY_PATH="/usr/local/cuda/lib:${DYLD_LIBRARY_PATH}"
 export PYTHONPATH="/usr/local/lib/python2.7/site-packages:${PYTHONPATH}"
-export CLASSPATH="${HOME}/bin/android-sdk/platforms/android-16:${CLASSPATH}"
 
 # autoenv
-source /usr/local/Cellar/autoenv/0.1.0/activate.sh
+source /usr/local/opt/autoenv/activate.sh
 
 # tmux
 [ -z "$TMUX" ] && export TERM=screen-256color
@@ -50,6 +51,43 @@ alias v.d="deactivate"
 alias v.mk="mkvirtualenv"
 alias v.mkpkg="mkvirtualenv --system-site-packages"
 alias v.rm="rmvirtualenv"
+
+# zsh aliases
+alias z.e="vim ~/.zshrc"
+alias z.s="source ~/.zshrc"
+
+# pip aliases
+alias p.f="pip freeze"
+alias p.i="pip install -U"
+alias p.u="pip uninstall"
+
+# python aliases
+alias py="python"
+alias py3="python3"
+alias pip3="pip-3.2"
+alias py.i="python setup.py install"
+alias py.d="python setup.py develop"
+alias ipy="ipython"
+
+# the silver searcher
+alias ag="ag --nocolor"
+
+# smash aliases
+alias s="smash --colors"
+
+# tmux aliases
+alias t="tmux"
+alias ta="tmux attach -t"
+alias tls="tmux ls"
+
+# vim
+alias vim="/Applications/MacVim.app/Contents/MacOS/Vim"
+alias vimdev='vim -u .vimrcdev'
+
+# generic aliases
+alias ..="cd .."
+alias c="clear"
+alias ls="ls -G"
 
 v.usewx () {
     CURRENT_DIR=`pwd`
@@ -91,51 +129,7 @@ v.rmwx () {
     cd $CURRENT_DIR
 }     
 
-# zsh aliases
-alias z.e="vim ~/.zshrc"
-alias z.s="source ~/.zshrc"
-
-# pip aliases
-alias p.f="pip freeze"
-alias p.i="pip install -U"
-alias p.u="pip uninstall"
-
-# python aliases
-alias py="python"
-alias py3="python3"
-alias pip3="pip-3.2"
-alias py.i="python setup.py install"
-alias py.d="python setup.py develop"
-
-# git aliases
-alias g="git"
-alias gir="git"
-alias gc="git commit -m"
-alias gkb="git checkout -b"
-alias gb="git branch"
-alias gckm="git checkout"
-alias gckm="git checkout master"
-
-# smash aliases
-alias s="smash --colors"
-
-# tmux aliases
-alias t="tmux"
-alias ta="tmux attach -t"
-alias tls="tmux ls"
-alias ipy="ipython"
-
-# vim
-alias vim='/Applications/MacVim.app/Contents/MacOS/Vim'
-alias vimdev='vim -u .vimrcdev'
-
-# aliases
-alias ..="cd .."
-alias c="clear"
-alias ls="ls -G"
-alias e="subl -n ."
-
-# automatically activate virtualenv with autoenv
+# automatically activate virtuasource /usr/local/opt/autoenv/activate.shlenv with autoenv
 # thanks to Kenneth Reitz!
 use_env() {
     typeset venv
@@ -152,7 +146,6 @@ use_env() {
         fi
     fi
 }
-
 
 # options
 
