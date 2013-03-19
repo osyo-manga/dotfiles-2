@@ -27,7 +27,6 @@
     Bundle 'scrooloose/nerdcommenter'
     Bundle 'SirVer/ultisnips'
     Bundle 'scrooloose/syntastic'
-    Bundle 'sjl/gundo.vim'
     Bundle 'gcmt/taboo.vim'
     Bundle 'gcmt/tube.vim'
     Bundle 'gcmt/ozzy.vim'
@@ -35,7 +34,6 @@
     Bundle 'kien/ctrlp.vim'
     Bundle 'skammer/vim-css-color'
     Bundle 'vim-scripts/AutoComplPop'
-    "Bundle 'davidhalter/jedi-vim'
     Bundle 'beyondmarc/opengl.vim'
     Bundle 'Yggdroot/indentLine'
     Bundle 'airblade/vim-gitgutter'
@@ -427,9 +425,6 @@
 
 " Gundo
     let g:gundo_width = 30
-
-" Khuno
-   let g:khuno_flake_cmd = '/usr/local/share/python/flake8'
 
 " Ozzy
     let g:ozzy_ignore = ['tags', '.env', '.gitignore']
