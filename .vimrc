@@ -455,6 +455,14 @@
     let g:indentLine_color_term = 250
     let g:indentLine_char = '┆'  "┊┆
 
+" Syntastic 
+    let g:syntastic_error_symbol = '✕'
+    let g:syntastic_warning_symbol = '⁕'
+    let g:syntastic_style_error_symbol = '✕'
+    let g:syntastic_style_warning_symbol = '⁕'
+    highlight link SyntasticErrorSign WarningMsg
+    
+
 " }}} 
 
 " FUNCTIONS ------------------------------ {{{  
