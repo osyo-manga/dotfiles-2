@@ -12,14 +12,13 @@
     set rtp+=~/.vim/bundle/vundle/
     call vundle#rc()
 
-    " vundle
+    " bundles
     Bundle 'gmarik/vundle'
     Bundle 'tpope/vim-fugitive'
     Bundle 'tpope/vim-eunuch'
     Bundle 'tpope/vim-haml'
-    Bundle 'rstacruz/sparkup'
+    Bundle 'mattn/zencoding-vim'
     Bundle 'Lokaltog/vim-easymotion'
-    Bundle 'jeetsukumaran/vim-buffergator'
     Bundle 'sjl/vitality.vim'
     Bundle 'benmills/vimux'
     Bundle 'majutsushi/tagbar'
@@ -38,13 +37,13 @@
     Bundle 'Yggdroot/indentLine'
     Bundle 'airblade/vim-gitgutter'
     Bundle 'vim-scripts/a.vim'
+    Bundle 'mileszs/ack.vim'
 
     filetype plugin indent on
     syntax on
 
     " easy plugin development and git tracking
     set rtp+=$HOME/dropbox/dev/vim-vand/
-    "set rtp+=$HOME/dropbox/dev/vim-psearch/
 
     set viminfo=!,'100,\"100,:20,<50,s10,h,n~/.viminfo
     set encoding=utf-8
@@ -120,8 +119,6 @@
 
     augroup py_ft
         au Filetype python setlocal omnifunc=pythoncomplete#Complete
-        au Filetype python setlocal foldmethod=indent
-        au Filetype python setlocal foldnestmax=2
     augroup END
 
     augroup java_ft
@@ -339,7 +336,7 @@
     nnoremap <leader>j mzJ`z
 
 " delete all ^M / trailing white-spaces
-    "command! TM exe "mz:%s/\r//<CR>:let @/=''<CR>`z"
+    command! TM exe "mz:%s/\r//<CR>:let @/=''<CR>`z"
     nnoremap S mz:%s/\s\+$//<CR>:let @/=''<CR>`z
 
 " force saving files that require root permission
@@ -407,6 +404,7 @@
     let g:tagbar_left = 0
     let g:tagbar_sort = 0
     let g:tagbar_width = 35
+    let g:tagbar_iconchars = ['▸', '¬']
     nnoremap <silent> <F2> :TagbarToggle<CR>
     nnoremap <silent> <leader>t :TagbarToggle<CR>
 
@@ -414,14 +412,7 @@
     let g:ctrlp_max_height = 20
     let g:ctrlp_working_path_mode = 'rc'
     let g:ctrlp_root_markers = ['AndroidManifest.xml']
-    "nnoremap <silent> <leader> :CtrlP<CR>
-
-" Buffergator
-    let g:buffergator_viewport_split_policy = "B"
-    let g:buffergator_split_size = 7
-    let g:buffergator_sort_regime = "mru"
-    let g:buffergator_suppress_keymaps = 1
-    nnoremap <silent> <leader>b :BuffergatorToggle<CR>
+    nnoremap <silent> <leader>b :CtrlPBuffer<CR>
 
 " Gundo
     let g:gundo_width = 30
@@ -451,9 +442,8 @@
     let g:vand_logcat_split_dimension = 40
 
 " IndentLine
-    let g:indentLine_color_gui = '#cccccc'
     let g:indentLine_color_term = 250
-    let g:indentLine_char = '┆'  "┊┆
+    let g:indentLine_char = '┆'
 
 " Syntastic 
     let g:syntastic_error_symbol = '✕'
@@ -461,8 +451,14 @@
     let g:syntastic_style_error_symbol = '✕'
     let g:syntastic_style_warning_symbol = '⁕'
     highlight link SyntasticErrorSign WarningMsg
-    
 
+" AutoComplPop
+    let g:acp_ignorecaseOption = 0
+    let g:acp_behaviorKeywordLength = 1
+
+" Ack
+    nnoremap <leader>a :Ack 
+    
 " }}} 
 
 " FUNCTIONS ------------------------------ {{{  
@@ -476,8 +472,15 @@
     endfu
 
     fu! SetColorscheme()
-        let colorschemes = ['Tomorrow-Night', 'Tomorrow']
+        let colorschemes = [ 'Tomorrow', 'Tomorrow-Night']
         let scheme = colorschemes[g:colorcount % len(colorschemes)]
+
+        if scheme == 'Tomorrow'
+            let g:indentLine_color_gui = '#cccccc'
+        else
+            let g:indentLine_color_gui = '#333333'
+        endif 
+            
         exec 'colorscheme ' . scheme
     endfu
 
@@ -554,12 +557,10 @@ END
         return g:_temp_var
     endfu
 
-
 " utilities
 " -----------------------------------------------
 
-" credits: vim wikia
-" easily delete path tokens into the command line
+" delete las path component in the command line
 cnoremap <C-t> <C-\>e(<SID>RemoveLastPathComponent())<CR>
 function! s:RemoveLastPathComponent()
     return substitute(getcmdline(), '\%(\\ \|[\\/]\@!\f\)\+[\\/]\=$\|.$', '', '')
