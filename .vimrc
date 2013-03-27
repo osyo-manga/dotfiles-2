@@ -29,7 +29,7 @@
     Bundle 'gcmt/taboo.vim'
     Bundle 'gcmt/ozzy.vim'
     Bundle 'kien/ctrlp.vim'
-    Bundle 'skammer/vim-css-color'
+    Bundle 'ap/vim-css-color'
     Bundle 'vim-scripts/AutoComplPop'
     Bundle 'beyondmarc/opengl.vim'
     Bundle 'Yggdroot/indentLine'
@@ -262,6 +262,9 @@
     nnoremap <F5> :make<CR>
     inoremap <F5> <ESC>:make<CR>
 
+" win
+    nnoremap q: :q
+
 " edit the vimrc file
     nnoremap <silent> <leader>r :e $MYVIMRC<CR>
 
@@ -327,7 +330,6 @@
     nnoremap <leader>j mzJ`z
 
 " delete all ^M / trailing white-spaces
-    command! TM exe "mz:%s/\r//<CR>:let @/=''<CR>`z"
     nnoremap S mz:%s/\s\+$//<CR>:let @/=''<CR>`z
 
 " force saving files that require root permission
