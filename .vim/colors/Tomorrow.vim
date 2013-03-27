@@ -299,6 +299,7 @@ if has("gui_running") || &t_Co == 88 || &t_Co == 256
 	call <SID>X("Type", s:blue, "", "none")
 	call <SID>X("Define", s:purple, "", "none")
 	call <SID>X("Include", s:blue, "", "")
+	call <SID>X("Exception", s:lightred, "", "")
 
 	" Vim Highlighting
 	call <SID>X("vimCommand", s:red, "", "none")
@@ -345,7 +346,8 @@ if has("gui_running") || &t_Co == 88 || &t_Co == 256
 	call <SID>X("javaExternal", s:orange, "", "")
 	call <SID>X("javaConditional", s:purple, "", "")
 	call <SID>X("javaRepeat", s:orange, "", "")
-	call <SID>X("javaException", s:lightred, "", "")
+	call <SID>X("javaExceptions", s:lightred, "", "")
+	call <SID>X("javaTypedef", s:grey, "", "")
 
     " reST highlighting
 	call <SID>X("rstEmphasis", s:aqua, "", "")    
