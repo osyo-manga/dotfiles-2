@@ -1,10 +1,9 @@
 .DS_Store
-.swp
+undofiles/
+.gitattributes
+*.swp
 .netrwhist
 tags
-.gitattributes
-.gitignore
 tags-ja
 .tags
 .ctags
-undofiles/
