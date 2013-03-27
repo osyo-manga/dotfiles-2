@@ -348,6 +348,7 @@ if has("gui_running") || &t_Co == 88 || &t_Co == 256
 	call <SID>X("javaRepeat", s:orange, "", "")
 	call <SID>X("javaExceptions", s:lightred, "", "")
 	call <SID>X("javaTypedef", s:grey, "", "")
+	call <SID>X("javaType", s:aqua, "", "")
 
     " reST highlighting
 	call <SID>X("rstEmphasis", s:aqua, "", "")    
