@@ -1,7 +1,7 @@
 "  -----------------------------------------------------
 "  vim configuration file
 "  Maintainer: Giacomo Comitti (github.com/gcmt)
-"  Last Change: 16 Mar 2013
+"  Last Change: 27 Mar 2013
 "  -----------------------------------------------------
 
 " BASICS OPTIONS ------------------------- {{{ 
@@ -269,9 +269,6 @@
 " build tags for the current directory
     nnoremap <F8> :!/usr/local/bin/ctags -R .<CR>
 
-" open the snippes folder
-    command! Snippets exec ":e ~/.vim/bundle/snipmate/snippets/"
-
 " kill window
     nnoremap <silent> Q :q<CR>
 
@@ -286,7 +283,11 @@
     inoremap <down> <nop>
     inoremap <left> <nop>
     inoremap <right> <nop>
-
+    nnoremap <up> <nop>
+    nnoremap <down> <nop>
+    nnoremap <left> <nop>
+    nnoremap <right> <nop>
+    
 " clear searches
     nnoremap <silent> <leader><space> :noh<CR>
 
@@ -306,12 +307,6 @@
     vnoremap <silent> <tab> }
     nnoremap <silent> \ {
     vnoremap <silent> \ {
-
-" resize windows
-    nnoremap <silent> <Up> <C-w>+<C-w>+
-    nnoremap <silent> <Down> <C-w>-<C-w>-
-    nnoremap <silent> <Left> <C-w><<C-w><
-    nnoremap <silent> <Right> <C-w>><C-w>>
 
 " split and move
     nnoremap <leader>w <C-w>v<C-w>l
@@ -371,9 +366,6 @@
     inoremap <leader>' `
     inoremap <leader>? ~
 
-" cycle through some colorschemes
-    nnoremap <silent> <F7> :call CycleColorschemes()<CR>
-
 " toggle options
     noremap <silent> <leader># :setlocal number!<CR>
 
@@ -403,16 +395,12 @@
     let g:tagbar_width = 35
     let g:tagbar_iconchars = ['▸', '¬']
     nnoremap <silent> <F2> :TagbarToggle<CR>
-    nnoremap <silent> <leader>t :TagbarToggle<CR>
 
 " Ctrlp
     let g:ctrlp_max_height = 20
     let g:ctrlp_working_path_mode = 'rc'
     let g:ctrlp_root_markers = ['AndroidManifest.xml']
     nnoremap <silent> <leader>b :CtrlPBuffer<CR>
-
-" Gundo
-    let g:gundo_width = 30
 
 " Ozzy
     let g:ozzy_ignore = ['tags', '.env', '.gitignore']
@@ -421,7 +409,6 @@
 
 " Psearch
     nnoremap <leader>s :PSearch<CR>
-    nnoremap <leader>* :PSearchw<CR>
 
 " Tube
     let g:tube_terminal = 'iterm'
@@ -452,7 +439,7 @@
     let g:acp_behaviorKeywordLength = 1
 
 " Ack
-    "nnoremap <leader>a :Ack 
+    nnoremap <leader>* :Ack 
     
 " }}} 
 
@@ -481,6 +468,9 @@
 
     let g:colorcount = exists('g:colorcount') ? g:colorcount : 0
     call SetColorscheme()
+
+" cycle through some colorschemes
+    nnoremap <silent> <F7> :call CycleColorschemes()<CR>    
 
 " show a decent path on the statusline
 " -----------------------------------------------
