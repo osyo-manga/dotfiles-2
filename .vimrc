@@ -34,7 +34,6 @@
     Bundle 'beyondmarc/opengl.vim'
     Bundle 'Yggdroot/indentLine'
     Bundle 'airblade/vim-gitgutter'
-    Bundle 'vim-scripts/a.vim'
     Bundle 'mileszs/ack.vim'
 
     filetype plugin indent on
@@ -544,6 +543,30 @@ def OpenAndroidManifest():
 END
 
 nnoremap <leader>a :py OpenAndroidManifest()<CR> 
+
+
+" c utils
+" -----------------------------------------------
+
+python << END
+import vim, os
+
+def GoToHeaderFile(maxdepth=10):
+    depth = 0
+    header = os.path.splitext(vim.eval("bufname('%')"))[0] + '.h'
+    for root, dirs, files in os.walk(vim.eval('getcwd()')):
+        if depth >= maxdepth:
+            break
+
+        if header in files:
+            vim.command("e {0}".format(root + '/' + header)) 
+
+        depth += 1
+
+    print "No header file found"
+END
+
+nnoremap <leader>h :py GoToHeaderFile()<CR> 
 
 " utilities
 " -----------------------------------------------
