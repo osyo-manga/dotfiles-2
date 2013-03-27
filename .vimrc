@@ -27,9 +27,7 @@
     Bundle 'SirVer/ultisnips'
     Bundle 'scrooloose/syntastic'
     Bundle 'gcmt/taboo.vim'
-    Bundle 'gcmt/tube.vim'
     Bundle 'gcmt/ozzy.vim'
-    Bundle 'gcmt/psearch.vim'
     Bundle 'kien/ctrlp.vim'
     Bundle 'skammer/vim-css-color'
     Bundle 'vim-scripts/AutoComplPop'
@@ -43,7 +41,7 @@
     syntax on
 
     " easy plugin development and git tracking
-    set rtp+=$HOME/dropbox/dev/vim-vand/
+    "set rtp+=$HOME/dropbox/dev/vim-vlogcat/
 
     set viminfo=!,'100,\"100,:20,<50,s10,h,n~/.viminfo
     set encoding=utf-8
@@ -235,8 +233,7 @@
     set stl+=%=
     set stl+=%{strlen(&ft)?tolower(&ft).'\ ●\ ':''}
     set stl+=%{winwidth(winnr())>80?(strlen(&fenc)?&fenc.',':'').&ff.'\ ●\ ':''}
-    set stl+=%1l:%02c\ ●\ %L:%P\   
-    set stl+=%#StatuslineErr#%{VandProjectErrors()}%*\ "
+    set stl+=%1l:%02c\ ●\ %L:%P\ "   
 
     " tabline options
     set showtabline=1
@@ -434,13 +431,6 @@
         \'andi': 'cd #{AndroidProjectRoot} && ant clean debug install',
     \}
 
-" Vand
-    let g:vand_sdk_location = "/Users/giacomo/bin/android-sdk"
-    let g:vand_enable_shortcuts = 1
-    let g:vand_logcat_line_numbers = 0
-    let g:vand_logcat_enable_colors = 1
-    let g:vand_logcat_split_dimension = 40
-
 " IndentLine
     let g:indentLine_color_term = 250
     let g:indentLine_char = '┆'
@@ -451,13 +441,18 @@
     let g:syntastic_style_error_symbol = '✕'
     let g:syntastic_style_warning_symbol = '⁕'
     highlight link SyntasticErrorSign WarningMsg
+    let g:syntastic_mode_map = { 
+        \ 'mode': 'active',
+        \ 'active_filetypes': ['c', 'cpp', 'javascript', 'python'],
+        \ 'passive_filetypes': ['java'] 
+    \}
 
 " AutoComplPop
     let g:acp_ignorecaseOption = 0
     let g:acp_behaviorKeywordLength = 1
 
 " Ack
-    nnoremap <leader>a :Ack 
+    "nnoremap <leader>a :Ack 
     
 " }}} 
 
@@ -536,10 +531,9 @@
         return "#" . bufnr('%') . " " . path
     endfu
 
-" Find android project root
+" android utils
 " -----------------------------------------------
 
-    fu! AndroidProjectRoot()
 python << END
 import vim, os
 
@@ -551,11 +545,15 @@ def android_project_root(path):
     else:
         return android_project_root(os.path.split(path)[0])
 
-cwd = vim.eval('getcwd()')
-vim.command("let g:_temp_var = '{0}'".format(android_project_root(cwd)))
+def OpenAndroidManifest():
+    root = android_project_root(vim.eval('getcwd()'))
+    if root:
+        vim.command("e {0}".format(root + '/AndroidManifest.xml'))
+    else:
+        print "No manifest file found"
 END
-        return g:_temp_var
-    endfu
+
+nnoremap <leader>a :py OpenAndroidManifest()<CR> 
 
 " utilities
 " -----------------------------------------------
