@@ -2,7 +2,9 @@
 .swp
 .netrwhist
 tags
+.gitattributes
+.gitignore
+tags-ja
 .tags
 .ctags
 undofiles/
-bundle/
