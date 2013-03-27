@@ -97,7 +97,7 @@ v.usewx () {
     fi
 
     echo 'linking wx files...'
-    cp $HOME/dropbox/dotfiles/opy $VIRTUAL_ENV/bin/opy
+    cp $HOME/dropbox/dotfiles/gpy $VIRTUAL_ENV/bin/gpy
     cdsitepackages
     ln -s /usr/local/lib/python2.7/site-packages/wx
     ln -s /usr/local/lib/python2.7/site-packages/wx-2.9.4-osx_cocoa
@@ -117,7 +117,7 @@ v.rmwx () {
     fi
 
     echo 'removing wx links...'
-    rm -f $VIRTUAL_ENV/bin/opy
+    rm -f $VIRTUAL_ENV/bin/gpy
     cdsitepackages
     rm -rf wx
     rm -rf wx-2.9.4-osx_cocoa
