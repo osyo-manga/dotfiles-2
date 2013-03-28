@@ -1,10 +1,10 @@
 "  -----------------------------------------------------
 "  vim configuration file
 "  Maintainer: Giacomo Comitti (github.com/gcmt)
-"  Last Change: 27 Mar 2013
+"  Last Change: 28 Mar 2013
 "  -----------------------------------------------------
 
-" BASICS OPTIONS ------------------------- {{{ 
+" BASICS & BUNDLES ------------------------- {{{ 
 
     set nocompatible
     filetype off
@@ -39,31 +39,35 @@
     filetype plugin indent on
     syntax on
 
-    " easy plugin development and git tracking
-    "set rtp+=$HOME/dropbox/dev/vim-vlogcat/
+" }}}
+
+" GENERAL OPTIONS -------------------------- {{{ 
 
     set viminfo=!,'100,\"100,:20,<50,s10,h,n~/.viminfo
     set encoding=utf-8
+
+    set ttyfast
     set notimeout
     set ttimeout
     set ttimeoutlen=0
-    set undolevels=1000
-    set undodir=~/.vim/undofiles
-    set undofile
-    set undoreload=10000
     set updatetime=10000
+
+    set history=1000
+    set undolevels=1000
+    set undofile
+    set undodir=~/.vim/undofiles
+    set undoreload=10000
 
     set noswapfile
     set nobackup
-    set noautowrite      " no autowrite on :next
+    set noautowrite
     set noerrorbells vb t_vb=
-    set backspace=indent,eol,start
+    set nomodeline
 
-    set history=1000
     set hidden           " allow change buffers without saving
-    set ttyfast
-    set modelines=0      " ignores modelines
     set tags=tags
+    set backspace=2
+    set iskeyword=_,$,@,%,#,-
 
     set autochdir        " automatically cd into the dir of the open file
     set autoread         " automatically reads a file if has changed on disk
@@ -76,66 +80,53 @@
 
 " }}} 
 
-" AUTOCOMMANDS --------------------------- {{{ 
+" AUTOCOMMANDS ----------------------------- {{{ 
 
     augroup vim_behavior
         au!
         au focusGained * echo ' Welcome back ' . $USER . "!"
-        "au focusLost * wall " save all
-        au guiEnter * set columns=82 lines=45
+        au guiEnter * set columns=80 lines=45
         au vimResized * wincmd =
-        au BufWinEnter * call RestoreCursorPosition()
-        " automatically enter normal mode after 'updatetime' mseconds
-        "au cursorHoldI * stopinsert
+        " Restore cursor position
+        au BufWinEnter * if line("'\"") > 0 && line("'\"") <= line("$") |
+                         \ exe "normal g'\"" | endif
     augroup END
 
-    augroup adjust_ft
+    augroup ft_adjustment
         au!
-        au FileType yml,yaml,html,xhtml,htmldjango,htmljinja,css setlocal sw=2 ts=2 sts=2
-        au Filetype htmldjango,htmljinja setfiletype html
-        au BufRead *.rss,*.atom setfiletype xml
-        au BufRead *.pde setfiletype java
-        au BufRead *.pl setfiletype prolog
-    augroup END
+        au BufWritePost .vimrc             source $MYVIMRC
 
-    augroup html_xml_ft
-        au!
-        " fold html tags
-        au FileType html nnoremap <buffer> <leader>h Vatzf
-        au Filetype html,xml setlocal nowrap
-        au Filetype html,xml let html_no_rendering = 1
-        au FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
-        au FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
-    augroup END
+        au BufRead,BufNewFile *.haml       set ft=haml
+        au BufRead,BufNewFile *.md         set ft=mkd tw=72 ts=2 sw=2 spell
+        au BufRead,BufNewFile *.markdown   set ft=mkd tw=72 ts=2 sw=2 spell
+        au BufRead,BufNewFile *.pde        set ft=java
+        au BufRead,BufNewFile *.pl         set ft=prolog
 
-    augroup css_ft
-        au!
-        au FileType css setlocal nocindent
-        au Filetype css setlocal omnifunc=csscomplete#CompleteCSS
-    augroup END
+        au Filetype python                 setlocal tw=79
+        au Filetype python                 setlocal omnifunc=pythoncomplete#Complete
 
-    augroup py_ft
-        au Filetype python setlocal omnifunc=pythoncomplete#Complete
-    augroup END
+        au Filetype htmldjango,htmljinja   set ft=html
+        au Filetype html,xml               setlocal nowrap
+        au Filetype html,xml               let html_no_rendering = 1
 
-    augroup java_ft
-        au Filetype java setlocal omnifunc=javacomplete#Complete
-        au FileType java setlocal completefunc=javacomplete#CompleteParamsInfo
-    augroup END
+        au Filetype css                    setlocal omnifunc=csscomplete#CompleteCSS
 
-    augroup vim_ft
-        au!
-        au BufWritePost .vimrc source $MYVIMRC
-        au FileType vim setlocal foldmethod=marker
+        au Filetype haml                   setlocal ts=2 sw=2 sts=0 tw=120
+
+        au Filetype java                   setlocal omnifunc=javacomplete#Complete
+
+        au FileType vim                    setlocal foldmethod=marker
     augroup END
 
 " }}} 
 
-" GUI ------------------------------------ {{{  
+" UI --------------------------------------- {{{  
 
     colorscheme Tomorrow 
     if has("gui_running")
+
         set guioptions=mc   " add 'e' to have macvim style tabs
+
         if has("gui_macvim")
             set guifont=inconsolata-g:h12
         elseif has('gui_win32')
@@ -143,14 +134,11 @@
         else
             set guifont=inconsolata-g\ Medium\ 10
         endif
+
     endif
 
-" }}} 
-
-" UI OPTIONS ----------------------------- {{{  
-
     set t_Co=256
-    set lazyredraw        " don't update the display while executing macros
+    set nolazyredraw        " don't update the display while executing macros
 
     set mousemodel=popup
     set mouse=a           " allow mouse
@@ -159,7 +147,8 @@
     set virtualedit=onemore
     set linespace=2       " don't insert any extra pixel lines between rows
     set title
-    set titlestring=%F
+    set titlestring=%<%r%m[%{tolower(&ft)}]\ %F
+    set titlelen=70
     set completeopt=longest,menuone,preview
 
     set wildmenu          " make the command-line completion better
@@ -179,11 +168,12 @@
     set shortmess=IaA
     set magic             " allow pattern matching with special charactrers
 
-    set sidescrolloff=0
-    set scrolloff=0
+    set sidescrolloff=1
+    set scrolloff=1
+    set nostartofline
 
     set wrap
-    set textwidth=79      " textwidth is 79 chars
+    set textwidth=79     
     set formatoptions=qn1c
     set colorcolumn=0
 
@@ -220,7 +210,7 @@
 
 " }}} 
 
-" STATUSLINE & TABLINE ------------------- {{{  
+" STATUSLINE & TABLINE --------------------- {{{  
 
     set laststatus=2  " always show status line
 
@@ -239,7 +229,7 @@
 
 " }}} 
 
-" MAPPINGS ------------------------------- {{{  
+" MAPPINGS --------------------------------- {{{  
 
     let mapleader=","
     imap jj <Esc>
@@ -383,7 +373,7 @@
 
 " }}} 
 
-" PLUGINS -------------------------------- {{{  
+" PLUGINS ---------------------------------- {{{  
 
 " NERDTree
     let NERDTreeShowBookmarks = 1
@@ -444,7 +434,7 @@
     
 " }}} 
 
-" FUNCTIONS ------------------------------ {{{  
+" FUNCTIONS -------------------------------- {{{  
 
 " cycle through colorschemes
 " -----------------------------------------------
@@ -472,6 +462,7 @@
 
 " cycle through some colorschemes
     nnoremap <silent> <F7> :call CycleColorschemes()<CR>    
+
 
 " show a decent path on the statusline
 " -----------------------------------------------
@@ -579,11 +570,4 @@ function! s:RemoveLastPathComponent()
     return substitute(getcmdline(), '\%(\\ \|[\\/]\@!\f\)\+[\\/]\=$\|.$', '', '')
 endfunction
 
-" restore last cursor positions
-function! RestoreCursorPosition()
-    if line("'\"") <= line("$")
-        normal! g`"
-        return 1
-    endif
-endfunction
 " }}} 
