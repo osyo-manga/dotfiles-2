@@ -32,8 +32,6 @@ export PATH="/usr/local/sbin:${PATH}"
 export PATH="/usr/local/bin:${PATH}"
 export PATH="/bin:${PATH}"
 export PATH="/usr/local/cuda/bin:${PATH}"
-export DYLD_LIBRARY_PATH="/usr/local/cuda/lib:${DYLD_LIBRARY_PATH}"
-export PYTHONPATH="/usr/local/lib/python2.7/site-packages:${PYTHONPATH}"
 
 # autoenv
 source /usr/local/opt/autoenv/activate.sh
