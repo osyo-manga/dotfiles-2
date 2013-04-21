@@ -1,0 +1,76 @@
+snippet ) "close bracket style 1" i
+)
+{
+    $0
+}
+endsnippet
+
+
+snippet { "close bracket style 2"
+{
+    $0
+}
+
+
+endsnippetsnippet beg "glBegin(); .. glEnd();" !b
+glBegin(${1});
+    ${2}
+glEnd();
+endsnippet
+
+
+snippet begt "glBegin(GL_TRIANGLES); .. glEnd();" !b
+glBegin(GL_TRIANGLES);
+    $0
+glEnd();
+endsnippet
+
+
+snippet begts "glBegin(GL_TRIANGLE_STRIP); .. glEnd();" !b
+glBegin(GL_TRIANGLE_STRIP);
+    $0
+glEnd();
+endsnippet
+
+
+snippet begtf "glBegin(GL_TRIANGLE_FAN); .. glEnd();" !b
+glBegin(GL_TRIANGLE_FAN);
+    $0
+glEnd();
+endsnippet
+
+
+snippet begl "glBegin(GL_LINES); .. glEnd();" !b
+glBegin(GL_LINES);
+    $0
+glEnd();
+endsnippet
+
+
+snippet begls "glBegin(GL_LINE_STRIP); .. glEnd();" !b
+glBegin(GL_LINE_STRIP);
+    $0
+glEnd();
+endsnippet
+
+
+snippet begll "glBegin(GL_LINE_LOOP); .. glEnd();" !b
+glBegin(GL_LINE_LOOP);
+    $0
+glEnd();
+endsnippet
+
+
+snippet v2 "glVertex2f(..)"
+glVertex2f(${1});${2}
+endsnippet
+
+
+snippet v3 "glVertex3f(..)"
+glVertex3f(${1});${2}
+endsnippet
+
+
+snippet glc "glColor3f(..)"
+glColor3f(${1});${2}
+endsnippet

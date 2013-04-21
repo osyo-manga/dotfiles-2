@@ -1,0 +1,98 @@
+snippet ) "close bracket style 1" i
+)
+{
+    $0
+}
+endsnippet
+
+
+snippet { "close bracket style 2"
+{
+    $0
+}
+endsnippet
+
+
+## ANDROID SNIPPETS
+
+
+snippet a-create "onCreate(...)"
+public void onCreate(Bundle savedInstanceState)
+{
+    super.onCreate(savedInstanceState);
+    $0
+}
+endsnippet
+
+
+snippet a-pause "onPause(...)"
+@Override
+public void onPause()
+{
+    super.onPause();
+    $0
+}
+endsnippet
+
+
+snippet a-resume "onResume(...)"
+@Override
+public void onResume()
+{
+    super.onResume();
+    $0
+}
+endsnippet
+
+
+snippet a-full "go fullscreen"
+requestWindowFeature(Window.FEATURE_NO_TITLE);
+getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+        WindowManager.LayoutParams.FLAG_FULLSCREEN);
+endsnippet
+
+
+snippet acl "android class" b
+public class ${1:`!p
+snip.rv = snip.basename or "untitled"`}
+{
+    public void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        $0
+
+        setContentView();
+    }
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+    }
+
+    @Override
+    public void onPause()
+    {
+        super.onPause();
+    }
+}
+endsnippet
+
+
+snippet a-glrenderer "gl renderer"
+public class ${1} extends Renderer 
+{
+    public void onSurfaceCreated(GL10 gl, EGLConfig config)
+    {
+        ${2}
+    }
+
+    public void onSurfaceChanged(GL10 gl, int width, int height)
+    {
+    }
+    
+    public void onDrawFrame(GL10 gl)
+    {
+    }
+}
+endsnippet
