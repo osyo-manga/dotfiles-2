@@ -1,14 +1,23 @@
 "  -----------------------------------------------------
 "  vim configuration file
 "  Maintainer: Giacomo Comitti (github.com/gcmt)
-"  Last Change: 28 Mar 2013
+"  Last Change: 17 Apr 2013
 "  -----------------------------------------------------
 
-" BASICS & BUNDLES ------------------------- {{{ 
+" BASICS & BUNDLES ------------------------- {{{
 
     set nocompatible
     filetype off
- 
+    filetype plugin indent off
+
+    " where binaries of third party go packages are located
+    let $PATH = $HOME . '/bin/go/bin:' . $PATH
+
+    let $GOPATH = $HOME . '/dropbox/dev/go:' . $GOPATH
+    let $GOPATH = $HOME . '/bin/go:' . $GOPATH
+
+    set rtp+=/usr/local/go/misc/vim
+
     set rtp+=~/.vim/bundle/vundle/
     call vundle#rc()
 
@@ -35,13 +44,15 @@
     Bundle 'Yggdroot/indentLine'
     Bundle 'airblade/vim-gitgutter'
     Bundle 'mileszs/ack.vim'
+    Bundle 'godlygeek/tabular'
+    Bundle 'sjl/gundo.vim'
 
     filetype plugin indent on
     syntax on
 
 " }}}
 
-" GENERAL OPTIONS -------------------------- {{{ 
+" GENERAL OPTIONS -------------------------- {{{
 
     set viminfo=!,'100,\"100,:20,<50,s10,h,n~/.viminfo
     set encoding=utf-8
@@ -64,13 +75,13 @@
     set noerrorbells vb t_vb=
     set nomodeline
 
-    set hidden           " allow change buffers without saving
+    set hidden
     set tags=tags
     set backspace=2
-    set iskeyword=_,$,@,%,#,-
+    set iskeyword=_,$,@,%,#,.,-,a-z,A-Z,48-57
 
-    set autochdir        " automatically cd into the dir of the open file
-    set autoread         " automatically reads a file if has changed on disk
+    set autochdir
+    set autoread
 
     set shell=/usr/local/bin/zsh
 
@@ -78,9 +89,9 @@
         set clipboard+=unnamed
     endif
 
-" }}} 
+" }}}
 
-" AUTOCOMMANDS ----------------------------- {{{ 
+" AUTOCOMMANDS ----------------------------- {{{
 
     augroup vim_behavior
         au!
@@ -92,43 +103,45 @@
                          \ exe "normal g'\"" | endif
     augroup END
 
-    augroup ft_adjustment
+    augroup ft_stuff
+
         au!
         au BufWritePost .vimrc             source $MYVIMRC
-
         au BufRead,BufNewFile *.haml       set ft=haml
-        au BufRead,BufNewFile *.md         set ft=mkd tw=72 ts=2 sw=2 spell
-        au BufRead,BufNewFile *.markdown   set ft=mkd tw=72 ts=2 sw=2 spell
+        au BufRead,BufNewFile *.md         set ft=mkd tw=72 ts=2 sw=2
+        au BufRead,BufNewFile *.markdown   set ft=mkd tw=72 ts=2 sw=2
         au BufRead,BufNewFile *.pde        set ft=java
         au BufRead,BufNewFile *.pl         set ft=prolog
 
         au Filetype python                 setlocal tw=79
         au Filetype python                 setlocal omnifunc=pythoncomplete#Complete
-
         au Filetype htmldjango,htmljinja   set ft=html
-        au Filetype html,xml               setlocal nowrap
+        au Filetype html,xml               setlocal wrap
         au Filetype html,xml               let html_no_rendering = 1
-
-        au Filetype css                    setlocal omnifunc=csscomplete#CompleteCSS
-
+        au Filetype css                    setlocal omnifunc=csscomplete#CompleteCSS ts=2 sw=2
         au Filetype haml                   setlocal ts=2 sw=2 sts=0 tw=120
-
         au Filetype java                   setlocal omnifunc=javacomplete#Complete
+        au Filetype vim                    setlocal foldmethod=marker
+        au Filetype mkd                    setlocal spell
+        au Filetype go                     setlocal list noexpandtab ts=4 
+        au Filetype go                     setlocal omnifunc=gocomplete#Complete
+        au BufWritePre *.go,*.py,*.cpp,*.java   exec "silent! normal S"
 
-        au FileType vim                    setlocal foldmethod=marker
     augroup END
 
-" }}} 
+" }}}
 
-" UI --------------------------------------- {{{  
+" UI --------------------------------------- {{{
 
-    colorscheme Tomorrow 
+    colorscheme Tomorrow
+    set background=light
     if has("gui_running")
 
-        set guioptions=mc   " add 'e' to have macvim style tabs
+        set guioptions=mc   " add 'e' for macvim style tabs
+        set linespace=0
 
         if has("gui_macvim")
-            set guifont=inconsolata-g:h12
+            set guifont=Inconsolata-g:h13
         elseif has('gui_win32')
             set guifont=Consolas:h10:cANSI
         else
@@ -138,98 +151,97 @@
     endif
 
     set t_Co=256
-    set nolazyredraw        " don't update the display while executing macros
+    set nolazyredraw
 
     set mousemodel=popup
-    set mouse=a           " allow mouse
-    set mousehide         " hides the mouse cursor while typing
+    set mouse=a
+    set mousehide
 
     set virtualedit=onemore
-    set linespace=2       " don't insert any extra pixel lines between rows
     set title
-    set titlestring=%<%r%m[%{tolower(&ft)}]\ %F
+    set titlestring=%<[%{tolower(&ft)}]\ %F
     set titlelen=70
-    set completeopt=longest,menuone,preview
+    set completeopt=longest,menuone
 
-    set wildmenu          " make the command-line completion better
-    set wildmode=longest,full  " show up completions
+    set wildmenu
+    set wildmode=longest,full
     set wildignore=*.dll,*.o,*.pyc,*.bak,*.exe,*$py.class,*.class,*.fasl
     set wildignore+=*.jpg,*.jpeg,*.png,*.gif,.DS_Store,.gitignore,.git,tags
     set wildignore+=*.swp,*.dex,*.apk,*.d,*.cache,*.ap_,.git,.gtignore
 
     set number
     set numberwidth=2
-    set ruler             " always show current positions at the bottom
+    set ruler
 
-    set cmdheight=1       " make command line 2 lines high
-    set showcmd           " show command I'm typing
-    set noshowmode          " let me know the mode I'm in
-    set report=0          " tell us when and how many lines changed
+    set cmdheight=1
+    set showcmd
+    set noshowmode
+    set report=0
     set shortmess=IaA
-    set magic             " allow pattern matching with special charactrers
+    set magic
 
     set sidescrolloff=1
     set scrolloff=1
     set nostartofline
 
     set wrap
-    set textwidth=79     
+    set textwidth=79
     set formatoptions=qn1c
     set colorcolumn=0
 
     set expandtab
     set softtabstop=4
     set tabstop=4
-    set shiftwidth=4      " amount of ws inserted or removed while indenting
+    set shiftwidth=4
     set shiftround
-    set autoindent        " automatically indent when adding a brackets
+    set autoindent
     set smartindent
     set cindent
 
     set nolist
     set fillchars=vert:\|
-    set listchars=tab:▸\ ,trail:·,eol:¬,precedes:<,extends:>,nbsp:.
+    set listchars=tab:┆\ ,trail:·,precedes:❮,extends:❯ ",eol:¬,nbsp:. "▸
     set showbreak=↳
     set linebreak
 
     set splitbelow
     set splitright
-    set wmh=0             " collapsed window
-    set stal=1            " show tabs bar only if there are tabs
+    set wmh=0
+    set stal=1
 
-    set colorcolumn=0     " do not show colored column
+    set colorcolumn=0
     set synmaxcol=800
 
-    set wrapscan     " continue searching at top when bottom is reached
+    set wrapscan
     set ignorecase
     set smartcase
-    set showmatch    " show matching brackets
-    set incsearch    " highlight as I type a something
+    set showmatch
+    set incsearch
     set hlsearch
-    set gdefault     " assume always global, /g
+    set gdefault
 
-" }}} 
+" }}}
 
-" STATUSLINE & TABLINE --------------------- {{{  
+" STATUSLINE & TABLINE --------------------- {{{
 
-    set laststatus=2  " always show status line
+    set laststatus=2
 
-    " utf chars: « » × ¬ ¶ ø · § ▸ ●  [%{toupper(mode())}]
+    " « » × ¬ ¶ ø · § ▸ ●  [%{toupper(mode())}]
 
     set stl=
     set stl+=\ %w%r%#StatuslineErr#%m%*
-    set stl+=\ %{DynamicFilePath(1)} " 1 means relative to home
+    set stl+=%{fugitive#head()}\ #%{bufnr('%')}\ %{DynamicFilePath()}
     set stl+=%=
     set stl+=%{strlen(&ft)?tolower(&ft).'\ ●\ ':''}
-    set stl+=%{winwidth(winnr())>80?(strlen(&fenc)?&fenc.',':'').&ff.'\ ●\ ':''}
-    set stl+=%1l:%02c\ ●\ %L:%P\ "   
+    set stl+=%{winwidth(winnr())>80?(strlen(&fenc)?&fenc.':':'').&ff.'\ ●\ ':''}
+    set stl+=%1l:%02c\ ●\ %L:%P\ "
 
     " tabline options
     set showtabline=1
 
-" }}} 
+" }}}
 
-" MAPPINGS --------------------------------- {{{  
+" MAPPINGS --------------------------------- {{{
 
     let mapleader=","
     imap jj <Esc>
@@ -251,6 +263,8 @@
 
     nnoremap <F5> :make<CR>
     inoremap <F5> <ESC>:make<CR>
+
+    inoremap <C-c> <C-x><C-o>
 
 " win
     nnoremap q: :q
@@ -278,8 +292,8 @@
     nnoremap <up> <nop>
     nnoremap <down> <nop>
     nnoremap <left> <nop>
-    nnoremap <right> <nop>
-    
+    nnoremap <right> <nop
+
 " clear searches
     nnoremap <silent> <leader><space> :noh<CR>
 
@@ -291,7 +305,6 @@
 
 " move across buffers
     nnoremap <silent> <leader>n :bn<CR>
-    nnoremap <silent> <space> :bn<CR>
     nnoremap <silent> <leader>m :bp<CR>
 
 " curly brackets are a nightmare on european keyboards
@@ -319,8 +332,8 @@
 " keep the cursor in place while joining lines
     nnoremap <leader>j mzJ`z
 
-" delete all ^M / trailing white-spaces
-    nnoremap S mz:%s/\s\+$//<CR>:let @/=''<CR>`z
+" delete all trailing white-spaces
+    nnoremap <silent> S mz:%s/\s\+$//<CR>:let @/=''<CR>`z
 
 " force saving files that require root permission
     cmap w!! w !sudo tee %
@@ -360,25 +373,17 @@
 " toggle options
     noremap <silent> <leader># :setlocal number!<CR>
 
-" jump to buffers
-    nnoremap <silent> <leader>1 :b1<CR>
-    nnoremap <silent> <leader>2 :b2<CR>
-    nnoremap <silent> <leader>3 :b3<CR>
-    nnoremap <silent> <leader>4 :b4<CR>
-    nnoremap <silent> <leader>5 :b5<CR>
-    nnoremap <silent> <leader>6 :b6<CR>
-    nnoremap <silent> <leader>7 :b7<CR>
-    nnoremap <silent> <leader>8 :b8<CR>
-    nnoremap <silent> <leader>9 :b9<CR>
+" format paragraph
+   vnoremap A gq
+   nnoremap A gqap
 
-" }}} 
+" }}}
 
-" PLUGINS ---------------------------------- {{{  
+" PLUGINS ---------------------------------- {{{
 
 " NERDTree
     let NERDTreeShowBookmarks = 1
     nnoremap <silent> <F1> :NERDTreeToggle<CR>
-    nnoremap <silent> <leader>e :NERDTreeToggle<CR>
 
 " Tagbar
     let g:tagbar_left = 0
@@ -386,6 +391,34 @@
     let g:tagbar_width = 35
     let g:tagbar_iconchars = ['▸', '¬']
     nnoremap <silent> <F2> :TagbarToggle<CR>
+
+    let g:tagbar_type_go = {
+        \ 'ctagstype' : 'go',
+        \ 'kinds'     : [
+            \ 'p:package',
+            \ 'i:imports:1',
+            \ 'c:constants',
+            \ 'v:variables',
+            \ 't:types',
+            \ 'n:interfaces',
+            \ 'w:fields',
+            \ 'e:embedded',
+            \ 'm:methods',
+            \ 'r:constructor',
+            \ 'f:functions'
+        \ ],
+        \ 'sro' : '.',
+        \ 'kind2scope' : {
+            \ 't' : 'ctype',
+            \ 'n' : 'ntype'
+        \ },
+        \ 'scope2kind' : {
+            \ 'ctype' : 't',
+            \ 'ntype' : 'n'
+        \ },
+        \ 'ctagsbin'  : 'gotags',
+        \ 'ctagsargs' : '-sort -silent'
+    \ }
 
 " Ctrlp
     let g:ctrlp_max_height = 20
@@ -412,17 +445,20 @@
 " IndentLine
     let g:indentLine_color_term = 250
     let g:indentLine_char = '┆'
+    let g:indentLine_fileTypeExclude = ['py', 'text', 'mkd', 'help']
 
-" Syntastic 
+" Syntastic
+    nnoremap <leader>e :Errors<CR>
+    nnoremap <leader>E :lcl<CR>
     let g:syntastic_error_symbol = '✕'
     let g:syntastic_warning_symbol = '⁕'
     let g:syntastic_style_error_symbol = '✕'
     let g:syntastic_style_warning_symbol = '⁕'
     highlight link SyntasticErrorSign WarningMsg
-    let g:syntastic_mode_map = { 
+    let g:syntastic_mode_map = {
         \ 'mode': 'active',
         \ 'active_filetypes': ['c', 'cpp', 'javascript', 'python'],
-        \ 'passive_filetypes': ['java'] 
+        \ 'passive_filetypes': ['java']
     \}
 
 " AutoComplPop
@@ -430,11 +466,22 @@
     let g:acp_behaviorKeywordLength = 1
 
 " Ack
-    nnoremap <leader>* :Ack 
-    
-" }}} 
+    nnoremap <leader>* :Ack
 
-" FUNCTIONS -------------------------------- {{{  
+" Go
+    nnoremap <leader>i :Import  
+
+" Ultisnips
+    let g:UltiSnipsSnippetDirectories = ["UltiSnips", "CustomSnips"]
+    let g:UltiSnipsDontReverseSearchPath = "1"
+
+" Tabularize
+" :Tabularize /=\zs
+"
+
+" }}}
+
+" FUNCTIONS -------------------------------- {{{
 
 " cycle through colorschemes
 " -----------------------------------------------
@@ -445,15 +492,15 @@
     endfu
 
     fu! SetColorscheme()
-        let colorschemes = [ 'Tomorrow', 'Tomorrow-Night']
+        let colorschemes = ['Tomorrow', 'Tomorrow-Night', 'solarized']
         let scheme = colorschemes[g:colorcount % len(colorschemes)]
 
-        if scheme == 'Tomorrow'
+        if scheme == 'Tomorrow' || scheme == 'Tomorrow-Block'
             let g:indentLine_color_gui = '#cccccc'
         else
             let g:indentLine_color_gui = '#333333'
-        endif 
-            
+        endif
+
         exec 'colorscheme ' . scheme
     endfu
 
@@ -461,13 +508,13 @@
     call SetColorscheme()
 
 " cycle through some colorschemes
-    nnoremap <silent> <F7> :call CycleColorschemes()<CR>    
+    nnoremap <silent> <F7> :call CycleColorschemes()<CR>
 
 
 " show a decent path on the statusline
 " -----------------------------------------------
 
-    fu! DynamicFilePath(relative_to_home)
+    fu! DynamicFilePath()
         let abs_path = expand('%:p')
 
         " Note that the width is not aware of the others components on the
@@ -490,13 +537,7 @@
             let max_chars = file_name_len
         endif
 
-        " if relative_to_home is set to true the path that match the $HOME is
-        " substitute with '~/'.
-        if a:relative_to_home
-            let path = substitute(abs_path, $HOME, '~', '')
-        else
-            let path = abs_path
-        endif
+        let path = substitute(abs_path, $HOME, '~', '')
 
         " cut the path if it is still too long.
         let str_len = strlen(path)
@@ -510,8 +551,28 @@
             let path = strpart(path, pos)
         endif
 
-        return "#" . bufnr('%') . " " . path
+        return path
     endfu
+
+
+" common utils
+" -----------------------------------------------
+
+python << END
+import vim, os
+
+def FindRoot(path, root_markers=None):
+    if root_markers is None:
+        root_markers = ['AndroidManifest.xml', '.git']
+
+    if path == os.path.sep:
+        return ''
+    elif any(m in os.listdir(path) for m in root_markers):
+        return path
+    else:
+        return FindRoot(os.path.split(path)[0], root_markers)
+END
+
 
 " android utils
 " -----------------------------------------------
@@ -519,23 +580,26 @@
 python << END
 import vim, os
 
-def android_project_root(path):
-    if path == os.path.sep:
-        return ''
-    elif 'AndroidManifest.xml' in os.listdir(path):
-        return path
-    else:
-        return android_project_root(os.path.split(path)[0])
-
 def OpenAndroidManifest():
-    root = android_project_root(vim.eval('getcwd()'))
+    root = FindRoot(vim.eval('getcwd()'), root_markers=['AndroidManifest.xml'])
     if root:
         vim.command("e {0}".format(root + '/AndroidManifest.xml'))
     else:
         print "No manifest file found"
+
+def InstallProject(): 
+    curr_dir = vim.eval('getcwd()')
+    root = FindRoot(curr_dir, root_markers=['AndroidManifest.xml'])
+    if root:
+        vim.command("cd {0}".format(root))
+        vim.command("!ant clean debug install")
+    else:
+        print "No project found"
+    vim.command("cd {0}".format(curr_dir))
 END
 
-nnoremap <leader>a :py OpenAndroidManifest()<CR> 
+nnoremap <leader>am :py OpenAndroidManifest()<CR>
+nnoremap <leader>ai :py InstallProject()<CR>
 
 
 " c utils
@@ -552,14 +616,14 @@ def GoToHeaderFile(maxdepth=10):
             break
 
         if header in files:
-            vim.command("e {0}".format(root + '/' + header)) 
+            vim.command("e {0}".format(root + '/' + header))
 
         depth += 1
 
     print "No header file found"
 END
 
-nnoremap <leader>h :py GoToHeaderFile()<CR> 
+nnoremap <leader>h :py GoToHeaderFile()<CR>
 
 " utilities
 " -----------------------------------------------
@@ -570,4 +634,4 @@ function! s:RemoveLastPathComponent()
     return substitute(getcmdline(), '\%(\\ \|[\\/]\@!\f\)\+[\\/]\=$\|.$', '', '')
 endfunction
 
-" }}} 
+" }}}
