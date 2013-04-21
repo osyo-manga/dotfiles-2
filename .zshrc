@@ -1,4 +1,6 @@
-[[ -s `brew --prefix`/etc/autojump.sh ]] && . `brew --prefix`/etc/autojump.sh
+
+# z 
+. `brew --prefix`/etc/profile.d/z.sh
 
 # initialize colors
 autoload -U colors
@@ -12,26 +14,30 @@ typeset -ga preexec_functions
 typeset -ga precmd_functions
 typeset -ga chpwd_functions
 
-# git status
-# thanks to https://github.com/olivierverdier/zsh-git-prompt
-#source ~/.zsh/git-prompt/zshrc.sh
-
 # custom prompt
 precmd() { print -rP "%{$fg[magenta]%}%n%{$reset_color%} at %{$fg[green]%}%m%{$reset_color%} in %{$fg_bold[blue]%}%~%{$reset_color%}" } 
-# $(git_super_status)" }
-PROMPT='%{$fg_bold[blue]%}▸%{$reset_color%} '   #%nd : show last n parts of the paths
+PROMPT='%{$fg_bold[blue]%}❯%{$reset_color%} '   #%nd : show last n parts of the paths ▸
 
-export EDITOR="/Applications/MacVim.app/Contents/MacOS/Vim"
 export GREP_OPTIONS="--color=auto"
-export PATH="${HOME}/bin:${PATH}"
-export PATH="${HOME}/bin/android-sdk/tools:${PATH}"
-export PATH="${HOME}/bin/android-sdk/platform-tools:${PATH}"
-export PATH="/usr/bin:${PATH}"
-export PATH="/usr/local/share/python:${PATH}"  
-export PATH="/usr/local/sbin:${PATH}"
-export PATH="/usr/local/bin:${PATH}"
-export PATH="/bin:${PATH}"
-export PATH="/usr/local/cuda/bin:${PATH}"
+export GOROOT=/usr/local/go
+export PATH=$GOROOT/bin:$PATH
+export GOPATH=$HOME/dropbox/dev/go:$GOPATH
+export GOPATH=$HOME/bin/go:$GOPATH
+export PATH=$HOME/bin/go/bin:$PATH
+export PATH=$HOME/bin:$PATH
+export PATH=$HOME/bin/android-sdk/tools:$PATH
+export PATH=$HOME/bin/android-sdk/platform-tools:$PATH
+export PATH=/usr/bin:$PATH
+export PATH=/usr/local/share/python:$PATH
+export PATH=/usr/local/sbin:$PATH
+export PATH=/usr/local/bin:$PATH
+export PATH=/bin:$PATH
+export PATH=/usr/local/cuda/bin:$PATH
+export PATH="/Applications/Racket v5.3.3/bin:${PATH}"
+
+# liquidprompt
+source ~/.liquidpromptrc
+source ~/.liquidprompt
 
 # autoenv
 source /usr/local/opt/autoenv/activate.sh
@@ -79,13 +85,14 @@ alias ta="tmux attach -t"
 alias tls="tmux ls"
 
 # vim
-alias vim="/Applications/MacVim.app/Contents/MacOS/Vim"
 alias vimdev='vim -u .vimrcdev'
 
 # generic aliases
 alias ..="cd .."
 alias c="clear"
-alias ls="ls -G"
+alias ls="ls -GC"
+alias lc="adb logcat"
+alias gopath="export GOPATH=${PWD}"
 
 v.usewx () {
     CURRENT_DIR=`pwd`
