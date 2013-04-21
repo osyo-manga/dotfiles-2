@@ -5,11 +5,10 @@
 "
 " Default GUI Colours
 let s:foreground = "4f4f4f"
-let s:background = "fafafa"
+let s:background = "f9f9f9"
 let s:lightblue = "b5d5ff"
 let s:selection = "d6d6d6"
 let s:line = "efefef"
-"let s:comment = "8e908c"
 let s:comment = "bbbbbb"
 let s:red = "c82829"
 let s:lightred = "d70000"
@@ -26,6 +25,7 @@ let s:cursor = "ff6155"
 let s:lightgrey = 'f7f7f7'
 let s:white = 'ffffff'
 let s:grey = '808080'
+let s:brown = "6d5e30"
 
 set background=light
 hi clear
@@ -273,6 +273,8 @@ if has("gui_running") || &t_Co == 88 || &t_Co == 256
 		call <SID>X("CursorColumn", "", s:line, "none")
 		call <SID>X("PMenu", s:white, s:lightblue, "none")
 		call <SID>X("PMenuSel", s:white, s:lightpurple, "none")
+		call <SID>X("PMenuSBar", s:grey, s:grey, "none")
+		call <SID>X("PMenuThumb", s:grey, s:window, "none")
 		call <SID>X("TabLineSel", s:background, s:lightblue, "none")
 		call <SID>X("TabLine", s:comment, s:window, "none")
 		call <SID>X("TabLineFill", s:window, s:window,"")
@@ -291,12 +293,12 @@ if has("gui_running") || &t_Co == 88 || &t_Co == 256
 	call <SID>X("Repeat", s:orange, "", "")
 	call <SID>X("Structure", s:purple, "", "")
 	call <SID>X("Function", s:blue, "", "")
-	call <SID>X("Constant", s:orange, "", "")
+	call <SID>X("Constant", s:grey, "", "")
 	call <SID>X("String", s:green, "", "")
 	call <SID>X("Special", s:foreground, "", "")
 	call <SID>X("PreProc", s:purple, "", "")
 	call <SID>X("Operator", s:aqua, "", "none")
-	call <SID>X("Type", s:blue, "", "none")
+	call <SID>X("Type", s:aqua, "", "none")
 	call <SID>X("Define", s:purple, "", "none")
 	call <SID>X("Include", s:blue, "", "")
 	call <SID>X("Exception", s:lightred, "", "")
@@ -341,14 +343,35 @@ if has("gui_running") || &t_Co == 88 || &t_Co == 256
 	call <SID>X("pythonSelf", s:grey, "", "")
 	call <SID>X("pythonDot", s:grey, "", "")
 
+	" GO Highlighting
+	call <SID>X("goDirective", s:lightred, "", "")
+	call <SID>X("goGoroutine", s:lightred, "", "")
+	call <SID>X("goDefer", s:brown, "", "")
+	call <SID>X("goString", s:green, "", "")
+	call <SID>X("goFunction", s:blue, "", "")
+	call <SID>X("goSpecial", s:lightred, "", "")
+	call <SID>X("goDeclaration", s:blue, "", "")
+	call <SID>X("goRepeat", s:orange, "", "")
+	call <SID>X("goConditional", s:purple, "", "bold")
+	call <SID>X("goStatement", s:blue, "", "")
+	call <SID>X("goConstants", s:grey, "", "")
+	call <SID>X("goType", s:aqua, "", "")
+	call <SID>X("goChannel", s:lightblue, "", "")
+	call <SID>X("goNumber", s:grey, "", "")
+
 	" Java Highlighting
 	call <SID>X("javaFuncDef", s:blue, "", "")
-	call <SID>X("javaExternal", s:orange, "", "")
+	call <SID>X("javaExternal", s:lightred, "", "")
 	call <SID>X("javaConditional", s:purple, "", "")
 	call <SID>X("javaRepeat", s:orange, "", "")
 	call <SID>X("javaExceptions", s:lightred, "", "")
 	call <SID>X("javaTypedef", s:grey, "", "")
 	call <SID>X("javaType", s:aqua, "", "")
+	call <SID>X("javaStorageClass", s:blue, "", "")
+	call <SID>X("javaOperator", s:lightred, "", "")
+	call <SID>X("javaStatement", s:purple, "", "")
+	call <SID>X("javaConstant", s:grey, "", "")
+	call <SID>X("javaGLType", s:grey, "", "")
 
     " reST highlighting
 	call <SID>X("rstEmphasis", s:aqua, "", "")    

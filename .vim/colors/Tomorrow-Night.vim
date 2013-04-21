@@ -368,6 +368,8 @@ if has("gui_running") || &t_Co == 88 || &t_Co == 256
 	call <SID>X("goTodo", s:yellow, "", "")
 	call <SID>X("goDeclType", s:blue, "", "")
 	call <SID>X("goBuiltins", s:purple, "", "")
+	call <SID>X("goRepeat", s:orange, "", "")
+	call <SID>X("goType", s:aqua, "", "")
 
 	" Lua Highlighting
 	call <SID>X("luaStatement", s:purple, "", "")
