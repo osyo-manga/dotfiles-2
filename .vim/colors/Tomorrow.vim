@@ -268,6 +268,7 @@ if has("gui_running") || &t_Co == 88 || &t_Co == 256
 	call <SID>X("SignColumn", "", s:background, "")
 	call <SID>X("SignErr", s:red, s:background, "")
 	call <SID>X("SignWrn", s:orange, s:background, "")
+	call <SID>X("Keyword", s:grey, s:background, "")
 	if version >= 700
 		call <SID>X("CursorLine", "", s:window, "none")
 		call <SID>X("CursorColumn", "", s:line, "none")
@@ -344,15 +345,15 @@ if has("gui_running") || &t_Co == 88 || &t_Co == 256
 	call <SID>X("pythonDot", s:grey, "", "")
 
 	" GO Highlighting
-	call <SID>X("goDirective", s:lightred, "", "")
+	call <SID>X("goDirective", s:orange, "", "")
 	call <SID>X("goGoroutine", s:lightred, "", "")
 	call <SID>X("goDefer", s:brown, "", "")
 	call <SID>X("goString", s:green, "", "")
-	call <SID>X("goFunction", s:blue, "", "")
+	call <SID>X("goFunction", s:blue, "", "bold")
 	call <SID>X("goSpecial", s:lightred, "", "")
 	call <SID>X("goDeclaration", s:blue, "", "")
 	call <SID>X("goRepeat", s:orange, "", "")
-	call <SID>X("goConditional", s:purple, "", "bold")
+	call <SID>X("goConditional", s:purple, "", "")
 	call <SID>X("goStatement", s:blue, "", "")
 	call <SID>X("goConstants", s:grey, "", "")
 	call <SID>X("goType", s:aqua, "", "")
