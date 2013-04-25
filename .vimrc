@@ -1,7 +1,7 @@
 "  -----------------------------------------------------
 "  vim configuration file
 "  Maintainer: Giacomo Comitti (github.com/gcmt)
-"  Last Change: 17 Apr 2013
+"  Last Change: 24 Apr 2013
 "  -----------------------------------------------------
 
 " BASICS & BUNDLES ------------------------- {{{
@@ -37,6 +37,7 @@
     Bundle 'scrooloose/syntastic'
     Bundle 'gcmt/taboo.vim'
     Bundle 'gcmt/ozzy.vim'
+    Bundle 'gcmt/psearch.vim'
     Bundle 'kien/ctrlp.vim'
     Bundle 'ap/vim-css-color'
     Bundle 'vim-scripts/AutoComplPop'
@@ -44,8 +45,9 @@
     Bundle 'Yggdroot/indentLine'
     Bundle 'airblade/vim-gitgutter'
     Bundle 'mileszs/ack.vim'
-    Bundle 'godlygeek/tabular'
     Bundle 'sjl/gundo.vim'
+    Bundle 'spolu/dwm.vim'
+    Bundle 'klen/python-mode'
 
     filetype plugin indent on
     syntax on
@@ -108,8 +110,8 @@
         au!
         au BufWritePost .vimrc             source $MYVIMRC
         au BufRead,BufNewFile *.haml       set ft=haml
-        au BufRead,BufNewFile *.md         set ft=mkd tw=72 ts=2 sw=2
-        au BufRead,BufNewFile *.markdown   set ft=mkd tw=72 ts=2 sw=2
+        au BufRead,BufNewFile *.md         set ft=mkd tw=79
+        au BufRead,BufNewFile *.markdown   set ft=mkd tw=79
         au BufRead,BufNewFile *.pde        set ft=java
         au BufRead,BufNewFile *.pl         set ft=prolog
 
@@ -118,13 +120,12 @@
         au Filetype htmldjango,htmljinja   set ft=html
         au Filetype html,xml               setlocal wrap
         au Filetype html,xml               let html_no_rendering = 1
-        au Filetype css                    setlocal omnifunc=csscomplete#CompleteCSS ts=2 sw=2
+        au Filetype css                    setlocal omnifunc=csscomplete#CompleteCSS
         au Filetype haml                   setlocal ts=2 sw=2 sts=0 tw=120
         au Filetype java                   setlocal omnifunc=javacomplete#Complete
         au Filetype vim                    setlocal foldmethod=marker
         au Filetype mkd                    setlocal spell
-        au Filetype go                     setlocal list noexpandtab ts=4 
-        au Filetype go                     setlocal omnifunc=gocomplete#Complete
+        au Filetype go                     setlocal list noexpandtab omnifunc=gocomplete#Complete ts=4 
         au BufWritePre *.go,*.py,*.cpp,*.java   exec "silent! normal S"
 
     augroup END
@@ -141,7 +142,7 @@
         set linespace=0
 
         if has("gui_macvim")
-            set guifont=Inconsolata-g:h13
+            set guifont=Source\ Code\ Pro:h13   "Inconsolata-g:h13
         elseif has('gui_win32')
             set guifont=Consolas:h10:cANSI
         else
@@ -159,7 +160,7 @@
 
     set virtualedit=onemore
     set title
-    set titlestring=%<[%{tolower(&ft)}]\ %F
+    set titlestring=%<%((⎇\ %{fugitive#head()})%)\ %F
     set titlelen=70
     set completeopt=longest,menuone
 
@@ -167,7 +168,7 @@
     set wildmode=longest,full
     set wildignore=*.dll,*.o,*.pyc,*.bak,*.exe,*$py.class,*.class,*.fasl
     set wildignore+=*.jpg,*.jpeg,*.png,*.gif,.DS_Store,.gitignore,.git,tags
-    set wildignore+=*.swp,*.dex,*.apk,*.d,*.cache,*.ap_,.git,.gtignore
+    set wildignore+=*.swp,*.dex,*.apk,*.d,*.cache,*.ap_,.env
 
     set number
     set numberwidth=2
@@ -178,7 +179,6 @@
     set noshowmode
     set report=0
     set shortmess=IaA
-    set magic
 
     set sidescrolloff=1
     set scrolloff=1
@@ -186,8 +186,9 @@
 
     set wrap
     set textwidth=79
-    set formatoptions=qn1c
     set colorcolumn=0
+    set synmaxcol=800
+    set formatoptions=qn1c
 
     set expandtab
     set softtabstop=4
@@ -200,7 +201,8 @@
 
     set nolist
     set fillchars=vert:\|
-    set listchars=tab:┆\ ,trail:·,precedes:❮,extends:❯ ",eol:¬,nbsp:. "▸
+    ",eol:¬,nbsp:. "┆▸
+    set listchars=tab:\|\ ,trail:·,precedes:❮,extends:❯
     set showbreak=↳
     set linebreak
 
@@ -209,9 +211,6 @@
     set wmh=0
     set stal=1
 
-    set colorcolumn=0
-    set synmaxcol=800
-
     set wrapscan
     set ignorecase
     set smartcase
@@ -219,6 +218,7 @@
     set incsearch
     set hlsearch
     set gdefault
+    set magic
 
 " }}}
 
@@ -230,7 +230,7 @@
 
     set stl=
     set stl+=\ %w%r%#StatuslineErr#%m%*
-    set stl+=%{fugitive#head()}\ #%{bufnr('%')}\ %{DynamicFilePath()}
+    set stl+=\ #%{bufnr('%')}\ %{DynamicFilePath()}
     set stl+=%=
     set stl+=%{strlen(&ft)?tolower(&ft).'\ ●\ ':''}
     set stl+=%{winwidth(winnr())>80?(strlen(&fenc)?&fenc.':':'').&ff.'\ ●\ ':''}
@@ -261,11 +261,6 @@
     vnoremap < <gv
     vnoremap > >gv
 
-    nnoremap <F5> :make<CR>
-    inoremap <F5> <ESC>:make<CR>
-
-    inoremap <C-c> <C-x><C-o>
-
 " win
     nnoremap q: :q
 
@@ -273,7 +268,7 @@
     nnoremap <silent> <leader>r :e $MYVIMRC<CR>
 
 " build tags for the current directory
-    nnoremap <F8> :!/usr/local/bin/ctags -R .<CR>
+    nnoremap <F3> :!/usr/local/bin/ctags -R .<CR>
 
 " kill window
     nnoremap <silent> Q :q<CR>
@@ -285,14 +280,14 @@
     nnoremap Y y$
 
 " unmap arrows on insert mode
-    inoremap <up> <nop>
-    inoremap <down> <nop>
-    inoremap <left> <nop>
-    inoremap <right> <nop>
-    nnoremap <up> <nop>
-    nnoremap <down> <nop>
-    nnoremap <left> <nop>
-    nnoremap <right> <nop
+    inoremap <up> gt
+    inoremap <down> gT
+    inoremap <left> :bp<CR>
+    inoremap <right> :bn<CR>
+    nnoremap <up> gt
+    nnoremap <down> gT
+    nnoremap <left> :bp<CR>
+    nnoremap <right> :bn<CR>
 
 " clear searches
     nnoremap <silent> <leader><space> :noh<CR>
@@ -300,7 +295,7 @@
 " select the current line excluding starting whitespaces
     nnoremap vv ^v$
 
-" alternate buffer (last modified buffer
+" alternate buffer (last modified/viewed buffer)
     nnoremap <space> <c-^>
 
 " move across buffers
@@ -320,11 +315,11 @@
 " open/close tabs
     nnoremap <leader>- :tabedit! %<CR>
 
-" easy windows moving
-    noremap <C-h> <C-w>h
-    noremap <C-j> <C-w>j
-    noremap <C-k> <C-w>k
-    noremap <C-l> <C-w>l
+ "easy windows moving
+    "noremap <C-h> <C-w>h
+    "noremap <C-j> <C-w>j
+    "noremap <C-k> <C-w>k
+    "noremap <C-l> <C-w>l
 
 " paste and indent
     nnoremap <silent> <leader>p p`[v`]=
@@ -333,13 +328,10 @@
     nnoremap <leader>j mzJ`z
 
 " delete all trailing white-spaces
-    nnoremap <silent> S mz:%s/\s\+$//<CR>:let @/=''<CR>`z
-
-" force saving files that require root permission
-    cmap w!! w !sudo tee %
+    nnoremap <silent> S mz:%s/\s\+$//<CR>:let @/=''<CR>`z 
 
 " select entire buffer
-    nnoremap va ggVG
+    nnoremap vg ggVG
 
 " don't move on *
     nnoremap * *<c-o>
@@ -348,14 +340,17 @@
     nnoremap n nzzzv
     nnoremap N Nzzzv
 
-" useful
+" shortcuts
     inoremap <c-a> <esc>A
     inoremap <c-e> <esc>I
-    " delete the previous word
     inoremap <c-s> <esc>diwi
 
 " braces match
     nnoremap <CR> %
+
+" format paragraph
+   vnoremap A gq
+   nnoremap A gqap
 
 " english typos
     iabbr lenght length
@@ -369,13 +364,6 @@
 " easy backquote and tilde
     inoremap <leader>' `
     inoremap <leader>? ~
-
-" toggle options
-    noremap <silent> <leader># :setlocal number!<CR>
-
-" format paragraph
-   vnoremap A gq
-   nnoremap A gqap
 
 " }}}
 
@@ -392,6 +380,7 @@
     let g:tagbar_iconchars = ['▸', '¬']
     nnoremap <silent> <F2> :TagbarToggle<CR>
 
+    " go tags support
     let g:tagbar_type_go = {
         \ 'ctagstype' : 'go',
         \ 'kinds'     : [
@@ -429,23 +418,19 @@
 " Ozzy
     let g:ozzy_ignore = ['tags', '.env', '.gitignore']
     let g:ozzy_track_only = ['/Users/giacomo/dropbox/', '/Users/giacomo/Dropbox/']
+    let g:ozzy_project_mode_flag = '-> '
+    let g:ozzy_global_mode_flag = '=> ' 
+    let g:ozzy_prompt = ''
     nnoremap <leader>o :Ozzy<CR>
+    nnoremap <leader>i :OzzyToggleMode<CR>
 
 " Psearch
     nnoremap <leader>s :PSearch<CR>
 
-" Tube
-    let g:tube_terminal = 'iterm'
-    let g:tube_enable_shortcuts = 1
-    let g:tube_aliases = {
-        \'andc': 'cd #{AndroidProjectRoot} && ant clean debug',
-        \'andi': 'cd #{AndroidProjectRoot} && ant clean debug install',
-    \}
-
 " IndentLine
     let g:indentLine_color_term = 250
-    let g:indentLine_char = '┆'
-    let g:indentLine_fileTypeExclude = ['py', 'text', 'mkd', 'help']
+    let g:indentLine_char = '￨'
+    let g:indentLine_fileType = ['java', 'go', 'c', 'cpp']
 
 " Syntastic
     nnoremap <leader>e :Errors<CR>
@@ -466,18 +451,21 @@
     let g:acp_behaviorKeywordLength = 1
 
 " Ack
-    nnoremap <leader>* :Ack
+    nnoremap <leader>a :Ack 
 
 " Go
-    nnoremap <leader>i :Import  
+    nnoremap <leader>u :Import 
 
 " Ultisnips
     let g:UltiSnipsSnippetDirectories = ["UltiSnips", "CustomSnips"]
-    let g:UltiSnipsDontReverseSearchPath = "1"
+
+" Python-mode
+    let g:pymode_folding = 1
+    let g:pymode_run = 0
+    let g:pymode_lint_write = 0
 
 " Tabularize
 " :Tabularize /=\zs
-"
 
 " }}}
 
@@ -492,7 +480,7 @@
     endfu
 
     fu! SetColorscheme()
-        let colorschemes = ['Tomorrow', 'Tomorrow-Night', 'solarized']
+        let colorschemes = ['Tomorrow', 'Tomorrow-Night']
         let scheme = colorschemes[g:colorcount % len(colorschemes)]
 
         if scheme == 'Tomorrow' || scheme == 'Tomorrow-Block'
@@ -515,11 +503,8 @@
 " -----------------------------------------------
 
     fu! DynamicFilePath()
-        let abs_path = expand('%:p')
+        let path = substitute(expand('%:p'), $HOME, '~', '')
 
-        " Note that the width is not aware of the others components on the
-        " status line, so  you substract 60 or wathever you think other
-        " components are occupying
         let k = 5
         let x = winwidth(winnr()) - 60
         let x = x < 0 ? 0 : x
@@ -537,9 +522,7 @@
             let max_chars = file_name_len
         endif
 
-        let path = substitute(abs_path, $HOME, '~', '')
-
-        " cut the path if it is still too long.
+        " cut the path if it's too long.
         let str_len = strlen(path)
         if str_len > max_chars
             let path = strpart(path, str_len - max_chars)
@@ -598,8 +581,8 @@ def InstallProject():
     vim.command("cd {0}".format(curr_dir))
 END
 
-nnoremap <leader>am :py OpenAndroidManifest()<CR>
-nnoremap <leader>ai :py InstallProject()<CR>
+"nnoremap <leader>am :py OpenAndroidManifest()<CR>
+"nnoremap <leader>ai :py InstallProject()<CR>
 
 
 " c utils
@@ -624,6 +607,7 @@ def GoToHeaderFile(maxdepth=10):
 END
 
 nnoremap <leader>h :py GoToHeaderFile()<CR>
+
 
 " utilities
 " -----------------------------------------------
