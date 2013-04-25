@@ -68,31 +68,19 @@ alias p.u="pip uninstall"
 # python aliases
 alias py="python"
 alias py3="python3"
-alias pip3="pip-3.2"
+alias pip3="pip-3.3"
 alias py.i="python setup.py install"
 alias py.d="python setup.py develop"
 alias ipy="ipython"
 
-# the silver searcher
-alias ag="ag --nocolor"
-
 # smash aliases
 alias s="smash --colors"
-
-# tmux aliases
-alias t="tmux"
-alias ta="tmux attach -t"
-alias tls="tmux ls"
-
-# vim
-alias vimdev='vim -u .vimrcdev'
 
 # generic aliases
 alias ..="cd .."
 alias c="clear"
 alias ls="ls -GC"
 alias lc="adb logcat"
-alias gopath="export GOPATH=${PWD}"
 
 v.usewx () {
     CURRENT_DIR=`pwd`
@@ -154,8 +142,6 @@ use_env() {
 
 # options
 
-bindkey -M viins 'jj' vi-cmd-mode
-
 autoload -U promptinit; promptinit
 
 export HISTSIZE=2000
@@ -169,4 +155,3 @@ setopt extendedglob
 
 bindkey -v
 zstyle :compinstall filename '/home/giacomo/.zshrc'
-
