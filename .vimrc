@@ -48,6 +48,7 @@
     Bundle 'sjl/gundo.vim'
     Bundle 'spolu/dwm.vim'
     Bundle 'klen/python-mode'
+    Bundle 'nsf/gocode'
 
     filetype plugin indent on
     syntax on
@@ -181,7 +182,7 @@
     set shortmess=IaA
 
     set sidescrolloff=1
-    set scrolloff=1
+    set scrolloff=0
     set nostartofline
 
     set wrap
@@ -245,24 +246,30 @@
 
     let mapleader=","
     imap jj <Esc>
-    nnoremap ; :
+
+" better jk
+    nmap j gj
+    nmap k gk
+
+" better indent
+    vnoremap < <gv
+    vnoremap > >gv
+
+" faster up and down
+    nnoremap J 3j
+    nnoremap K 3k
+    vnoremap J 3j
+    vnoremap K 3k
+
+" life saving
+    command! -nargs=* E exec 'e '.<q-args>
     command! W w
     command! Wa wa
     command! Wq wq
     command! Q q
     command! On on
-
-    nmap j gj
-    nmap k gk
-    nnoremap J 3j
-    nnoremap K 3k
-    vnoremap J 3j
-    vnoremap K 3k
-    vnoremap < <gv
-    vnoremap > >gv
-
-" win
     nnoremap q: :q
+    nnoremap ; :
 
 " edit the vimrc file
     nnoremap <silent> <leader>r :e $MYVIMRC<CR>
@@ -270,20 +277,20 @@
 " build tags for the current directory
     nnoremap <F3> :!/usr/local/bin/ctags -R .<CR>
 
-" kill window
+" kill the window
     nnoremap <silent> Q :q<CR>
 
-" delete buffer but the window
+" kill the buffer but the window
     nnoremap <leader>q :Kwbd<CR>
 
-" Y now behaves like other capitals
+" let Y behaves like other capitals
     nnoremap Y y$
 
-" unmap arrows on insert mode
-    inoremap <up> gt
-    inoremap <down> gT
-    inoremap <left> :bp<CR>
-    inoremap <right> :bn<CR>
+" use arrows for moving among tabs and buffers
+    inoremap <up> <ESC>gt
+    inoremap <down> <ESC>gT
+    inoremap <left> <ESC>:bp<CR>
+    inoremap <right> <ESC>:bn<CR>
     nnoremap <up> gt
     nnoremap <down> gT
     nnoremap <left> :bp<CR>
@@ -449,6 +456,7 @@
 " AutoComplPop
     let g:acp_ignorecaseOption = 0
     let g:acp_behaviorKeywordLength = 1
+    "let g:acp_behaviorKeywordIgnores = ["-", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
 
 " Ack
     nnoremap <leader>a :Ack 
@@ -461,6 +469,7 @@
 
 " Python-mode
     let g:pymode_folding = 1
+    let g:pymode_syntax = 0
     let g:pymode_run = 0
     let g:pymode_lint_write = 0
 
