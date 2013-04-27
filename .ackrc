@@ -1,0 +1,4 @@
+# .ackrc
+
+--type-set=tags:is:tags
+--notags
