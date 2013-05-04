@@ -9,7 +9,7 @@ let s:background = "f9f9f9"
 let s:lightblue = "b5d5ff"
 let s:selection = "d6d6d6"
 let s:line = "efefef"
-let s:comment = "bbbbbb"
+let s:comment = "cccccc"
 let s:red = "c82829"
 let s:lightred = "d70000"
 let s:orange = "f5871f"
@@ -249,9 +249,9 @@ if has("gui_running") || &t_Co == 88 || &t_Co == 256
 	call <SID>X("Search", "", s:search, "")
 	call <SID>X("IncSearch", s:search, s:foreground, "")
 	call <SID>X("TabLine", s:foreground, s:background, "reverse")
-	call <SID>X("StatusLine", s:window, s:blue, "reverse")
+	call <SID>X("StatusLine", s:blue, s:window, "none")
 	call <SID>X("StatusLineNC", s:window, s:comment, "reverse")
-	call <SID>X("VertSplit", s:lightblue, s:background, "none")
+	call <SID>X("VertSplit", s:blue, s:background, "none")
 	call <SID>X("Visual", "", s:lightblue, "")
 	call <SID>X("Directory", s:purple, "", "")
 	call <SID>X("ModeMsg", s:green, "", "")
@@ -264,7 +264,7 @@ if has("gui_running") || &t_Co == 88 || &t_Co == 256
 	call <SID>X("Cursor", s:background, s:cursor, "")
 	call <SID>X("ErrorMsg", s:cursor, s:background, "")
 	call <SID>X("WildMenu", s:blue, s:lightblue, "")
-	call <SID>X("StatuslineErr", s:cursor, s:window, "")
+    call <SID>X("StatuslineErr", s:cursor, s:window, "")
 	call <SID>X("SignColumn", "", s:background, "")
 	call <SID>X("SignErr", s:red, s:background, "")
 	call <SID>X("SignWrn", s:orange, s:background, "")
@@ -272,14 +272,14 @@ if has("gui_running") || &t_Co == 88 || &t_Co == 256
 	if version >= 700
 		call <SID>X("CursorLine", "", s:window, "none")
 		call <SID>X("CursorColumn", "", s:line, "none")
-		call <SID>X("PMenu", s:white, s:lightblue, "none")
-		call <SID>X("PMenuSel", s:white, s:lightpurple, "none")
+		call <SID>X("PMenu", s:blue, s:lightblue, "none")
+		call <SID>X("PMenuSel", s:lightblue, s:blue, "none")
 		call <SID>X("PMenuSBar", s:grey, s:grey, "none")
-		call <SID>X("PMenuThumb", s:grey, s:window, "none")
+		call <SID>X("PMenuThumb", s:grey, s:comment, "none")
+		call <SID>X("TabLine", s:grey, s:window, "none")
 		call <SID>X("TabLineSel", s:background, s:lightblue, "none")
-		call <SID>X("TabLine", s:comment, s:window, "none")
-		call <SID>X("TabLineFill", s:window, s:window,"")
-	end
+		call <SID>X("TabLineFill", s:comment, s:window,"none")
+    end
 	if version >= 703
 		call <SID>X("ColorColumn", "", s:line, "none")
 	end
