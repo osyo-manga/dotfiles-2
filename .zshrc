@@ -76,6 +76,9 @@ alias ipy="ipython"
 # smash aliases
 alias s="smash --colors"
 
+# android 
+alias andi="ant clean debug install"
+
 # generic aliases
 alias ..="cd .."
 alias c="clear"
