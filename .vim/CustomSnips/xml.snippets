@@ -3,3 +3,39 @@ snippet a-activity "activity tag"
     android:screenOrientation="portrait" 
     android:configChanges="orientation|keyboard|keyboardHidden" />
 endsnippet
+
+
+snippet a-sdk "<uses-sdk .. />"
+<uses-sdk 
+    android:minSdkVersion="7" 
+    android:targetSdkVersion="17" />
+endsnippet
+
+
+snippet a-perm "<uses-permission .. />"
+<uses-permission>
+endsnippet
+
+
+snippet a-feat "<uses-feature .. />"
+<uses-feature>
+endsnippet
+
+
+snippet a-lib "<uses-library .. />"
+<uses-library>
+endsnippet
+
+
+snippet a-screens "<support-screens .. />"
+<supports-screens 
+    android:normalScreens="true"
+    android:smallScreens="false"
+    android:xlargeScreens="true"
+    android:largeScreens="true" />
+endsnippet
+
+
+snippet a-s "<string name='..'>..</string>"
+<string name="${1}">${2}</string>
+endsnippet
