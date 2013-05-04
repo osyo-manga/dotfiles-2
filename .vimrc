@@ -1,7 +1,7 @@
 "  -----------------------------------------------------
 "  vim configuration file
 "  Maintainer: Giacomo Comitti (github.com/gcmt)
-"  Last Change: 24 Apr 2013
+"  Last Change: 5/8/2013
 "  -----------------------------------------------------
 
 " BASICS & BUNDLES ------------------------- {{{
@@ -17,6 +17,7 @@
     let $GOPATH = $HOME . '/bin/go:' . $GOPATH
 
     set rtp+=/usr/local/go/misc/vim
+    set rtp+=$HOME/dropbox/dev/vim-breeze
 
     set rtp+=~/.vim/bundle/vundle/
     call vundle#rc()
@@ -26,7 +27,7 @@
     Bundle 'tpope/vim-fugitive'
     Bundle 'tpope/vim-eunuch'
     Bundle 'tpope/vim-haml'
-    Bundle 'mattn/zencoding-vim'
+    "Bundle 'mattn/zencoding-vim'
     Bundle 'Lokaltog/vim-easymotion'
     Bundle 'sjl/vitality.vim'
     Bundle 'benmills/vimux'
@@ -37,10 +38,8 @@
     Bundle 'scrooloose/syntastic'
     Bundle 'gcmt/taboo.vim'
     Bundle 'gcmt/ozzy.vim'
-    Bundle 'gcmt/psearch.vim'
     Bundle 'kien/ctrlp.vim'
     Bundle 'ap/vim-css-color'
-    Bundle 'vim-scripts/AutoComplPop'
     Bundle 'beyondmarc/opengl.vim'
     Bundle 'Yggdroot/indentLine'
     Bundle 'airblade/vim-gitgutter'
@@ -48,7 +47,8 @@
     Bundle 'sjl/gundo.vim'
     Bundle 'spolu/dwm.vim'
     Bundle 'klen/python-mode'
-    Bundle 'nsf/gocode'
+    Bundle 'terryma/vim-multiple-cursors'
+    Bundle 'vim-scripts/AutoComplPop'
 
     filetype plugin indent on
     syntax on
@@ -64,7 +64,6 @@
     set notimeout
     set ttimeout
     set ttimeoutlen=0
-    set updatetime=10000
 
     set history=1000
     set undolevels=1000
@@ -81,7 +80,7 @@
     set hidden
     set tags=tags
     set backspace=2
-    set iskeyword=_,$,@,%,#,.,-,a-z,A-Z,48-57
+    set iskeyword=_,$,@,%,#,-,a-z,A-Z,48-57
 
     set autochdir
     set autoread
@@ -100,10 +99,11 @@
         au!
         au focusGained * echo ' Welcome back ' . $USER . "!"
         au guiEnter * set columns=80 lines=45
-        au vimResized * wincmd =
+        au vimResized * wincmd = | redraw
         " Restore cursor position
-        au BufWinEnter * if line("'\"") > 0 && line("'\"") <= line("$") |
-                         \ exe "normal g'\"" | endif
+        au BufWinEnter * if line("m`\"") > 0 && line("`\"") <= line("$") |
+                         \   exe "normal g`\"" |
+                         \ endif
     augroup END
 
     augroup ft_stuff
@@ -119,14 +119,14 @@
         au Filetype python                 setlocal tw=79
         au Filetype python                 setlocal omnifunc=pythoncomplete#Complete
         au Filetype htmldjango,htmljinja   set ft=html
-        au Filetype html,xml               setlocal wrap
-        au Filetype html,xml               let html_no_rendering = 1
+        au Filetype html,xml               setlocal nowrap
+        au Filetype html,xml               let g:html_no_rendering = 1
         au Filetype css                    setlocal omnifunc=csscomplete#CompleteCSS
         au Filetype haml                   setlocal ts=2 sw=2 sts=0 tw=120
         au Filetype java                   setlocal omnifunc=javacomplete#Complete
         au Filetype vim                    setlocal foldmethod=marker
         au Filetype mkd                    setlocal spell
-        au Filetype go                     setlocal list noexpandtab omnifunc=gocomplete#Complete ts=4 
+        au Filetype go                     setlocal list noexpandtab ts=4 
         au BufWritePre *.go,*.py,*.cpp,*.java   exec "silent! normal S"
 
     augroup END
@@ -159,10 +159,10 @@
     set mouse=a
     set mousehide
 
-    set virtualedit=onemore
+    set virtualedit=all
     set title
     set titlestring=%<%((⎇\ %{fugitive#head()})%)\ %F
-    set titlelen=70
+    set titlelen=100
     set completeopt=longest,menuone
 
     set wildmenu
@@ -200,10 +200,10 @@
     set smartindent
     set cindent
 
-    set nolist
+    set list
     set fillchars=vert:\|
     ",eol:¬,nbsp:. "┆▸
-    set listchars=tab:\|\ ,trail:·,precedes:❮,extends:❯
+    set listchars=tab:\|\ ,trail:·,precedes:<,extends:>
     set showbreak=↳
     set linebreak
 
@@ -231,7 +231,7 @@
 
     set stl=
     set stl+=\ %w%r%#StatuslineErr#%m%*
-    set stl+=\ #%{bufnr('%')}\ %{DynamicFilePath()}
+    set stl+=\ #%{bufnr('%')}\ %{NiceFilePath()}
     set stl+=%=
     set stl+=%{strlen(&ft)?tolower(&ft).'\ ●\ ':''}
     set stl+=%{winwidth(winnr())>80?(strlen(&fenc)?&fenc.':':'').&ff.'\ ●\ ':''}
@@ -262,14 +262,17 @@
     vnoremap K 3k
 
 " life saving
-    command! -nargs=* E exec 'e '.<q-args>
-    command! W w
+    command! -complete=file -nargs=* E exec 'e '.<q-args>
+    command! -bang -range=% -complete=file -nargs=* W <line1>,<line2>write<bang> <args>
     command! Wa wa
     command! Wq wq
-    command! Q q
+    command! -bang Q quit<bang>
     command! On on
     nnoremap q: :q
     nnoremap ; :
+
+" better mark jumping
+    nnoremap ' `
 
 " edit the vimrc file
     nnoremap <silent> <leader>r :e $MYVIMRC<CR>
@@ -320,13 +323,7 @@
     nnoremap <leader>W <C-w>s<C-w>l
 
 " open/close tabs
-    nnoremap <leader>- :tabedit! %<CR>
-
- "easy windows moving
-    "noremap <C-h> <C-w>h
-    "noremap <C-j> <C-w>j
-    "noremap <C-k> <C-w>k
-    "noremap <C-l> <C-w>l
+    nnoremap <leader>t :tabedit! %<CR>
 
 " paste and indent
     nnoremap <silent> <leader>p p`[v`]=
@@ -354,10 +351,6 @@
 
 " braces match
     nnoremap <CR> %
-
-" format paragraph
-   vnoremap A gq
-   nnoremap A gqap
 
 " english typos
     iabbr lenght length
@@ -424,20 +417,18 @@
 
 " Ozzy
     let g:ozzy_ignore = ['tags', '.env', '.gitignore']
-    let g:ozzy_track_only = ['/Users/giacomo/dropbox/', '/Users/giacomo/Dropbox/']
+    let g:ozzy_track_only = ['/Users/giacomo/dropbox']
     let g:ozzy_project_mode_flag = '-> '
-    let g:ozzy_global_mode_flag = '=> ' 
+    let g:ozzy_global_mode_flag = '>> ' 
     let g:ozzy_prompt = ''
+    nnoremap <leader>- :Ozzy<CR>
     nnoremap <leader>o :Ozzy<CR>
-    nnoremap <leader>i :OzzyToggleMode<CR>
-
-" Psearch
-    nnoremap <leader>s :PSearch<CR>
+    nnoremap <leader>_ :OzzyToggleMode<CR>
 
 " IndentLine
-    let g:indentLine_color_term = 250
+    let g:indentLine_color_term = 251
     let g:indentLine_char = '￨'
-    let g:indentLine_fileType = ['java', 'go', 'c', 'cpp']
+    let g:indentLine_fileType = ['html', 'xml', 'java', 'go', 'c', 'cpp']
 
 " Syntastic
     nnoremap <leader>e :Errors<CR>
@@ -453,16 +444,8 @@
         \ 'passive_filetypes': ['java']
     \}
 
-" AutoComplPop
-    let g:acp_ignorecaseOption = 0
-    let g:acp_behaviorKeywordLength = 1
-    "let g:acp_behaviorKeywordIgnores = ["-", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
-
 " Ack
-    nnoremap <leader>a :Ack 
-
-" Go
-    nnoremap <leader>u :Import 
+    nnoremap <leader>s :Ack 
 
 " Ultisnips
     let g:UltiSnipsSnippetDirectories = ["UltiSnips", "CustomSnips"]
@@ -472,9 +455,18 @@
     let g:pymode_syntax = 0
     let g:pymode_run = 0
     let g:pymode_lint_write = 0
+    let g:pymode_doc = 0
 
-" Tabularize
-" :Tabularize /=\zs
+" Multiple cursors
+    let g:multi_cursor_use_default_mapping = 0
+    let g:multi_cursor_next_key='<C-y>'
+    let g:multi_cursor_prev_key='<C-g>'
+    let g:multi_cursor_skip_key='<C-x>'
+    let g:multi_cursor_quit_key='<Esc>'
+
+" AutocomplPop
+    let g:acp_ignorecaseOption = 0
+    let g:acp_behaviorKeywordLength = 2
 
 " }}}
 
@@ -511,7 +503,7 @@
 " show a decent path on the statusline
 " -----------------------------------------------
 
-    fu! DynamicFilePath()
+    fu! NiceFilePath()
         let path = substitute(expand('%:p'), $HOME, '~', '')
 
         let k = 5
@@ -562,7 +554,7 @@ def FindRoot(path, root_markers=None):
     elif any(m in os.listdir(path) for m in root_markers):
         return path
     else:
-        return FindRoot(os.path.split(path)[0], root_markers)
+        return FindRoot(os.path.dirname(path), root_markers)
 END
 
 
@@ -572,12 +564,12 @@ END
 python << END
 import vim, os
 
-def OpenAndroidManifest():
+def OpenAndroidResource(res):
     root = FindRoot(vim.eval('getcwd()'), root_markers=['AndroidManifest.xml'])
     if root:
-        vim.command("e {0}".format(root + '/AndroidManifest.xml'))
+        vim.command("e {0}".format(os.path.join(root, res)))
     else:
-        print "No manifest file found"
+        print "No android project found"
 
 def InstallProject(): 
     curr_dir = vim.eval('getcwd()')
@@ -590,8 +582,10 @@ def InstallProject():
     vim.command("cd {0}".format(curr_dir))
 END
 
-"nnoremap <leader>am :py OpenAndroidManifest()<CR>
-"nnoremap <leader>ai :py InstallProject()<CR>
+nnoremap <leader>aa :py OpenAndroidResource("AndroidManifest.xml")<CR>
+nnoremap <leader>as :py OpenAndroidResource("res/values/strings.xml")<CR>
+nnoremap <leader>al :py OpenAndroidResource("res/layout/main.xml")<CR>
+nnoremap <leader>ai :py InstallProject()<CR>
 
 
 " c utils
