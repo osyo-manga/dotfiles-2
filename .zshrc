@@ -16,7 +16,7 @@ typeset -ga chpwd_functions
 
 # custom prompt
 precmd() { print -rP "%{$fg[magenta]%}%n%{$reset_color%} at %{$fg[green]%}%m%{$reset_color%} in %{$fg_bold[blue]%}%~%{$reset_color%}" } 
-PROMPT='%{$fg_bold[blue]%}❯%{$reset_color%} '   #%nd : show last n parts of the paths ▸
+PROMPT='%{$fg_bold[blue]%}▸%{$reset_color%} '   #%nd : show last n parts of the paths ▸
 
 export GREP_OPTIONS="--color=auto"
 export GOROOT=/usr/local/go
@@ -34,10 +34,6 @@ export PATH=/usr/local/bin:$PATH
 export PATH=/bin:$PATH
 export PATH=/usr/local/cuda/bin:$PATH
 export PATH="/Applications/Racket v5.3.3/bin:${PATH}"
-
-# liquidprompt
-source ~/.liquidpromptrc
-source ~/.liquidprompt
 
 # autoenv
 source /usr/local/opt/autoenv/activate.sh
