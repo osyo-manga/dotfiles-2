@@ -10,9 +10,31 @@ snippet { "close bracket style 2"
 {
     $0
 }
+endsnippet
 
 
-endsnippetsnippet beg "glBegin(); .. glEnd();" !b
+snippet glutinit "glut initialization"
+glutInit(&argc, argv);
+glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
+glutInitWindowSize(400, 400);
+glutCreateWindow("${1}");
+${2}
+endsnippet
+
+
+snippet glmod "glMatrixMode(GL_MODELVIEW)"
+glMatrixMode(GL_MODELVIEW);
+glLoadIdentity();
+endsnippet
+
+
+snippet glproj "glMatrixMode(GL_PROJECTION)"
+glMatrixMode(GL_PROJECTION);
+glLoadIdentity();
+endsnippet
+
+
+snippet beg "glBegin(); .. glEnd();" !b
 glBegin(${1});
     ${2}
 glEnd();
