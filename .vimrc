@@ -17,7 +17,6 @@
     let $GOPATH = $HOME . '/bin/go:' . $GOPATH
 
     set rtp+=/usr/local/go/misc/vim
-    set rtp+=$HOME/dropbox/dev/vim-breeze
 
     set rtp+=~/.vim/bundle/vundle/
     call vundle#rc()
@@ -27,10 +26,8 @@
     Bundle 'tpope/vim-fugitive'
     Bundle 'tpope/vim-eunuch'
     Bundle 'tpope/vim-haml'
-    "Bundle 'mattn/zencoding-vim'
     Bundle 'Lokaltog/vim-easymotion'
     Bundle 'sjl/vitality.vim'
-    Bundle 'benmills/vimux'
     Bundle 'majutsushi/tagbar'
     Bundle 'scrooloose/nerdtree'
     Bundle 'scrooloose/nerdcommenter'
@@ -38,14 +35,13 @@
     Bundle 'scrooloose/syntastic'
     Bundle 'gcmt/taboo.vim'
     Bundle 'gcmt/ozzy.vim'
-    Bundle 'kien/ctrlp.vim'
+    Bundle 'gcmt/breeze.vim'
     Bundle 'ap/vim-css-color'
     Bundle 'beyondmarc/opengl.vim'
     Bundle 'Yggdroot/indentLine'
     Bundle 'airblade/vim-gitgutter'
     Bundle 'mileszs/ack.vim'
     Bundle 'sjl/gundo.vim'
-    Bundle 'spolu/dwm.vim'
     Bundle 'klen/python-mode'
     Bundle 'terryma/vim-multiple-cursors'
     Bundle 'vim-scripts/AutoComplPop'
@@ -57,6 +53,7 @@
 
 " GENERAL OPTIONS -------------------------- {{{
 
+    set sessionoptions+=tabpages,globals
     set viminfo=!,'100,\"100,:20,<50,s10,h,n~/.viminfo
     set encoding=utf-8
 
@@ -97,13 +94,10 @@
 
     augroup vim_behavior
         au!
-        au focusGained * echo ' Welcome back ' . $USER . "!"
-        au guiEnter * set columns=80 lines=45
-        au vimResized * wincmd = | redraw
-        " Restore cursor position
+        au FocusGained * echo ' Welcome back ' . $USER . "!"
+        au VimResized * wincmd = | redraw
         au BufWinEnter * if line("m`\"") > 0 && line("`\"") <= line("$") |
-                         \   exe "normal g`\"" |
-                         \ endif
+                         \   exe "normal g`\"" | endif
     augroup END
 
     augroup ft_stuff
@@ -138,7 +132,6 @@
     colorscheme Tomorrow
     set background=light
     if has("gui_running")
-
         set guioptions=mc   " add 'e' for macvim style tabs
         set linespace=0
 
@@ -149,7 +142,6 @@
         else
             set guifont=inconsolata-g\ Medium\ 10
         endif
-
     endif
 
     set t_Co=256
@@ -202,7 +194,6 @@
 
     set list
     set fillchars=vert:\|
-    ",eol:¬,nbsp:. "┆▸
     set listchars=tab:\|\ ,trail:·,precedes:<,extends:>
     set showbreak=↳
     set linebreak
@@ -227,18 +218,13 @@
 
     set laststatus=2
 
-    " « » × ¬ ¶ ø · § ▸ ●  [%{toupper(mode())}]
-
     set stl=
-    set stl+=\ %w%r%#StatuslineErr#%m%*
-    set stl+=\ #%{bufnr('%')}\ %{NiceFilePath()}
+    set stl+=\ %w%r%#StlErr#%m%*%h
+    set stl+=\ %((⎇\ %{fugitive#head()})\ %)%{NiceFilePath(0)}%#StlBold#%t%*
     set stl+=%=
     set stl+=%{strlen(&ft)?tolower(&ft).'\ ●\ ':''}
     set stl+=%{winwidth(winnr())>80?(strlen(&fenc)?&fenc.':':'').&ff.'\ ●\ ':''}
-    set stl+=%1l:%02c\ ●\ %L:%P\ "
-
-    " tabline options
-    set showtabline=1
+    set stl+=%1l:%02v\ ●\ %L:%P\ "
 
 " }}}
 
@@ -278,7 +264,7 @@
     nnoremap <silent> <leader>r :e $MYVIMRC<CR>
 
 " build tags for the current directory
-    nnoremap <F3> :!/usr/local/bin/ctags -R .<CR>
+    nnoremap <F4> :!/usr/local/bin/ctags -R .<CR>
 
 " kill the window
     nnoremap <silent> Q :q<CR>
@@ -349,9 +335,6 @@
     inoremap <c-e> <esc>I
     inoremap <c-s> <esc>diwi
 
-" braces match
-    nnoremap <CR> %
-
 " english typos
     iabbr lenght length
     iabbr wiht with
@@ -369,6 +352,10 @@
 
 " PLUGINS ---------------------------------- {{{
 
+
+" Gundo
+    nnoremap <F3> :GundoToggle<CR><CR>
+
 " NERDTree
     let NERDTreeShowBookmarks = 1
     nnoremap <silent> <F1> :NERDTreeToggle<CR>
@@ -379,8 +366,6 @@
     let g:tagbar_width = 35
     let g:tagbar_iconchars = ['▸', '¬']
     nnoremap <silent> <F2> :TagbarToggle<CR>
-
-    " go tags support
     let g:tagbar_type_go = {
         \ 'ctagstype' : 'go',
         \ 'kinds'     : [
@@ -416,11 +401,12 @@
     nnoremap <silent> <leader>b :CtrlPBuffer<CR>
 
 " Ozzy
-    let g:ozzy_ignore = ['tags', '.env', '.gitignore']
-    let g:ozzy_track_only = ['/Users/giacomo/dropbox']
+    let g:ozzy_ignore = ['tags', '.env', '.gitignore', 'Makefile']
+    let g:ozzy_track_only = ['/Users/giacomo']
     let g:ozzy_project_mode_flag = '-> '
     let g:ozzy_global_mode_flag = '>> ' 
     let g:ozzy_prompt = ''
+    let g:ozzy_hl_last_dir = 0
     nnoremap <leader>- :Ozzy<CR>
     nnoremap <leader>o :Ozzy<CR>
     nnoremap <leader>_ :OzzyToggleMode<CR>
@@ -432,7 +418,7 @@
 
 " Syntastic
     nnoremap <leader>e :Errors<CR>
-    nnoremap <leader>E :lcl<CR>
+    "nnoremap <leader>E :lcl<CR>
     let g:syntastic_error_symbol = '✕'
     let g:syntastic_warning_symbol = '⁕'
     let g:syntastic_style_error_symbol = '✕'
@@ -472,7 +458,7 @@
 
 " FUNCTIONS -------------------------------- {{{
 
-" cycle through colorschemes
+" cycle colorschemes
 " -----------------------------------------------
 
     fu! CycleColorschemes()
@@ -484,7 +470,7 @@
         let colorschemes = ['Tomorrow', 'Tomorrow-Night']
         let scheme = colorschemes[g:colorcount % len(colorschemes)]
 
-        if scheme == 'Tomorrow' || scheme == 'Tomorrow-Block'
+        if scheme == 'Tomorrow'
             let g:indentLine_color_gui = '#cccccc'
         else
             let g:indentLine_color_gui = '#333333'
@@ -503,18 +489,25 @@
 " show a decent path on the statusline
 " -----------------------------------------------
 
-    fu! NiceFilePath()
-        let path = substitute(expand('%:p'), $HOME, '~', '')
+    fu! NiceFilePath(full)
+        if !strlen(expand('%'))
+            return ''
+        endif
+
+        if a:full
+            let path = substitute(expand('%:p'), $HOME, '~', '')
+        else
+            let path = substitute(expand('%:p:h'), $HOME, '~', '')
+
+        let fname = expand('%:t')
 
         let k = 5
-        let x = winwidth(winnr()) - 60
+        let x = winwidth(winnr()) - 40
         let x = x < 0 ? 0 : x
         let max_chars = float2nr(k * sqrt(x))
 
-        " show only file name if the current buffer is an help document
-        let fname = expand('%:t')
         if &buftype == 'help' || &buftype == 'nofile'
-            return fname
+            return ''
         endif
 
         " be sure the file name is shown entirely
@@ -524,7 +517,7 @@
         endif
 
         " cut the path if it's too long.
-        let str_len = strlen(path)
+        let str_len = strlen(path) + strlen(fname)
         if str_len > max_chars
             let path = strpart(path, str_len - max_chars)
         endif
@@ -535,9 +528,12 @@
             let path = strpart(path, pos)
         endif
 
-        return path
-    endfu
+        if path[0] == '/'
+            let path = strpart(path, 1)
+        endif
 
+        return strlen(path)?path.'/':''  
+    endfu
 
 " common utils
 " -----------------------------------------------
@@ -555,38 +551,20 @@ def FindRoot(path, root_markers=None):
         return path
     else:
         return FindRoot(os.path.dirname(path), root_markers)
+
+def Ask(prompt, yes=None, no=None):
+    if yes is None:
+        yes = ["y", "Y", "yes", "YES", "Yes", "sure", "si"]
+    if no is None:
+        no = ["N", "n", "no", "NO", "No"]
+
+    while True:
+        r = vim.eval('input("{}")'.format(prompt))
+        if r in yes:
+            return True 
+        elif r in no:
+            return False 
 END
-
-
-" android utils
-" -----------------------------------------------
-
-python << END
-import vim, os
-
-def OpenAndroidResource(res):
-    root = FindRoot(vim.eval('getcwd()'), root_markers=['AndroidManifest.xml'])
-    if root:
-        vim.command("e {0}".format(os.path.join(root, res)))
-    else:
-        print "No android project found"
-
-def InstallProject(): 
-    curr_dir = vim.eval('getcwd()')
-    root = FindRoot(curr_dir, root_markers=['AndroidManifest.xml'])
-    if root:
-        vim.command("cd {0}".format(root))
-        vim.command("!ant clean debug install")
-    else:
-        print "No project found"
-    vim.command("cd {0}".format(curr_dir))
-END
-
-nnoremap <leader>aa :py OpenAndroidResource("AndroidManifest.xml")<CR>
-nnoremap <leader>as :py OpenAndroidResource("res/values/strings.xml")<CR>
-nnoremap <leader>al :py OpenAndroidResource("res/layout/main.xml")<CR>
-nnoremap <leader>ai :py InstallProject()<CR>
-
 
 " c utils
 " -----------------------------------------------
@@ -602,17 +580,40 @@ def GoToHeaderFile(maxdepth=10):
             break
 
         if header in files:
-            vim.command("e {0}".format(root + '/' + header))
+            vim.command("e {0}".format(
+                os.path.join(root, header).replace(" ", "\ ")))
+            return
 
         depth += 1
 
-    print "No header file found"
+    if Ask("The header file does not exists, do you want to create it? "):
+        vim.command("e {}".format(header))
+        vim.command("redraw")
+
+def GoToMakefile(maxdepth=10):
+    depth = 0
+    for root, dirs, files in os.walk(vim.eval('getcwd()')):
+        if depth >= maxdepth:
+            break
+
+        if "Makefile" in files:
+            vim.command("e {0}".format(
+                os.path.join(root, "Makefile").replace(" ", "\ ")))
+            return
+
+        depth += 1
+    
+    if Ask("Makefile does not exists, do you want to create it? "):
+        vim.command("e Makefile")
+        vim.command("redraw")
+
 END
 
+nnoremap <leader>k :py GoToMakefile()<CR>
 nnoremap <leader>h :py GoToHeaderFile()<CR>
 
 
-" utilities
+" misc utils
 " -----------------------------------------------
 
 " delete las path component in the command line
