@@ -33,7 +33,7 @@ export PATH=/usr/local/sbin:$PATH
 export PATH=/usr/local/bin:$PATH
 export PATH=/bin:$PATH
 export PATH=/usr/local/cuda/bin:$PATH
-export PATH="/Applications/Racket v5.3.3/bin:${PATH}"
+export PATH="/Applications/Racket v5.3.4/bin:${PATH}"
 
 # autoenv
 source /usr/local/opt/autoenv/activate.sh
@@ -68,6 +68,7 @@ alias pip3="pip-3.3"
 alias py.i="python setup.py install"
 alias py.d="python setup.py develop"
 alias ipy="ipython"
+alias ipynb="ipython notebook --pylab inline"
 
 # smash aliases
 alias s="smash --colors"
