@@ -91,8 +91,7 @@
         au!
         au FocusGained * echo ' Welcome back ' . $USER . "!"
         au VimResized * wincmd = | redraw
-        au BufWinEnter * if line("m`\"") > 0 && line("`\"") <= line("$") |
-                         \   exe "normal g`\"" | endif
+        au BufWinEnter * call RestoreCursorPosition()
     augroup END
 
     augroup ft_stuff
@@ -104,6 +103,7 @@
         au BufRead,BufNewFile *.markdown   set ft=mkd tw=79
         au BufRead,BufNewFile *.pde        set ft=java
         au BufRead,BufNewFile *.pl         set ft=prolog
+        au BufWritePre *.go,*.py,*.cpp,*.java exec "silent! normal S"
 
         au Filetype python                 setlocal tw=79
         au Filetype python                 setlocal omnifunc=pythoncomplete#Complete
@@ -116,7 +116,6 @@
         au Filetype vim                    setlocal foldmethod=marker
         au Filetype mkd                    setlocal spell
         au Filetype go                     setlocal list noexpandtab ts=4 
-        au BufWritePre *.go,*.py,*.cpp,*.java   exec "silent! normal S"
 
     augroup END
 
@@ -344,34 +343,17 @@
 " Tagbar
     let g:tagbar_left = 0
     let g:tagbar_sort = 0
-    let g:tagbar_width = 35
+    let g:tagbar_width = 40
     let g:tagbar_iconchars = ['▸', '¬']
     nnoremap <silent> <F2> :TagbarToggle<CR>
     let g:tagbar_type_go = {
         \ 'ctagstype' : 'go',
-        \ 'kinds'     : [
-            \ 'p:package',
-            \ 'i:imports:1',
-            \ 'c:constants',
-            \ 'v:variables',
-            \ 't:types',
-            \ 'n:interfaces',
-            \ 'w:fields',
-            \ 'e:embedded',
-            \ 'm:methods',
-            \ 'r:constructor',
-            \ 'f:functions'
-        \ ],
+        \ 'kinds' : ['p:package','i:imports:1','c:constants','v:variables','t:types','n:interfaces',
+                    \ 'w:fields','e:embedded','m:methods','r:constructor','f:functions'],
         \ 'sro' : '.',
-        \ 'kind2scope' : {
-            \ 't' : 'ctype',
-            \ 'n' : 'ntype'
-        \ },
-        \ 'scope2kind' : {
-            \ 'ctype' : 't',
-            \ 'ntype' : 'n'
-        \ },
-        \ 'ctagsbin'  : 'gotags',
+        \ 'kind2scope' : {'t' : 'ctype', 'n' : 'ntype'},
+        \ 'scope2kind' : {'ctype' : 't', 'ntype' : 'n'},
+        \ 'ctagsbin' : 'gotags',
         \ 'ctagsargs' : '-sort -silent'
     \ }
 
@@ -383,7 +365,6 @@
     let g:ozzy_prompt = ''
     let g:ozzy_hl_last_dir = 0
     nnoremap <leader>- :Ozzy<CR>
-    nnoremap <leader>o :Ozzy<CR>
     nnoremap <leader>_ :OzzyToggleMode<CR>
 
 " IndentLine
@@ -403,7 +384,7 @@
         \ 'mode': 'active',
         \ 'active_filetypes': ['c', 'cpp', 'javascript', 'python'],
         \ 'passive_filetypes': ['java']
-    \}
+    \ }
 
 " Ack
     nnoremap <leader>s :Ack 
@@ -507,7 +488,7 @@
             let path = strpart(path, 1)
         endif
 
-        return strlen(path)?path.'/':''  
+        return strlen(path ) ? path . '/' : ''  
     endfu
 
 " common utils
@@ -595,6 +576,12 @@ nnoremap <leader>h :py GoToHeaderFile()<CR>
 cnoremap <C-t> <C-\>e(<SID>RemoveLastPathComponent())<CR>
 function! s:RemoveLastPathComponent()
     return substitute(getcmdline(), '\%(\\ \|[\\/]\@!\f\)\+[\\/]\=$\|.$', '', '')
+endfunction
+
+function! RestoreCursorPosition()
+    if line("m`\"") > 0 && line("`\"") <= line("$")
+        exe "normal g`\""
+    endif
 endfunction
 
 " }}}
