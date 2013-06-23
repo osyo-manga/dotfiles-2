@@ -83,6 +83,13 @@ glEnd();
 endsnippet
 
 
+snippet begq "glBegin(GL_QUADS); .. glEnd();" !b
+glBegin(GL_QUADS);
+    $0
+glEnd();
+endsnippet
+
+
 snippet v2 "glVertex2f(..)"
 glVertex2f(${1});${2}
 endsnippet
@@ -95,4 +102,34 @@ endsnippet
 
 snippet glc "glColor3f(..)"
 glColor3f(${1});${2}
+endsnippet
+
+
+snippet glantialiasing "antialiasing"
+glEnable(GL_LINE_SMOOTH);
+glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+
+glEnable(GL_POINT_SMOOTH);
+glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+
+glEnable(GL_BLEND);
+glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+endsnippet
+
+
+snippet glaliasline "antialiasing for lines"
+glEnable(GL_LINE_SMOOTH);
+glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+
+glEnable(GL_BLEND);
+glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+endsnippet
+
+
+snippet glaliaspoint "antialiasing for points"
+glEnable(GL_POINT_SMOOTH);
+glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+
+glEnable(GL_BLEND);
+glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 endsnippet
