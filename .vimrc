@@ -1,7 +1,7 @@
 "  -----------------------------------------------------
 "  vim configuration file
 "  Maintainer: Giacomo Comitti (github.com/gcmt)
-"  Last Change: 5/8/2013
+"  Last Change: 6/23/2013
 "  -----------------------------------------------------
 
 " BASICS & BUNDLES ------------------------- {{{
@@ -36,6 +36,7 @@
     Bundle 'gcmt/taboo.vim'
     Bundle 'gcmt/ozzy.vim'
     Bundle 'gcmt/breeze.vim'
+    Bundle 'gcmt/psearch.vim'
     Bundle 'ap/vim-css-color'
     Bundle 'beyondmarc/opengl.vim'
     Bundle 'Yggdroot/indentLine'
@@ -56,32 +57,26 @@
     set sessionoptions+=tabpages,globals
     set viminfo=!,'100,\"100,:20,<50,s10,h,n~/.viminfo
     set encoding=utf-8
-
     set ttyfast
     set notimeout
     set ttimeout
     set ttimeoutlen=0
-
     set history=1000
     set undolevels=1000
     set undofile
     set undodir=~/.vim/undofiles
     set undoreload=10000
-
     set noswapfile
     set nobackup
     set noautowrite
     set noerrorbells vb t_vb=
     set nomodeline
-
     set hidden
     set tags=tags
     set backspace=2
     set iskeyword=_,$,@,%,#,-,a-z,A-Z,48-57
-
     set autochdir
     set autoread
-
     set shell=/usr/local/bin/zsh
 
     if $TMUX == ''
@@ -131,12 +126,13 @@
 
     colorscheme Tomorrow
     set background=light
+
     if has("gui_running")
-        set guioptions=mc   " add 'e' for macvim style tabs
+        set guioptions=mc  " add 'e' for macvim style tabs
         set linespace=0
 
         if has("gui_macvim")
-            set guifont=Source\ Code\ Pro:h13   "Inconsolata-g:h13
+            set guifont=Source\ Code\ Pro:h13
         elseif has('gui_win32')
             set guifont=Consolas:h10:cANSI
         else
@@ -146,43 +142,35 @@
 
     set t_Co=256
     set nolazyredraw
-
     set mousemodel=popup
     set mouse=a
     set mousehide
-
     set virtualedit=all
     set title
     set titlestring=%<%((⎇\ %{fugitive#head()})%)\ %F
     set titlelen=100
     set completeopt=longest,menuone
-
     set wildmenu
     set wildmode=longest,full
     set wildignore=*.dll,*.o,*.pyc,*.bak,*.exe,*$py.class,*.class,*.fasl
     set wildignore+=*.jpg,*.jpeg,*.png,*.gif,.DS_Store,.gitignore,.git,tags
     set wildignore+=*.swp,*.dex,*.apk,*.d,*.cache,*.ap_,.env
-
     set number
     set numberwidth=2
     set ruler
-
     set cmdheight=1
     set showcmd
     set noshowmode
     set report=0
     set shortmess=IaA
-
     set sidescrolloff=1
     set scrolloff=0
     set nostartofline
-
     set wrap
     set textwidth=79
-    set colorcolumn=0
+    set colorcolumn=
     set synmaxcol=800
     set formatoptions=qn1c
-
     set expandtab
     set softtabstop=4
     set tabstop=4
@@ -191,18 +179,15 @@
     set autoindent
     set smartindent
     set cindent
-
-    set list
+    set nolist
     set fillchars=vert:\|
     set listchars=tab:\|\ ,trail:·,precedes:<,extends:>
     set showbreak=↳
     set linebreak
-
     set splitbelow
     set splitright
     set wmh=0
     set stal=1
-
     set wrapscan
     set ignorecase
     set smartcase
@@ -224,7 +209,8 @@
     set stl+=%=
     set stl+=%{strlen(&ft)?tolower(&ft).'\ ●\ ':''}
     set stl+=%{winwidth(winnr())>80?(strlen(&fenc)?&fenc.':':'').&ff.'\ ●\ ':''}
-    set stl+=%1l:%02v\ ●\ %L:%P\ "
+    set stl+=%1l:%02v\ ●\ %L:%P
+    set stl+=\ %#StlErr#%{SyntasticStatuslineFlag()}%*\ 
 
 " }}}
 
@@ -233,21 +219,19 @@
     let mapleader=","
     imap jj <Esc>
 
-" better jk
+    nnoremap ' `
+
     nmap j gj
     nmap k gk
 
-" better indent
     vnoremap < <gv
     vnoremap > >gv
 
-" faster up and down
     nnoremap J 3j
     nnoremap K 3k
     vnoremap J 3j
     vnoremap K 3k
 
-" life saving
     command! -complete=file -nargs=* E exec 'e '.<q-args>
     command! -bang -range=% -complete=file -nargs=* W <line1>,<line2>write<bang> <args>
     command! Wa wa
@@ -256,9 +240,7 @@
     command! On on
     nnoremap q: :q
     nnoremap ; :
-
-" better mark jumping
-    nnoremap ' `
+    command! Mes mes
 
 " edit the vimrc file
     nnoremap <silent> <leader>r :e $MYVIMRC<CR>
@@ -335,7 +317,7 @@
     inoremap <c-e> <esc>I
     inoremap <c-s> <esc>diwi
 
-" english typos
+" typos
     iabbr lenght length
     iabbr wiht with
     iabbr prinln println
@@ -352,9 +334,8 @@
 
 " PLUGINS ---------------------------------- {{{
 
-
 " Gundo
-    nnoremap <F3> :GundoToggle<CR><CR>
+    nnoremap <silent> <F3> :GundoToggle<CR>
 
 " NERDTree
     let NERDTreeShowBookmarks = 1
@@ -394,14 +375,8 @@
         \ 'ctagsargs' : '-sort -silent'
     \ }
 
-" Ctrlp
-    let g:ctrlp_max_height = 20
-    let g:ctrlp_working_path_mode = 'rc'
-    let g:ctrlp_root_markers = ['AndroidManifest.xml']
-    nnoremap <silent> <leader>b :CtrlPBuffer<CR>
-
 " Ozzy
-    let g:ozzy_ignore = ['tags', '.env', '.gitignore', 'Makefile']
+    let g:ozzy_ignore = ['tags', '.env', '.gitignore', 'Makefile', '.vimrc']
     let g:ozzy_track_only = ['/Users/giacomo']
     let g:ozzy_project_mode_flag = '-> '
     let g:ozzy_global_mode_flag = '>> ' 
@@ -586,7 +561,7 @@ def GoToHeaderFile(maxdepth=10):
 
         depth += 1
 
-    if Ask("The header file does not exists, do you want to create it? "):
+    if Ask("The header file does not exist, do you want to create it? "):
         vim.command("e {}".format(header))
         vim.command("redraw")
 
@@ -603,7 +578,7 @@ def GoToMakefile(maxdepth=10):
 
         depth += 1
     
-    if Ask("Makefile does not exists, do you want to create it? "):
+    if Ask("Makefile does not exist, do you want to create it? "):
         vim.command("e Makefile")
         vim.command("redraw")
 
