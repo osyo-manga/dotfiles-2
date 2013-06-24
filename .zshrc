@@ -3,20 +3,9 @@
 . `brew --prefix`/etc/profile.d/z.sh
 
 # initialize colors
-autoload -U colors
-colors
+autoload -U colors; colors
 
-# allow functions expantions in the prompt
-setopt PROMPT_SUBST
-
-# enable auto-execution of functions
-typeset -ga preexec_functions
-typeset -ga precmd_functions
-typeset -ga chpwd_functions
-
-# custom prompt
-precmd() { print -rP "%{$fg[magenta]%}%n%{$reset_color%} at %{$fg[green]%}%m%{$reset_color%} in %{$fg_bold[blue]%}%~%{$reset_color%}" } 
-PROMPT='%{$fg_bold[blue]%}▸%{$reset_color%} '   #%nd : show last n parts of the paths ▸
+## env vars
 
 export GREP_OPTIONS="--color=auto"
 export GOROOT=/usr/local/go
@@ -35,6 +24,10 @@ export PATH=/bin:$PATH
 export PATH=/usr/local/cuda/bin:$PATH
 export PATH="/Applications/Racket v5.3.4/bin:${PATH}"
 
+# prompt
+precmd() { print -rP "%{$fg[magenta]%}%n%{$reset_color%} at %{$fg[green]%}%m%{$reset_color%} in %{$fg_bold[blue]%}%~%{$reset_color%}" } 
+PROMPT='%{$fg_bold[blue]%}▸%{$reset_color%} '   #%nd : show last n parts of the paths ▸
+
 # autoenv
 source /usr/local/opt/autoenv/activate.sh
 
@@ -43,25 +36,23 @@ source /usr/local/opt/autoenv/activate.sh
 
 # virtualenv
 export WORKON_HOME=$HOME/.virtualenvs
-source /usr/local/share/python/virtualenvwrapper.sh
+source /usr/local/share/python/virtualenvwrapper.sh   
 
-# virtualenv aliases
+## aliases
+
 alias v="workon"
 alias v.d="deactivate"
 alias v.mk="mkvirtualenv"
 alias v.mkpkg="mkvirtualenv --system-site-packages"
 alias v.rm="rmvirtualenv"
 
-# zsh aliases
 alias z.e="vim ~/.zshrc"
 alias z.s="source ~/.zshrc"
 
-# pip aliases
 alias p.f="pip freeze"
 alias p.i="pip install -U"
 alias p.u="pip uninstall"
 
-# python aliases
 alias py="python"
 alias py3="python3"
 alias pip3="pip-3.3"
@@ -70,18 +61,15 @@ alias py.d="python setup.py develop"
 alias ipy="ipython"
 alias ipynb="ipython notebook --pylab inline"
 
-# smash aliases
 alias s="smash --colors"
 
-# android 
-alias andi="ant clean debug install"
-
-# generic aliases
 alias ..="cd .."
 alias c="clear"
 alias ls="ls -GC"
-alias lc="adb logcat"
 
+## functions
+
+# symlink wx into the current python virtual environment 
 v.usewx () {
     CURRENT_DIR=`pwd`
 
@@ -140,18 +128,23 @@ use_env() {
     fi
 }
 
-# options
+## options
+
+setopt correctall
 
 autoload -U promptinit; promptinit
+autoload -U compinit; compinit
 
 export HISTSIZE=2000
 export HISTFILE="$HOME/.history"
 export SAVEHIST=$HISTSIZE
 
+setopt PROMPT_SUBST
 setopt hist_ignore_all_dups
 setopt hist_ignore_space
 setopt nolistambiguous
 setopt extendedglob
+setopt autocd
 
-bindkey -v
-zstyle :compinstall filename '/home/giacomo/.zshrc'
+zstyle ':completion:*:descriptions' format '%U%B%d%b%u'
+zstyle ':completion:*:warnings' format '%BSorry, no matches for: %d%b'
