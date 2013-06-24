@@ -1,7 +1,7 @@
 "  -----------------------------------------------------
 "  vim configuration file
 "  Maintainer: Giacomo Comitti (github.com/gcmt)
-"  Last Change: 6/23/2013
+"  Last Change: 6/24/2013
 "  -----------------------------------------------------
 
 " BASICS & BUNDLES ------------------------- {{{
@@ -204,7 +204,7 @@
 
     set stl=
     set stl+=\ %w%r%#StlErr#%m%*%h
-    set stl+=\ %((⎇\ %{fugitive#head()})\ %)%{NiceFilePath(0)}%#StlBold#%t%*
+    set stl+=\ %((⎇\ %{fugitive#head()})\ %)%{NiceFilePath()}%#StlBold#%t%*
     set stl+=%=
     set stl+=%{strlen(&ft)?tolower(&ft).'\ ●\ ':''}
     set stl+=%{winwidth(winnr())>80?(strlen(&fenc)?&fenc.':':'').&ff.'\ ●\ ':''}
@@ -425,51 +425,34 @@
     fu! SetColorscheme()
         let colorschemes = ['Tomorrow', 'Tomorrow-Night']
         let scheme = colorschemes[g:colorcount % len(colorschemes)]
-
-        if scheme == 'Tomorrow'
-            let g:indentLine_color_gui = '#cccccc'
-        else
-            let g:indentLine_color_gui = '#333333'
-        endif
-
+        let g:indentLine_color_gui = scheme == 'Tomorrow' ? '#cccccc' : '#333333'
         exec 'colorscheme ' . scheme
     endfu
 
-    let g:colorcount = exists('g:colorcount') ? g:colorcount : 0
+    let g:colorcount = get(g:, 'colorcount', 0)
     call SetColorscheme()
 
-" cycle through some colorschemes
     nnoremap <silent> <F7> :call CycleColorschemes()<CR>
 
 
 " show a decent path on the statusline
 " -----------------------------------------------
 
-    fu! NiceFilePath(full)
-        if !strlen(expand('%'))
+    fu! NiceFilePath()
+        if !strlen(expand('%')) || &bt == 'help' || &bt == 'nofile'
             return ''
         endif
 
-        if a:full
-            let path = substitute(expand('%:p'), $HOME, '~', '')
-        else
-            let path = substitute(expand('%:p:h'), $HOME, '~', '')
-
+        let path = substitute(expand('%:p:h'), $HOME, '~', '')
         let fname = expand('%:t')
 
-        let k = 5
         let x = winwidth(winnr()) - 40
         let x = x < 0 ? 0 : x
-        let max_chars = float2nr(k * sqrt(x))
-
-        if &buftype == 'help' || &buftype == 'nofile'
-            return ''
-        endif
+        let max_chars = float2nr(5 * sqrt(x))
 
         " be sure the file name is shown entirely
-        let file_name_len = strlen(fname)
-        if max_chars < file_name_len
-            let max_chars = file_name_len
+        if max_chars < strlen(fname)
+            let max_chars = strlen(fname)
         endif
 
         " cut the path if it's too long.
@@ -488,7 +471,7 @@
             let path = strpart(path, 1)
         endif
 
-        return strlen(path ) ? path . '/' : ''  
+        return strlen(path) ? path . '/' : ''  
     endfu
 
 " common utils
@@ -508,18 +491,6 @@ def FindRoot(path, root_markers=None):
     else:
         return FindRoot(os.path.dirname(path), root_markers)
 
-def Ask(prompt, yes=None, no=None):
-    if yes is None:
-        yes = ["y", "Y", "yes", "YES", "Yes", "sure", "si"]
-    if no is None:
-        no = ["N", "n", "no", "NO", "No"]
-
-    while True:
-        r = vim.eval('input("{}")'.format(prompt))
-        if r in yes:
-            return True 
-        elif r in no:
-            return False 
 END
 
 " c utils
@@ -529,8 +500,8 @@ python << END
 import vim, os
 
 def GoToHeaderFile(maxdepth=10):
-    depth = 0
     header = os.path.splitext(vim.eval("bufname('%')"))[0] + '.h'
+    depth = 0
     for root, dirs, files in os.walk(vim.eval('getcwd()')):
         if depth >= maxdepth:
             break
@@ -542,9 +513,7 @@ def GoToHeaderFile(maxdepth=10):
 
         depth += 1
 
-    if Ask("The header file does not exist, do you want to create it? "):
-        vim.command("e {}".format(header))
-        vim.command("redraw")
+    print "No header file found"
 
 def GoToMakefile(maxdepth=10):
     depth = 0
@@ -558,11 +527,9 @@ def GoToMakefile(maxdepth=10):
             return
 
         depth += 1
-    
-    if Ask("Makefile does not exist, do you want to create it? "):
-        vim.command("e Makefile")
-        vim.command("redraw")
 
+    print "No Makefile found"
+    
 END
 
 nnoremap <leader>k :py GoToMakefile()<CR>
