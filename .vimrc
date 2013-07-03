@@ -46,6 +46,7 @@
     Bundle 'klen/python-mode'
     Bundle 'terryma/vim-multiple-cursors'
     Bundle 'vim-scripts/AutoComplPop'
+    Bundle 'fholgado/minibufexpl.vim'
 
     filetype plugin indent on
     syntax on
@@ -114,7 +115,6 @@
         au Filetype haml                   setlocal ts=2 sw=2 sts=0 tw=120
         au Filetype java                   setlocal omnifunc=javacomplete#Complete
         au Filetype vim                    setlocal foldmethod=marker
-        au Filetype mkd                    setlocal spell
         au Filetype go                     setlocal list noexpandtab ts=4 
 
     augroup END
@@ -180,8 +180,8 @@
     set cindent
     set nolist
     set fillchars=vert:\|
-    set listchars=tab:\|\ ,trail:·,precedes:<,extends:>
-    set showbreak=↳
+    set listchars=tab:\|\ ,trail:·,precedes:…,extends:…
+    set showbreak=..
     set linebreak
     set splitbelow
     set splitright
@@ -334,13 +334,16 @@
 " PLUGINS ---------------------------------- {{{
 
 " Gundo
+
     nnoremap <silent> <F3> :GundoToggle<CR>
 
 " NERDTree
+
     let NERDTreeShowBookmarks = 1
     nnoremap <silent> <F1> :NERDTreeToggle<CR>
 
 " Tagbar
+
     let g:tagbar_left = 0
     let g:tagbar_sort = 0
     let g:tagbar_width = 40
@@ -358,21 +361,23 @@
     \ }
 
 " Ozzy
+
     let g:ozzy_ignore = ['tags', '.env', '.gitignore', 'Makefile', '.vimrc']
     let g:ozzy_track_only = ['/Users/giacomo']
     let g:ozzy_project_mode_flag = '-> '
     let g:ozzy_global_mode_flag = '>> ' 
     let g:ozzy_prompt = ''
-    let g:ozzy_hl_last_dir = 0
     nnoremap <leader>- :Ozzy<CR>
     nnoremap <leader>_ :OzzyToggleMode<CR>
 
 " IndentLine
+
     let g:indentLine_color_term = 251
     let g:indentLine_char = '￨'
     let g:indentLine_fileType = ['html', 'xml', 'java', 'go', 'c', 'cpp']
 
 " Syntastic
+
     nnoremap <leader>e :Errors<CR>
     "nnoremap <leader>E :lcl<CR>
     let g:syntastic_error_symbol = '✕'
@@ -387,12 +392,15 @@
     \ }
 
 " Ack
+
     nnoremap <leader>s :Ack 
 
 " Ultisnips
+
     let g:UltiSnipsSnippetDirectories = ["UltiSnips", "CustomSnips"]
 
 " Python-mode
+
     let g:pymode_folding = 1
     let g:pymode_syntax = 0
     let g:pymode_run = 0
@@ -400,15 +408,23 @@
     let g:pymode_doc = 0
 
 " Multiple cursors
+
     let g:multi_cursor_use_default_mapping = 0
     let g:multi_cursor_next_key='<C-y>'
     let g:multi_cursor_prev_key='<C-g>'
     let g:multi_cursor_skip_key='<C-x>'
     let g:multi_cursor_quit_key='<Esc>'
 
-" AutocomplPop
+" AutocomplPop 
+
     let g:acp_ignorecaseOption = 0
     let g:acp_behaviorKeywordLength = 2
+
+" MiniBufExpl
+
+    let g:miniBufExplAutoStart = 1
+    let g:miniBufExplBRSplit = 0
+    let g:miniBufExplUseSingleClick = 1
 
 " }}}
 
