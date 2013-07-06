@@ -1,7 +1,7 @@
 "  -----------------------------------------------------
 "  vim configuration file
 "  Maintainer: Giacomo Comitti (github.com/gcmt)
-"  Last Change: 6/24/2013
+"  Last Change: 7/6/2013
 "  -----------------------------------------------------
 
 " BASICS & BUNDLES ------------------------- {{{
@@ -38,7 +38,6 @@
     Bundle 'gcmt/breeze.vim'
     Bundle 'gcmt/psearch.vim'
     Bundle 'ap/vim-css-color'
-    Bundle 'beyondmarc/opengl.vim'
     Bundle 'Yggdroot/indentLine'
     Bundle 'airblade/vim-gitgutter'
     Bundle 'mileszs/ack.vim'
@@ -56,12 +55,18 @@
 " GENERAL OPTIONS -------------------------- {{{
 
     set sessionoptions+=tabpages,globals
-    set viminfo=!,'100,\"100,:20,<50,s10,h,n~/.viminfo
     set encoding=utf-8
-    set ttyfast
-    set notimeout
-    set ttimeout
-    set ttimeoutlen=0
+    set noautowrite
+    set nomodeline
+    set hidden
+    set tags=tags
+    set backspace=2
+    set iskeyword=_,$,@,%,#,-,a-z,A-Z,48-57
+    set shell=/usr/local/bin/zsh
+    set autochdir
+    set autoread
+
+    set viminfo=!,'100,\"100,:20,<50,s10,h,n~/.viminfo
     set history=1000
     set undolevels=1000
     set undofile
@@ -69,16 +74,6 @@
     set undoreload=10000
     set noswapfile
     set nobackup
-    set noautowrite
-    set noerrorbells vb t_vb=
-    set nomodeline
-    set hidden
-    set tags=tags
-    set backspace=2
-    set iskeyword=_,$,@,%,#,-,a-z,A-Z,48-57
-    set autochdir
-    set autoread
-    set shell=/usr/local/bin/zsh
 
     if $TMUX == ''
         set clipboard+=unnamed
@@ -88,16 +83,12 @@
 
 " AUTOCOMMANDS ----------------------------- {{{
 
-    augroup vim_behavior
+    augroup vim_stuff
         au!
-        au FocusGained * echo ' Welcome back ' . $USER . "!"
+
         au VimResized * wincmd = | redraw
         au BufWinEnter * call RestoreCursorPosition()
-    augroup END
 
-    augroup ft_stuff
-
-        au!
         au BufWritePost .vimrc             source $MYVIMRC
         au BufRead,BufNewFile *.haml       set ft=haml
         au BufRead,BufNewFile *.md         set ft=mkd tw=79
@@ -106,11 +97,9 @@
         au BufRead,BufNewFile *.pl         set ft=prolog
         au BufWritePre *.go,*.py,*.cpp,*.java exec "silent! normal S"
 
-        au Filetype python                 setlocal tw=79
-        au Filetype python                 setlocal omnifunc=pythoncomplete#Complete
+        au Filetype python                 setlocal tw=79 omnifunc=pythoncomplete#Complete
         au Filetype htmldjango,htmljinja   set ft=html
-        au Filetype html,xml               setlocal nowrap
-        au Filetype html,xml               let g:html_no_rendering = 1
+        au Filetype html,xml               setlocal nowrap | let g:html_no_rendering = 1
         au Filetype css                    setlocal omnifunc=csscomplete#CompleteCSS
         au Filetype haml                   setlocal ts=2 sw=2 sts=0 tw=120
         au Filetype java                   setlocal omnifunc=javacomplete#Complete
@@ -127,7 +116,8 @@
     set background=light
 
     if has("gui_running")
-        set guioptions=mc  " add 'e' for macvim style tabs
+
+        set guioptions=mc  " remove 'e' for terminal-style tabs
         set linespace=0
 
         if has("gui_macvim")
@@ -137,56 +127,60 @@
         else
             set guifont=inconsolata-g\ Medium\ 10
         endif
+
     endif
 
+    set noerrorbells vb t_vb=
     set t_Co=256
-    set nolazyredraw
-    set mousemodel=popup
+    set nostartofline
+    set textwidth=79
+    set formatoptions=qn1c    
+    set number
+
+    set ttyfast
+    set notimeout
+    set ttimeout
+    set ttimeoutlen=0    
+
     set mouse=a
-    set mousehide
-    set virtualedit=all
+    set virtualedit=all    
+
     set title
     set titlestring=%<%((⎇\ %{fugitive#head()})%)\ %F
     set titlelen=100
+
     set completeopt=longest,menuone
     set wildmenu
     set wildmode=longest,full
     set wildignore=*.dll,*.o,*.pyc,*.bak,*.exe,*$py.class,*.class,*.fasl
     set wildignore+=*.jpg,*.jpeg,*.png,*.gif,.DS_Store,.gitignore,.git,tags
     set wildignore+=*.swp,*.dex,*.apk,*.d,*.cache,*.ap_,.env
-    set number
-    set numberwidth=2
-    set ruler
+
     set cmdheight=1
-    set showcmd
-    set noshowmode
     set report=0
     set shortmess=IaA
+
     set sidescrolloff=1
     set scrolloff=0
-    set nostartofline
-    set wrap
-    set textwidth=79
-    set colorcolumn=
-    set synmaxcol=800
-    set formatoptions=qn1c
+
     set expandtab
     set softtabstop=4
     set tabstop=4
     set shiftwidth=4
     set shiftround
+
     set autoindent
     set smartindent
     set cindent
-    set nolist
+
+    set splitbelow
+    set splitright
+
     set fillchars=vert:\|
     set listchars=tab:\|\ ,trail:·,precedes:…,extends:…
     set showbreak=..
     set linebreak
-    set splitbelow
-    set splitright
-    set wmh=0
-    set stal=1
+
     set wrapscan
     set ignorecase
     set smartcase
