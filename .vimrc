@@ -24,7 +24,6 @@
     " bundles
     Bundle 'gmarik/vundle'
     Bundle 'tpope/vim-fugitive'
-    Bundle 'tpope/vim-eunuch'
     Bundle 'tpope/vim-haml'
     Bundle 'Lokaltog/vim-easymotion'
     Bundle 'sjl/vitality.vim'
@@ -36,7 +35,6 @@
     Bundle 'gcmt/taboo.vim'
     Bundle 'gcmt/ozzy.vim'
     Bundle 'gcmt/breeze.vim'
-    Bundle 'gcmt/psearch.vim'
     Bundle 'ap/vim-css-color'
     Bundle 'Yggdroot/indentLine'
     Bundle 'airblade/vim-gitgutter'
@@ -62,7 +60,7 @@
     set tags=tags
     set backspace=2
     set iskeyword=_,$,@,%,#,-,a-z,A-Z,48-57
-    set shell=/usr/local/bin/zsh
+    "set shell=/usr/local/bin/zsh
     set autochdir
     set autoread
 
