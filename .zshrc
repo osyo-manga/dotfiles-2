@@ -25,7 +25,7 @@ export PATH=/usr/local/cuda/bin:$PATH
 export PATH="/Applications/Racket v5.3.4/bin:${PATH}"
 
 # prompt
-precmd() { print -rP "%{$fg[magenta]%}%n%{$reset_color%} at %{$fg[green]%}%m%{$reset_color%} in %{$fg_bold[blue]%}%~%{$reset_color%}" } 
+precmd() { print -rP "%{$fg_bold[magenta]%}%n%{$reset_color%} at %{$fg_bold[green]%}%m%{$reset_color%} in %{$fg_bold[blue]%}%~%{$reset_color%}" } 
 PROMPT='%{$fg_bold[blue]%}▸%{$reset_color%} '   #%nd : show last n parts of the paths ▸
 
 # autoenv
