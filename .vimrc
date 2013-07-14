@@ -1,7 +1,7 @@
 "  -----------------------------------------------------
 "  vim configuration file
-"  Maintainer: Giacomo Comitti (github.com/gcmt)
-"  Last Change: 7/6/2013
+"  Maintainer: Giacomo Comitti - github.com/gcmt 
+"  Last Change: 14 Jul 2013
 "  -----------------------------------------------------
 
 " BASICS & BUNDLES ------------------------- {{{
@@ -10,18 +10,18 @@
     filetype off
     filetype plugin indent off
 
-    " where binaries of third party go packages are located
+    " location of third party go packages binaries
     let $PATH = $HOME . '/bin/go/bin:' . $PATH
 
     let $GOPATH = $HOME . '/dropbox/dev/go:' . $GOPATH
     let $GOPATH = $HOME . '/bin/go:' . $GOPATH
 
     set rtp+=/usr/local/go/misc/vim
+    "set rtp+=$HOME/dropbox/dev/vim-ozzy
 
     set rtp+=~/.vim/bundle/vundle/
     call vundle#rc()
 
-    " bundles
     Bundle 'gmarik/vundle'
     Bundle 'tpope/vim-fugitive'
     Bundle 'tpope/vim-haml'
@@ -40,10 +40,10 @@
     Bundle 'airblade/vim-gitgutter'
     Bundle 'mileszs/ack.vim'
     Bundle 'sjl/gundo.vim'
-    Bundle 'klen/python-mode'
     Bundle 'terryma/vim-multiple-cursors'
-    Bundle 'vim-scripts/AutoComplPop'
-    Bundle 'fholgado/minibufexpl.vim'
+    Bundle 'terryma/vim-expand-region'
+    Bundle 'alfredodeza/chapa.vim'
+    Bundle "Valloric/YouCompleteMe"
 
     filetype plugin indent on
     syntax on
@@ -86,23 +86,18 @@
 
         au VimResized * wincmd = | redraw
         au BufWinEnter * call RestoreCursorPosition()
+        au BufWritePost .vimrc so $MYVIMRC
 
-        au BufWritePost .vimrc             source $MYVIMRC
-        au BufRead,BufNewFile *.haml       set ft=haml
-        au BufRead,BufNewFile *.md         set ft=mkd tw=79
-        au BufRead,BufNewFile *.markdown   set ft=mkd tw=79
-        au BufRead,BufNewFile *.pde        set ft=java
-        au BufRead,BufNewFile *.pl         set ft=prolog
-        au BufWritePre *.go,*.py,*.cpp,*.java exec "silent! normal S"
-
-        au Filetype python                 setlocal tw=79 omnifunc=pythoncomplete#Complete
-        au Filetype htmldjango,htmljinja   set ft=html
-        au Filetype html,xml               setlocal nowrap | let g:html_no_rendering = 1
-        au Filetype css                    setlocal omnifunc=csscomplete#CompleteCSS
-        au Filetype haml                   setlocal ts=2 sw=2 sts=0 tw=120
-        au Filetype java                   setlocal omnifunc=javacomplete#Complete
-        au Filetype vim                    setlocal foldmethod=marker
-        au Filetype go                     setlocal list noexpandtab ts=4 
+        au BufRead,BufNewFile *.pde        setl ft=java
+        au BufRead,BufNewFile *.pl         setl ft=prolog
+        au Filetype python                 setl tw=79 fdm=indent fdn=2 "ofu=pythoncomplete#Complete
+        au Filetype markdown               setl tw=100
+        au Filetype html,xml               setl nowrap
+        au Filetype htmldjango,htmljinja   setl ft=html
+        au Filetype vim                    setl fdm=marker
+        au Filetype go                     setl list ts=4 noet fdm=syntax fdn=1 ofu=gocomplete#Complete  
+        au Filetype go                     au! BufWritePre <buffer> Fmt
+        au Filetype python,cpp,java        au! BufWritePre <buffer> silent! normal S
 
     augroup END
 
@@ -111,7 +106,7 @@
 " UI --------------------------------------- {{{
 
     colorscheme Tomorrow
-    set background=light
+    set bg=light
 
     if has("gui_running")
 
@@ -132,16 +127,16 @@
     set t_Co=256
     set nostartofline
     set textwidth=79
-    set formatoptions=qn1c    
+    set formatoptions=qn1c
     set number
 
     set ttyfast
     set notimeout
     set ttimeout
-    set ttimeoutlen=0    
+    set ttimeoutlen=0
 
     set mouse=a
-    set virtualedit=all    
+    set virtualedit=all
 
     set title
     set titlestring=%<%((⎇\ %{fugitive#head()})%)\ %F
@@ -150,13 +145,14 @@
     set completeopt=longest,menuone
     set wildmenu
     set wildmode=longest,full
-    set wildignore=*.dll,*.o,*.pyc,*.bak,*.exe,*$py.class,*.class,*.fasl
+    set wildignore=*.dll,*.o,*.pyc,*$py.class,*.class,*.fasl
     set wildignore+=*.jpg,*.jpeg,*.png,*.gif,.DS_Store,.gitignore,.git,tags
     set wildignore+=*.swp,*.dex,*.apk,*.d,*.cache,*.ap_,.env
 
     set cmdheight=1
     set report=0
     set shortmess=IaA
+    set noshowmode
 
     set sidescrolloff=1
     set scrolloff=0
@@ -174,6 +170,7 @@
     set splitbelow
     set splitright
 
+    set list
     set fillchars=vert:\|
     set listchars=tab:\|\ ,trail:·,precedes:…,extends:…
     set showbreak=..
@@ -196,21 +193,30 @@
 
     set stl=
     set stl+=\ %w%r%#StlErr#%m%*%h
-    set stl+=\ %((⎇\ %{fugitive#head()})\ %)%{NiceFilePath()}%#StlBold#%t%*
+    set stl+=\ #%{bufnr('%')}\ %((⎇\ %{fugitive#head()})\ %)%{NiceFilePath()}%#StlBold#%t%*
     set stl+=%=
     set stl+=%{strlen(&ft)?tolower(&ft).'\ ●\ ':''}
     set stl+=%{winwidth(winnr())>80?(strlen(&fenc)?&fenc.':':'').&ff.'\ ●\ ':''}
     set stl+=%1l:%02v\ ●\ %L:%P
-    set stl+=\ %#StlErr#%{SyntasticStatuslineFlag()}%*\ 
+    set stl+=\ %#StlErr#%{SyntasticStatuslineFlag()}%*\ "
 
 " }}}
 
 " MAPPINGS --------------------------------- {{{
 
     let mapleader=","
-    imap jj <Esc>
 
+    command! -complete=file -nargs=* E exec 'e '.<q-args>
+    command! -bang -range=% -complete=file -nargs=* W <line1>,<line2>write<bang> <args>
+    command! -bang Q quit<bang>
+    command! Wa wa | command! WA wa
+    command! Wq wq | command! WQ wq
+    command! On on | command! ON on
+    command! Mes mes | command! M mes
+    nnoremap q: :q
+    nnoremap ; :
     nnoremap ' `
+    imap jj <Esc>
 
     nmap j gj
     nmap k gk
@@ -218,20 +224,31 @@
     vnoremap < <gv
     vnoremap > >gv
 
+    nnoremap 1 1gt<CR>
+    nnoremap 2 2gt<CR>
+    nnoremap 3 3gt<CR>
+    nnoremap 4 4gt<CR>
+    nnoremap 5 5gt<CR>
+    nnoremap 6 6gt<CR>
+    nnoremap 7 7gt<CR>
+    nnoremap 8 8gt<CR>
+    nnoremap 9 9gt<CR>
+
+" sudo write
+    cmap w!! w !sudo tee % > /dev/null
+
+" rename current buffer
+command! -bar -nargs=1 -bang -complete=file Rename
+  \ sav<bang> <args> | 
+  \ setl modified |
+  \ call delete(expand('#:p')) | 
+  \ exec "silent bw " . expand('#:p')
+
+" fast up and down movements
     nnoremap J 3j
     nnoremap K 3k
     vnoremap J 3j
     vnoremap K 3k
-
-    command! -complete=file -nargs=* E exec 'e '.<q-args>
-    command! -bang -range=% -complete=file -nargs=* W <line1>,<line2>write<bang> <args>
-    command! Wa wa
-    command! Wq wq
-    command! -bang Q quit<bang>
-    command! On on
-    nnoremap q: :q
-    nnoremap ; :
-    command! Mes mes
 
 " edit the vimrc file
     nnoremap <silent> <leader>r :e $MYVIMRC<CR>
@@ -277,12 +294,15 @@
     nnoremap <silent> \ {
     vnoremap <silent> \ {
 
-" split and move
+" split windows
     nnoremap <leader>w <C-w>v<C-w>l
     nnoremap <leader>W <C-w>s<C-w>l
 
 " open/close tabs
     nnoremap <leader>t :tabedit! %<CR>
+
+" toggle numbers
+    nnoremap <leader># :set number!<CR>
 
 " paste and indent
     nnoremap <silent> <leader>p p`[v`]=
@@ -291,22 +311,22 @@
     nnoremap <leader>j mzJ`z
 
 " delete all trailing white-spaces
-    nnoremap <silent> S mz:%s/\s\+$//<CR>:let @/=''<CR>`z 
+    nnoremap S mz:%s/\s\+$//<CR>:let @/=''<CR>`z
 
 " select entire buffer
-    nnoremap vg ggVG
+    nnoremap va ggVG
 
 " don't move on *
-    nnoremap * *<c-o>
+    nnoremap * *<C-O>
 
 " keep search matches in the middle of the window
     nnoremap n nzzzv
     nnoremap N Nzzzv
 
 " shortcuts
-    inoremap <c-a> <esc>A
-    inoremap <c-e> <esc>I
-    inoremap <c-s> <esc>diwi
+    inoremap <C-A> <esc>A
+    inoremap <C-E> <esc>I
+    inoremap <C-S> <esc>diwi
 
 " typos
     iabbr lenght length
@@ -315,7 +335,7 @@
     iabbr Flase False
     iabbr retrun return
     iabbr NOne None
-    iabbr direcotry directory
+    iabbr pytohn python
 
 " easy backquote and tilde
     inoremap <leader>' `
@@ -354,13 +374,11 @@
 
 " Ozzy
 
-    let g:ozzy_ignore = ['tags', '.env', '.gitignore', 'Makefile', '.vimrc']
+    let g:ozzy_ignore = ['tags', '.env', '.gitignore', '.vimrc']
     let g:ozzy_track_only = ['/Users/giacomo']
     let g:ozzy_project_mode_flag = '-> '
-    let g:ozzy_global_mode_flag = '>> ' 
-    let g:ozzy_prompt = ''
+    let g:ozzy_global_mode_flag = '>> '
     nnoremap <leader>- :Ozzy<CR>
-    nnoremap <leader>_ :OzzyToggleMode<CR>
 
 " IndentLine
 
@@ -390,33 +408,11 @@
 " Ultisnips
 
     let g:UltiSnipsSnippetDirectories = ["UltiSnips", "CustomSnips"]
+    let g:UltiSnipsExpandTrigger = "<C-J>"
 
-" Python-mode
+" Chapa
 
-    let g:pymode_folding = 1
-    let g:pymode_syntax = 0
-    let g:pymode_run = 0
-    let g:pymode_lint_write = 0
-    let g:pymode_doc = 0
-
-" Multiple cursors
-
-    let g:multi_cursor_use_default_mapping = 0
-    let g:multi_cursor_next_key='<C-y>'
-    let g:multi_cursor_prev_key='<C-g>'
-    let g:multi_cursor_skip_key='<C-x>'
-    let g:multi_cursor_quit_key='<Esc>'
-
-" AutocomplPop 
-
-    let g:acp_ignorecaseOption = 0
-    let g:acp_behaviorKeywordLength = 2
-
-" MiniBufExpl
-
-    let g:miniBufExplAutoStart = 1
-    let g:miniBufExplBRSplit = 0
-    let g:miniBufExplUseSingleClick = 1
+    let g:chapa_default_mappings = 1
 
 " }}}
 
@@ -479,7 +475,7 @@
             let path = strpart(path, 1)
         endif
 
-        return strlen(path) ? path . '/' : ''  
+        return strlen(path) ? path . '/' : ''
     endfu
 
 " common utils
@@ -537,7 +533,7 @@ def GoToMakefile(maxdepth=10):
         depth += 1
 
     print "No Makefile found"
-    
+
 END
 
 nnoremap <leader>k :py GoToMakefile()<CR>
@@ -547,16 +543,16 @@ nnoremap <leader>h :py GoToHeaderFile()<CR>
 " misc utils
 " -----------------------------------------------
 
-" delete las path component in the command line
-cnoremap <C-t> <C-\>e(<SID>RemoveLastPathComponent())<CR>
-function! s:RemoveLastPathComponent()
+" delete last path component in the command line (found on vim wikia)
+cnoremap <C-T> <C-\>e(<SID>RemoveLastPathComponent())<CR>
+fu! s:RemoveLastPathComponent()
     return substitute(getcmdline(), '\%(\\ \|[\\/]\@!\f\)\+[\\/]\=$\|.$', '', '')
-endfunction
+endfu
 
-function! RestoreCursorPosition()
+fu! RestoreCursorPosition()
     if line("m`\"") > 0 && line("`\"") <= line("$")
         exe "normal g`\""
     endif
-endfunction
+endfu
 
 " }}}
