@@ -44,6 +44,13 @@
     Bundle 'terryma/vim-expand-region'
     Bundle 'alfredodeza/chapa.vim'
     Bundle "Valloric/YouCompleteMe"
+    Bundle 'kien/ctrlp.vim'
+    Bundle 'nsf/gocode'
+    Bundle 'tpope/vim-markdown'
+    Bundle 'vim-ruby/vim-ruby'
+    Bundle 'kien/rainbow_parentheses.vim'
+    Bundle 'tpope/vim-fireplace'
+    Bundle 'guns/vim-clojure-static'
 
     filetype plugin indent on
     syntax on
@@ -52,6 +59,7 @@
 
 " GENERAL OPTIONS -------------------------- {{{
 
+    let g:markdown_highlight_underscore_error = 1
     set sessionoptions+=tabpages,globals
     set encoding=utf-8
     set noautowrite
@@ -90,14 +98,18 @@
 
         au BufRead,BufNewFile *.pde        setl ft=java
         au BufRead,BufNewFile *.pl         setl ft=prolog
+        au BufRead,BufNewFile *.clj        setl ft=clojure
         au Filetype python                 setl tw=79 fdm=indent fdn=2 "ofu=pythoncomplete#Complete
         au Filetype markdown               setl tw=100
         au Filetype html,xml               setl nowrap
+        au Filetype html                   let html_no_rendering = 1
         au Filetype htmldjango,htmljinja   setl ft=html
         au Filetype vim                    setl fdm=marker
-        au Filetype go                     setl list ts=4 noet fdm=syntax fdn=1 ofu=gocomplete#Complete  
+        au Filetype go                     setl list ts=4 noet fdm=syntax fdn=1
         au Filetype go                     au! BufWritePre <buffer> Fmt
         au Filetype python,cpp,java        au! BufWritePre <buffer> silent! normal S
+
+        au CmdwinEnter * let g:_test = 1
 
     augroup END
 
@@ -105,7 +117,7 @@
 
 " UI --------------------------------------- {{{
 
-    colorscheme Tomorrow
+    colorscheme plumtree
     set bg=light
 
     if has("gui_running")
@@ -114,7 +126,8 @@
         set linespace=0
 
         if has("gui_macvim")
-            set guifont=Source\ Code\ Pro:h13
+            "set guifont=Source\ Code\ Pro:h13
+            set guifont=GohuFont:h14
         elseif has('gui_win32')
             set guifont=Consolas:h10:cANSI
         else
@@ -139,7 +152,7 @@
     set virtualedit=all
 
     set title
-    set titlestring=%<%((⎇\ %{fugitive#head()})%)\ %F
+    set titlestring=%<%((br:\ %{fugitive#head()})%)\ %F
     set titlelen=100
 
     set completeopt=longest,menuone
@@ -170,7 +183,7 @@
     set splitbelow
     set splitright
 
-    set list
+    set nolist
     set fillchars=vert:\|
     set listchars=tab:\|\ ,trail:·,precedes:…,extends:…
     set showbreak=..
@@ -193,11 +206,11 @@
 
     set stl=
     set stl+=\ %w%r%#StlErr#%m%*%h
-    set stl+=\ #%{bufnr('%')}\ %((⎇\ %{fugitive#head()})\ %)%{NiceFilePath()}%#StlBold#%t%*
+    set stl+=\ #%{bufnr('%')}\ %((br:%{fugitive#head()})\ %)%{NiceFilePath()}%#StlFname#%t%*
     set stl+=%=
-    set stl+=%{strlen(&ft)?tolower(&ft).'\ ●\ ':''}
-    set stl+=%{winwidth(winnr())>80?(strlen(&fenc)?&fenc.':':'').&ff.'\ ●\ ':''}
-    set stl+=%1l:%02v\ ●\ %L:%P
+    set stl+=%{strlen(&ft)?tolower(&ft).'\ ~\ ':''}
+    set stl+=%{winwidth(winnr())>80?(strlen(&fenc)?&fenc.':':'').&ff.'\ ~\ ':''}
+    set stl+=%1l:%02v\ ~\ %L:%P
     set stl+=\ %#StlErr#%{SyntasticStatuslineFlag()}%*\ "
 
 " }}}
@@ -314,7 +327,7 @@ command! -bar -nargs=1 -bang -complete=file Rename
     nnoremap S mz:%s/\s\+$//<CR>:let @/=''<CR>`z
 
 " select entire buffer
-    nnoremap va ggVG
+    nnoremap vg ggVG
 
 " don't move on *
     nnoremap * *<C-O>
@@ -347,7 +360,7 @@ command! -bar -nargs=1 -bang -complete=file Rename
 
 " Gundo
 
-    nnoremap <silent> <F3> :GundoToggle<CR>
+    nnoremap <silent> <F3> :silent GundoToggle<CR>
 
 " NERDTree
 
@@ -378,22 +391,24 @@ command! -bar -nargs=1 -bang -complete=file Rename
     let g:ozzy_track_only = ['/Users/giacomo']
     let g:ozzy_project_mode_flag = '-> '
     let g:ozzy_global_mode_flag = '>> '
+    let g:ozzy_shade_color_darkbg = 'Comment'
+    let g:ozzy_matches_color_darkbg = 'Function'
     nnoremap <leader>- :Ozzy<CR>
 
 " IndentLine
 
     let g:indentLine_color_term = 251
-    let g:indentLine_char = '￨'
-    let g:indentLine_fileType = ['html', 'xml', 'java', 'go', 'c', 'cpp']
+    let g:indentLine_char = '|'  "'￨'
+    let g:indentLine_fileType = ['html', 'xml', 'java', 'c', 'cpp']
 
 " Syntastic
 
     nnoremap <leader>e :Errors<CR>
     "nnoremap <leader>E :lcl<CR>
-    let g:syntastic_error_symbol = '✕'
-    let g:syntastic_warning_symbol = '⁕'
-    let g:syntastic_style_error_symbol = '✕'
-    let g:syntastic_style_warning_symbol = '⁕'
+    let g:syntastic_error_symbol = '*'
+    let g:syntastic_warning_symbol = '*'
+    let g:syntastic_style_error_symbol = '*'
+    let g:syntastic_style_warning_symbol = '*'
     highlight link SyntasticErrorSign WarningMsg
     let g:syntastic_mode_map = {
         \ 'mode': 'active',
@@ -409,6 +424,10 @@ command! -bar -nargs=1 -bang -complete=file Rename
 
     let g:UltiSnipsSnippetDirectories = ["UltiSnips", "CustomSnips"]
     let g:UltiSnipsExpandTrigger = "<C-J>"
+
+" YouCompleteMe
+
+    let g:ycm_filetype_blacklist = {'vim':1}
 
 " Chapa
 
@@ -427,9 +446,9 @@ command! -bar -nargs=1 -bang -complete=file Rename
     endfu
 
     fu! SetColorscheme()
-        let colorschemes = ['Tomorrow', 'Tomorrow-Night']
+        let colorschemes = ['plumtree', 'candy']
         let scheme = colorschemes[g:colorcount % len(colorschemes)]
-        let g:indentLine_color_gui = scheme == 'Tomorrow' ? '#cccccc' : '#333333'
+        let g:indentLine_color_gui = scheme == 'candy' ? '#cccccc' : '#292a48'
         exec 'colorscheme ' . scheme
     endfu
 
@@ -450,7 +469,7 @@ command! -bar -nargs=1 -bang -complete=file Rename
         let path = substitute(expand('%:p:h'), $HOME, '~', '')
         let fname = expand('%:t')
 
-        let x = winwidth(winnr()) - 40
+        let x = winwidth(winnr()) - 55
         let x = x < 0 ? 0 : x
         let max_chars = float2nr(5 * sqrt(x))
 
