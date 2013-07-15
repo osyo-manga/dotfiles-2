@@ -124,6 +124,8 @@ syn keyword pythonException	try except finally raise
 syn keyword pythonOperator	and is not or in
 syn keyword pythonSelf		self
 
+hi link pythonSelf Special
+
 if !exists("python_print_as_function") || python_print_as_function == 0
   syn keyword pythonStatement print
 endif
@@ -132,6 +134,8 @@ endif
 syn match   pythonDecorator	"@" display nextgroup=pythonDottedName skipwhite
 syn match   pythonDottedName "[a-zA-Z_][a-zA-Z0-9_]*\(\.[a-zA-Z_][a-zA-Z0-9_]*\)*" display contained
 syn match   pythonDot        "\." display containedin=pythonDottedName
+
+hi link pythonDot Special
 
 " Comments
 syn match   pythonComment	"#.*$" display contains=pythonTodo,@Spell
