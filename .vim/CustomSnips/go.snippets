@@ -1,0 +1,25 @@
+snippet { "close curly bracket"
+{
+    ${1}
+}
+endsnippet
+
+snippet pr "fmt.Print(..)"
+fmt.Print(${1})${2}
+endsnippet
+
+snippet prl "fmt.Println(..)"
+fmt.Println(${1})${2}
+endsnippet
+
+snippet dget "if el, found := dict[key]; found {..}"
+if ${1}, found := ${2}; found {
+    ${3}
+}
+endsnippet
+
+snippet /^init/ "func init() {..}" r
+func init() {
+    ${1}
+}
+endsnippet
