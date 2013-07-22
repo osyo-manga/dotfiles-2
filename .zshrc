@@ -25,8 +25,8 @@ export PATH=/usr/local/cuda/bin:$PATH
 export PATH="/Applications/Racket v5.3.4/bin:${PATH}"
 
 # prompt
-precmd() { print -rP "%{$fg_bold[magenta]%}%n%{$reset_color%} at %{$fg_bold[green]%}%m%{$reset_color%} in %{$fg_bold[blue]%}%~%{$reset_color%}" } 
-PROMPT='%{$fg_bold[blue]%}▸%{$reset_color%} '   #%nd : show last n parts of the paths ▸
+precmd() { print -rP "%{$fg[blue]%}%n%{$reset_color%} at %{$fg[blue]%}%m%{$reset_color%} in %{$fg[blue]%}%~%{$reset_color%}" } 
+PROMPT='=> '   #%nd : show last n parts of the paths ▸
 
 # autoenv
 source /usr/local/opt/autoenv/activate.sh
@@ -64,6 +64,8 @@ alias ipynb="ipython notebook --pylab inline"
 alias s="smash --colors"
 
 alias ..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."
 alias c="clear"
 alias ls="ls -GC"
 
@@ -145,6 +147,7 @@ setopt hist_ignore_space
 setopt nolistambiguous
 setopt extendedglob
 setopt autocd
+setopt No_Beep
 
 zstyle ':completion:*:descriptions' format '%U%B%d%b%u'
 zstyle ':completion:*:warnings' format '%BSorry, no matches for: %d%b'
