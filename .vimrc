@@ -1,7 +1,7 @@
 "  -----------------------------------------------------
 "  vim configuration file
 "  Maintainer: Giacomo Comitti - github.com/gcmt 
-"  Last Change: 14 Jul 2013
+"  Last Change: 21 Jul 2013
 "  -----------------------------------------------------
 
 " BASICS & BUNDLES ------------------------- {{{
@@ -10,14 +10,18 @@
     filetype off
     filetype plugin indent off
 
-    " location of third party go packages binaries
+    let $PATH = '/usr/local/bin:' . $PATH    
+    let $PATH = $HOME . '/bin:' . $PATH    
     let $PATH = $HOME . '/bin/go/bin:' . $PATH
-
     let $GOPATH = $HOME . '/dropbox/dev/go:' . $GOPATH
     let $GOPATH = $HOME . '/bin/go:' . $GOPATH
 
     set rtp+=/usr/local/go/misc/vim
-    "set rtp+=$HOME/dropbox/dev/vim-ozzy
+    set rtp+=$HOME/dropbox/dev/vim-plum
+    set rtp+=$HOME/dropbox/dev/vim-taboo
+    set rtp+=$HOME/dropbox/dev/vim-ozzy
+    set rtp+=$HOME/dropbox/dev/vim-breeze
+    set rtp+=$HOME/dropbox/dev/vim-go-syntax
 
     set rtp+=~/.vim/bundle/vundle/
     call vundle#rc()
@@ -32,9 +36,6 @@
     Bundle 'scrooloose/nerdcommenter'
     Bundle 'SirVer/ultisnips'
     Bundle 'scrooloose/syntastic'
-    Bundle 'gcmt/taboo.vim'
-    Bundle 'gcmt/ozzy.vim'
-    Bundle 'gcmt/breeze.vim'
     Bundle 'ap/vim-css-color'
     Bundle 'Yggdroot/indentLine'
     Bundle 'airblade/vim-gitgutter'
@@ -42,15 +43,10 @@
     Bundle 'sjl/gundo.vim'
     Bundle 'terryma/vim-multiple-cursors'
     Bundle 'terryma/vim-expand-region'
-    Bundle 'alfredodeza/chapa.vim'
     Bundle "Valloric/YouCompleteMe"
     Bundle 'kien/ctrlp.vim'
     Bundle 'nsf/gocode'
     Bundle 'tpope/vim-markdown'
-    Bundle 'vim-ruby/vim-ruby'
-    Bundle 'kien/rainbow_parentheses.vim'
-    Bundle 'tpope/vim-fireplace'
-    Bundle 'guns/vim-clojure-static'
 
     filetype plugin indent on
     syntax on
@@ -59,7 +55,6 @@
 
 " GENERAL OPTIONS -------------------------- {{{
 
-    let g:markdown_highlight_underscore_error = 1
     set sessionoptions+=tabpages,globals
     set encoding=utf-8
     set noautowrite
@@ -68,7 +63,6 @@
     set tags=tags
     set backspace=2
     set iskeyword=_,$,@,%,#,-,a-z,A-Z,48-57
-    "set shell=/usr/local/bin/zsh
     set autochdir
     set autoread
 
@@ -94,7 +88,9 @@
 
         au VimResized * wincmd = | redraw
         au BufWinEnter * call RestoreCursorPosition()
+        "au BufWritePost *.vim call ReloadVimFile()
         au BufWritePost .vimrc so $MYVIMRC
+        "au VimEnter,FocusLost * call plum#SetBgAccordingToAmbientLight()
 
         au BufRead,BufNewFile *.pde        setl ft=java
         au BufRead,BufNewFile *.pl         setl ft=prolog
@@ -103,13 +99,11 @@
         au Filetype markdown               setl tw=100
         au Filetype html,xml               setl nowrap
         au Filetype html                   let html_no_rendering = 1
-        au Filetype htmldjango,htmljinja   setl ft=html
         au Filetype vim                    setl fdm=marker
-        au Filetype go                     setl list ts=4 noet fdm=syntax fdn=1
-        au Filetype go                     au! BufWritePre <buffer> Fmt
+        au Filetype go                     setl list ts=4 noet fdm=syntax fdn=1 ofu=gocomplete#Complete 
+        "au Filetype go                     au! BufWritePre <buffer> if line('$') < 750 | exe "Fmt"|let b:gofmt_active=1 | else | let b:gofmt_active=0 | endif
+        au BufNewFile,BufEnter *.go        let b:gofmt_active=0
         au Filetype python,cpp,java        au! BufWritePre <buffer> silent! normal S
-
-        au CmdwinEnter * let g:_test = 1
 
     augroup END
 
@@ -117,8 +111,13 @@
 
 " UI --------------------------------------- {{{
 
-    colorscheme plumtree
-    set bg=light
+    let g:plum_cursorline_highlight_only_linenr = 1
+    "set bg=dark
+    colorscheme plum
+
+    " may help with slow syntax highlighting
+    set synmaxcol=500
+    set regexpengine=0
 
     if has("gui_running")
 
@@ -133,7 +132,6 @@
         else
             set guifont=inconsolata-g\ Medium\ 10
         endif
-
     endif
 
     set noerrorbells vb t_vb=
@@ -142,6 +140,7 @@
     set textwidth=79
     set formatoptions=qn1c
     set number
+    set nocursorline
 
     set ttyfast
     set notimeout
@@ -205,13 +204,14 @@
     set laststatus=2
 
     set stl=
-    set stl+=\ %w%r%#StlErr#%m%*%h
-    set stl+=\ #%{bufnr('%')}\ %((br:%{fugitive#head()})\ %)%{NiceFilePath()}%#StlFname#%t%*
+    set stl+=\ %w%r%#StatusLineErr#%m%*%h
+    set stl+=%{get(b:,'gofmt_active',1)?'':'\ [!Gofmt]'}
+    set stl+=\ #%{bufnr('%')}\ %((br:%{fugitive#head()})\ %)%{NiceFilePath()}%#StatusLineBold#%t%*
     set stl+=%=
     set stl+=%{strlen(&ft)?tolower(&ft).'\ ~\ ':''}
     set stl+=%{winwidth(winnr())>80?(strlen(&fenc)?&fenc.':':'').&ff.'\ ~\ ':''}
-    set stl+=%1l:%02v\ ~\ %L:%P
-    set stl+=\ %#StlErr#%{SyntasticStatuslineFlag()}%*\ "
+    set stl+=%1l:%02v\ ~\ %L:%P\ "
+    "set stl+=\ %#StatusLineErr#%{SyntasticStatuslineFlag()}%*\ "
 
 " }}}
 
@@ -233,6 +233,11 @@
 
     nmap j gj
     nmap k gk
+
+    nnoremap J 3j
+    nnoremap K 3k
+    vnoremap J 3j
+    vnoremap K 3k
 
     vnoremap < <gv
     vnoremap > >gv
@@ -257,17 +262,8 @@ command! -bar -nargs=1 -bang -complete=file Rename
   \ call delete(expand('#:p')) | 
   \ exec "silent bw " . expand('#:p')
 
-" fast up and down movements
-    nnoremap J 3j
-    nnoremap K 3k
-    vnoremap J 3j
-    vnoremap K 3k
-
 " edit the vimrc file
     nnoremap <silent> <leader>r :e $MYVIMRC<CR>
-
-" build tags for the current directory
-    nnoremap <F4> :!/usr/local/bin/ctags -R .<CR>
 
 " kill the window
     nnoremap <silent> Q :q<CR>
@@ -314,8 +310,9 @@ command! -bar -nargs=1 -bang -complete=file Rename
 " open/close tabs
     nnoremap <leader>t :tabedit! %<CR>
 
-" toggle numbers
-    nnoremap <leader># :set number!<CR>
+" toggle options
+    nnoremap <leader>i :set number!<CR>
+    nnoremap <leader>o :set wrap!<CR>
 
 " paste and indent
     nnoremap <silent> <leader>p p`[v`]=
@@ -336,10 +333,23 @@ command! -bar -nargs=1 -bang -complete=file Rename
     nnoremap n nzzzv
     nnoremap N Nzzzv
 
+" keep screen navigation centered FIXME why so many 'move left' ?
+    " jump forward one full screen.
+    nnoremap <C-F> <C-F>zz2h  
+    " jump backwards one full screen
+    nnoremap <C-B> <C-B>zz2h  
+    " jump forward a half screen
+    nnoremap <C-D> <C-D>zzh 
+    " jump back one half screen
+    nnoremap <C-U> <C-U>zz
+
 " shortcuts
-    inoremap <C-A> <esc>A
-    inoremap <C-E> <esc>I
+    inoremap <C-A> <esc>I
+    inoremap <C-Z> <esc>A
     inoremap <C-S> <esc>diwi
+    inoremap <C-W> <esc>]}o
+    inoremap <C-E> <esc>]}a 
+
 
 " typos
     iabbr lenght length
@@ -353,6 +363,12 @@ command! -bar -nargs=1 -bang -complete=file Rename
 " easy backquote and tilde
     inoremap <leader>' `
     inoremap <leader>? ~
+
+" build tags for the current directory
+    nnoremap <F4> :py GenerateTags()<CR>
+
+" toggle between dark and light background
+    nnoremap <silent> <F7> :exe 'set bg=' . (&bg == 'dark' ? 'light' : 'dark')<CR>
 
 " }}}
 
@@ -372,7 +388,7 @@ command! -bar -nargs=1 -bang -complete=file Rename
     let g:tagbar_left = 0
     let g:tagbar_sort = 0
     let g:tagbar_width = 40
-    let g:tagbar_iconchars = ['▸', '¬']
+    let g:tagbar_iconchars = ['+ ', '* '] 
     nnoremap <silent> <F2> :TagbarToggle<CR>
     let g:tagbar_type_go = {
         \ 'ctagstype' : 'go',
@@ -391,14 +407,19 @@ command! -bar -nargs=1 -bang -complete=file Rename
     let g:ozzy_track_only = ['/Users/giacomo']
     let g:ozzy_project_mode_flag = '-> '
     let g:ozzy_global_mode_flag = '>> '
+    let g:ozzy_shade_color = 'Comment'
     let g:ozzy_shade_color_darkbg = 'Comment'
+    let g:ozzy_matches_color = 'WarningMsg'
     let g:ozzy_matches_color_darkbg = 'Function'
     nnoremap <leader>- :Ozzy<CR>
 
 " IndentLine
 
-    let g:indentLine_color_term = 251
-    let g:indentLine_char = '|'  "'￨'
+    let g:indentLine_color_term = 122
+    let g:indentLine_color_term_darkbg = 160
+    let g:indentLine_color_gui = "#cccccc"
+    let g:indentLine_color_gui_darkbg = "#26283a"
+    let g:indentLine_char = '|'
     let g:indentLine_fileType = ['html', 'xml', 'java', 'c', 'cpp']
 
 " Syntastic
@@ -427,81 +448,27 @@ command! -bar -nargs=1 -bang -complete=file Rename
 
 " YouCompleteMe
 
-    let g:ycm_filetype_blacklist = {'vim':1}
-
-" Chapa
-
-    let g:chapa_default_mappings = 1
+    let g:ycm_filetype_blacklist = {'vim':1, 'go':1}
 
 " }}}
 
 " FUNCTIONS -------------------------------- {{{
 
-" cycle colorschemes
-" -----------------------------------------------
-
-    fu! CycleColorschemes()
-        let g:colorcount += 1
-        call SetColorscheme()
-    endfu
-
-    fu! SetColorscheme()
-        let colorschemes = ['plumtree', 'candy']
-        let scheme = colorschemes[g:colorcount % len(colorschemes)]
-        let g:indentLine_color_gui = scheme == 'candy' ? '#cccccc' : '#292a48'
-        exec 'colorscheme ' . scheme
-    endfu
-
-    let g:colorcount = get(g:, 'colorcount', 0)
-    call SetColorscheme()
-
-    nnoremap <silent> <F7> :call CycleColorschemes()<CR>
-
-
-" show a decent path on the statusline
-" -----------------------------------------------
-
-    fu! NiceFilePath()
-        if !strlen(expand('%')) || &bt == 'help' || &bt == 'nofile'
-            return ''
-        endif
-
-        let path = substitute(expand('%:p:h'), $HOME, '~', '')
-        let fname = expand('%:t')
-
-        let x = winwidth(winnr()) - 55
-        let x = x < 0 ? 0 : x
-        let max_chars = float2nr(5 * sqrt(x))
-
-        " be sure the file name is shown entirely
-        if max_chars < strlen(fname)
-            let max_chars = strlen(fname)
-        endif
-
-        " cut the path if it's too long.
-        let str_len = strlen(path) + strlen(fname)
-        if str_len > max_chars
-            let path = strpart(path, str_len - max_chars)
-        endif
-
-        " round the path to the nearest slash.
-        if path[0] != '~' && path[0] != '/'
-            let pos = match(path, '\/') + 1
-            let path = strpart(path, pos)
-        endif
-
-        if path[0] == '/'
-            let path = strpart(path, 1)
-        endif
-
-        return strlen(path) ? path . '/' : ''
-    endfu
-
-" common utils
-" -----------------------------------------------
-
 python << END
 import vim, os
+
+
+def GenerateTags():
+    """Generate tags differently for go sources."""
+    if vim.eval("&ft") == "go":
+        flist = ""
+        for root, dirs, files in os.walk(vim.eval('getcwd()')):
+            for f in filter(lambda f: f.endswith(".go"), files):
+                flist += " " + os.path.join(root, f)
+        vim.command('exe "!gotags {} > tags"'.format(flist)) 
+    else:
+        vim.command('exe "!/usr/local/bin/ctags -R ."')
+
 
 def FindRoot(path, root_markers=None):
     if root_markers is None:
@@ -514,13 +481,6 @@ def FindRoot(path, root_markers=None):
     else:
         return FindRoot(os.path.dirname(path), root_markers)
 
-END
-
-" c utils
-" -----------------------------------------------
-
-python << END
-import vim, os
 
 def GoToHeaderFile(maxdepth=10):
     header = os.path.splitext(vim.eval("bufname('%')"))[0] + '.h'
@@ -537,6 +497,7 @@ def GoToHeaderFile(maxdepth=10):
         depth += 1
 
     print "No header file found"
+
 
 def GoToMakefile(maxdepth=10):
     depth = 0
@@ -555,12 +516,46 @@ def GoToMakefile(maxdepth=10):
 
 END
 
-nnoremap <leader>k :py GoToMakefile()<CR>
-nnoremap <leader>h :py GoToHeaderFile()<CR>
+"nnoremap <leader>k :py GoToMakefile()<CR>
+"nnoremap <leader>h :py GoToHeaderFile()<CR>
 
 
-" misc utils
-" -----------------------------------------------
+" generate a decent file path for the statusline
+fu! NiceFilePath()
+    if !strlen(expand('%')) || &bt == 'help' || &bt == 'nofile'
+        return ''
+    endif
+
+    let path = substitute(expand('%:p:h'), $HOME, '~', '')
+    let fname = expand('%:t')
+
+    let x = winwidth(winnr()) - 55
+    let x = x < 0 ? 0 : x
+    let max_chars = float2nr(5 * sqrt(x))
+
+    " be sure the file name is shown entirely
+    if max_chars < strlen(fname)
+        let max_chars = strlen(fname)
+    endif
+
+    " cut the path if it's too long.
+    let str_len = strlen(path) + strlen(fname)
+    if str_len > max_chars
+        let path = strpart(path, str_len - max_chars)
+    endif
+
+    " round the path to the nearest slash.
+    if path[0] != '~' && path[0] != '/'
+        let pos = match(path, '\/') + 1
+        let path = strpart(path, pos)
+    endif
+
+    if path[0] == '/'
+        let path = strpart(path, 1)
+    endif
+
+    return strlen(path) ? path . '/' : ''
+endfu
 
 " delete last path component in the command line (found on vim wikia)
 cnoremap <C-T> <C-\>e(<SID>RemoveLastPathComponent())<CR>
@@ -569,8 +564,17 @@ fu! s:RemoveLastPathComponent()
 endfu
 
 fu! RestoreCursorPosition()
-    if line("m`\"") > 0 && line("`\"") <= line("$")
-        exe "normal g`\""
+    if line("'\"") > 0 && line("'\"") <= line("$")
+        exe "normal `\""
+    endif
+endfu
+
+fu! ReloadVimFile()
+    let dir = expand("%:p:h:t") 
+    if dir == "colors"
+        exe "colo " . g:colors_name
+    elseif dir == "syntax" 
+        syntax on
     endif
 endfu
 
