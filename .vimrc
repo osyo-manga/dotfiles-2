@@ -1,7 +1,7 @@
 "  -----------------------------------------------------
 "  vim configuration file
 "  Maintainer: Giacomo Comitti - github.com/gcmt 
-"  Last Change: 21 Jul 2013
+"  Last Change: 2 Aug 2013
 "  -----------------------------------------------------
 
 " BASICS & BUNDLES ------------------------- {{{
@@ -16,16 +16,18 @@
     let $GOPATH = $HOME . '/dropbox/dev/go:' . $GOPATH
     let $GOPATH = $HOME . '/bin/go:' . $GOPATH
 
-    set rtp+=/usr/local/go/misc/vim
     set rtp+=$HOME/dropbox/dev/vim-plum
     set rtp+=$HOME/dropbox/dev/vim-taboo
     set rtp+=$HOME/dropbox/dev/vim-ozzy
     set rtp+=$HOME/dropbox/dev/vim-breeze
+    set rtp+=$HOME/dropbox/dev/vim-tube
     set rtp+=$HOME/dropbox/dev/vim-go-syntax
+    set rtp+=/usr/local/go/misc/vim
 
     set rtp+=~/.vim/bundle/vundle/
     call vundle#rc()
 
+    Bundle 'gcmt/indentLine'
     Bundle 'gmarik/vundle'
     Bundle 'tpope/vim-fugitive'
     Bundle 'tpope/vim-haml'
@@ -37,7 +39,6 @@
     Bundle 'SirVer/ultisnips'
     Bundle 'scrooloose/syntastic'
     Bundle 'ap/vim-css-color'
-    Bundle 'Yggdroot/indentLine'
     Bundle 'airblade/vim-gitgutter'
     Bundle 'mileszs/ack.vim'
     Bundle 'sjl/gundo.vim'
@@ -58,11 +59,10 @@
     set sessionoptions+=tabpages,globals
     set encoding=utf-8
     set noautowrite
-    set nomodeline
     set hidden
     set tags=tags
     set backspace=2
-    set iskeyword=_,$,@,%,#,-,a-z,A-Z,48-57
+    set iskeyword=_,$,@,a-z,A-Z,48-57
     set autochdir
     set autoread
 
@@ -74,6 +74,7 @@
     set undoreload=10000
     set noswapfile
     set nobackup
+    set modeline
 
     if $TMUX == ''
         set clipboard+=unnamed
@@ -90,20 +91,18 @@
         au BufWinEnter * call RestoreCursorPosition()
         "au BufWritePost *.vim call ReloadVimFile()
         au BufWritePost .vimrc so $MYVIMRC
-        "au VimEnter,FocusLost * call plum#SetBgAccordingToAmbientLight()
+        au FocusLost,FocusGained,CursorHold,VimResized * call PlumSetBackground()
 
-        au BufRead,BufNewFile *.pde        setl ft=java
-        au BufRead,BufNewFile *.pl         setl ft=prolog
-        au BufRead,BufNewFile *.clj        setl ft=clojure
+        au BufRead,BufNewFile *.pde        setf java
+        au BufRead,BufNewFile *.pl         setf prolog
+        au BufRead,BufNewFile *.clj        setf clojure
+        au BufRead,BufNewFile *.json       setf json
         au Filetype python                 setl tw=79 fdm=indent fdn=2 "ofu=pythoncomplete#Complete
-        au Filetype markdown               setl tw=100
+        au Filetype markdown               setl tw=120
         au Filetype html,xml               setl nowrap
-        au Filetype html                   let html_no_rendering = 1
         au Filetype vim                    setl fdm=marker
         au Filetype go                     setl list ts=4 noet fdm=syntax fdn=1 ofu=gocomplete#Complete 
-        "au Filetype go                     au! BufWritePre <buffer> if line('$') < 750 | exe "Fmt"|let b:gofmt_active=1 | else | let b:gofmt_active=0 | endif
-        au BufNewFile,BufEnter *.go        let b:gofmt_active=0
-        au Filetype python,cpp,java        au! BufWritePre <buffer> silent! normal S
+        au Filetype python,cpp,java        au! BufWritePre <buffer> call StripWhitespaces()
 
     augroup END
 
@@ -111,13 +110,19 @@
 
 " UI --------------------------------------- {{{
 
+    " syntax options
+    let html_no_rendering = 1
+
+    " colorscheme options
     let g:plum_cursorline_highlight_only_linenr = 1
-    "set bg=dark
+
     colorscheme plum
 
-    " may help with slow syntax highlighting
+    " this may help with slow syntax highlighting
     set synmaxcol=500
-    set regexpengine=0
+    if version >= 704
+        set regexpengine=0
+    endif
 
     if has("gui_running")
 
@@ -125,13 +130,12 @@
         set linespace=0
 
         if has("gui_macvim")
-            "set guifont=Source\ Code\ Pro:h13
-            set guifont=GohuFont:h14
-        elseif has('gui_win32')
-            set guifont=Consolas:h10:cANSI
+            set guifont=Source\ Code\ Pro:h13
+            "set guifont=GohuFont:h14
         else
-            set guifont=inconsolata-g\ Medium\ 10
+            set guifont=Source\ Code\ Pro\ 10
         endif
+
     endif
 
     set noerrorbells vb t_vb=
@@ -151,7 +155,7 @@
     set virtualedit=all
 
     set title
-    set titlestring=%<%((br:\ %{fugitive#head()})%)\ %F
+    set titlestring=%<%((⎇\ %{fugitive#head()})%)\ %F
     set titlelen=100
 
     set completeopt=longest,menuone
@@ -205,13 +209,12 @@
 
     set stl=
     set stl+=\ %w%r%#StatusLineErr#%m%*%h
-    set stl+=%{get(b:,'gofmt_active',1)?'':'\ [!Gofmt]'}
-    set stl+=\ #%{bufnr('%')}\ %((br:%{fugitive#head()})\ %)%{NiceFilePath()}%#StatusLineBold#%t%*
+    set stl+=\ #%{bufnr('%')}\ %((⎇\ %{fugitive#head()})\ %)%{NiceFilePath()}%#StatusLineBold#%t%*
     set stl+=%=
     set stl+=%{strlen(&ft)?tolower(&ft).'\ ~\ ':''}
     set stl+=%{winwidth(winnr())>80?(strlen(&fenc)?&fenc.':':'').&ff.'\ ~\ ':''}
-    set stl+=%1l:%02v\ ~\ %L:%P\ "
-    "set stl+=\ %#StatusLineErr#%{SyntasticStatuslineFlag()}%*\ "
+    set stl+=%1l:%02v\ ~\ %L:%P
+    set stl+=%#StatusLineErr#%{empty(SyntasticStatuslineFlag())?'':'\ [errors]'}%*\ "
 
 " }}}
 
@@ -228,8 +231,10 @@
     command! Mes mes | command! M mes
     nnoremap q: :q
     nnoremap ; :
+
     nnoremap ' `
     imap jj <Esc>
+    imap jk <Esc>
 
     nmap j gj
     nmap k gk
@@ -255,23 +260,23 @@
 " sudo write
     cmap w!! w !sudo tee % > /dev/null
 
-" rename current buffer
+" rename the current buffer
 command! -bar -nargs=1 -bang -complete=file Rename
   \ sav<bang> <args> | 
   \ setl modified |
   \ call delete(expand('#:p')) | 
   \ exec "silent bw " . expand('#:p')
 
-" edit the vimrc file
+" edit the .vimrc file
     nnoremap <silent> <leader>r :e $MYVIMRC<CR>
 
 " kill the window
     nnoremap <silent> Q :q<CR>
 
-" kill the buffer but the window
+" kill only the buffer but keep the window
     nnoremap <leader>q :Kwbd<CR>
 
-" let Y behaves like other capitals
+" let Y behave like other capitals
     nnoremap Y y$
 
 " use arrows for moving among tabs and buffers
@@ -321,7 +326,7 @@ command! -bar -nargs=1 -bang -complete=file Rename
     nnoremap <leader>j mzJ`z
 
 " delete all trailing white-spaces
-    nnoremap S mz:%s/\s\+$//<CR>:let @/=''<CR>`z
+    nnoremap <F8> :call StripWhitespaces()<CR>
 
 " select entire buffer
     nnoremap vg ggVG
@@ -333,7 +338,8 @@ command! -bar -nargs=1 -bang -complete=file Rename
     nnoremap n nzzzv
     nnoremap N Nzzzv
 
-" keep screen navigation centered FIXME why so many 'move left' ?
+" keep screen navigation centered: it seems that the cursor moves
+" left or right when using these commands
     " jump forward one full screen.
     nnoremap <C-F> <C-F>zz2h  
     " jump backwards one full screen
@@ -349,7 +355,6 @@ command! -bar -nargs=1 -bang -complete=file Rename
     inoremap <C-S> <esc>diwi
     inoremap <C-W> <esc>]}o
     inoremap <C-E> <esc>]}a 
-
 
 " typos
     iabbr lenght length
@@ -369,6 +374,10 @@ command! -bar -nargs=1 -bang -complete=file Rename
 
 " toggle between dark and light background
     nnoremap <silent> <F7> :exe 'set bg=' . (&bg == 'dark' ? 'light' : 'dark')<CR>
+
+" go
+    nnoremap <silent> <F6> :exe (&ft == 'go' ? 'Fmt' : '')<CR>:w<CR>
+    nnoremap <silent> <F5> :!go run %<CR>
 
 " }}}
 
@@ -413,12 +422,12 @@ command! -bar -nargs=1 -bang -complete=file Rename
     let g:ozzy_matches_color_darkbg = 'Function'
     nnoremap <leader>- :Ozzy<CR>
 
+" Tube
+
+    let g:tube_terminal = 'iterm'
+
 " IndentLine
 
-    let g:indentLine_color_term = 122
-    let g:indentLine_color_term_darkbg = 160
-    let g:indentLine_color_gui = "#cccccc"
-    let g:indentLine_color_gui_darkbg = "#26283a"
     let g:indentLine_char = '|'
     let g:indentLine_fileType = ['html', 'xml', 'java', 'c', 'cpp']
 
@@ -461,10 +470,10 @@ import vim, os
 def GenerateTags():
     """Generate tags differently for go sources."""
     if vim.eval("&ft") == "go":
-        flist = ""
-        for root, dirs, files in os.walk(vim.eval('getcwd()')):
-            for f in filter(lambda f: f.endswith(".go"), files):
-                flist += " " + os.path.join(root, f)
+        flist = vim.curent.buffer.name
+        #for root, dirs, files in os.walk(vim.eval('getcwd()')):
+            #for f in filter(lambda f: f.endswith(".go"), files):
+                #flist += " " + os.path.join(root, f)
         vim.command('exe "!gotags {} > tags"'.format(flist)) 
     else:
         vim.command('exe "!/usr/local/bin/ctags -R ."')
@@ -555,6 +564,15 @@ fu! NiceFilePath()
     endif
 
     return strlen(path) ? path . '/' : ''
+endfu
+
+" strip trailing whitespace
+fu! StripWhitespaces()
+    let save_cursor = getpos(".")
+    let old_query = getreg('/')
+    :%s/\s\+$//e
+    call setpos('.', save_cursor)
+    call setreg('/', old_query)
 endfu
 
 " delete last path component in the command line (found on vim wikia)
