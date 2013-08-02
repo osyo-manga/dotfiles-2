@@ -1,0 +1,20 @@
+
+# .options
+
+autoload -U colors; colors
+autoload colors zsh/terminfo
+
+autoload -U promptinit; promptinit
+autoload -U compinit; compinit
+
+setopt correctall
+setopt prompt_subst
+setopt hist_ignore_all_dups
+setopt hist_ignore_space
+setopt nolistambiguous
+setopt extendedglob
+setopt autocd
+setopt No_Beep
+
+zstyle ':completion:*:descriptions' format '%U%B%d%b%u'
+zstyle ':completion:*:warnings' format '%BSorry, no matches for: %d%b'

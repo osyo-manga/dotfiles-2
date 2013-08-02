@@ -1,0 +1,15 @@
+
+# .misc
+
+# z 
+. `brew --prefix`/etc/profile.d/z.sh
+
+# virtualenv
+export WORKON_HOME=$HOME/.virtualenvs
+source /usr/local/bin/virtualenvwrapper.sh   
+
+# autoenv
+source /usr/local/opt/autoenv/activate.sh
+
+# tmux
+[ -z "$TMUX" ] && export TERM=screen-256color

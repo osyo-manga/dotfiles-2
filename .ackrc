@@ -1,4 +1,12 @@
+
 # .ackrc
 
+# case sensitive search only with mixed case
+--smart-case
+
+# ignore tags
 --type-set=tags:is:tags
 --notags
+
+# ignore documentation.
+--ignore-dir=docs
