@@ -8,8 +8,44 @@ snippet pr "fmt.Print(..)"
 fmt.Print(${1})${2}
 endsnippet
 
+snippet prf "fmt.Printf(..)"
+fmt.Printf(${1})${2}
+endsnippet
+
+snippet spr "fmt.Sprint(..)"
+fmt.Sprint(${1})${2}
+endsnippet
+
+snippet sprf "fmt.Sprintf(..)"
+fmt.Sprintf(${1})${2}
+endsnippet
+
 snippet prl "fmt.Println(..)"
 fmt.Println(${1})${2}
+endsnippet
+
+snippet ife "if err != nil {..}"
+if err != nil {
+	${1}
+}
+endsnippet
+
+snippet ifee "if err := foo(); err != nil {..}"
+if err := ${1}; err != nil {
+	${2}
+}
+endsnippet
+
+snippet ifel "if foo {..} else {..}"
+if ${1} {
+	${2}
+} else {
+	${3}
+}
+endsnippet
+
+snippet en "errors.New(..)"
+errors.New("${1}")${2}
 endsnippet
 
 snippet dget "if el, found := dict[key]; found {..}"
@@ -23,3 +59,10 @@ func init() {
     ${1}
 }
 endsnippet
+
+snippet /^test/ "func Test..(t *testing.T) {..}" r
+func Test${1}(t *testing.T) {
+    ${2}
+}
+endsnippet
+
