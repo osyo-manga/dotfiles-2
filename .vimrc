@@ -1,7 +1,7 @@
 "  -----------------------------------------------------
 "  vim configuration file
 "  Maintainer: Giacomo Comitti - github.com/gcmt 
-"  Last Change: 2 Aug 2013
+"  Last Change: 3 Aug 2013
 "  -----------------------------------------------------
 
 " BASICS & BUNDLES ------------------------- {{{
@@ -10,38 +10,40 @@
     filetype off
     filetype plugin indent off
 
+    let $PATH = $HOME . '/bin:' . $PATH    
+    let $PATH = $HOME . '/bin/go/bin:' . $PATH
+
     set rtp+=$HOME/dropbox/dev/vim-plum
     set rtp+=$HOME/dropbox/dev/vim-taboo
     set rtp+=$HOME/dropbox/dev/vim-ozzy
     set rtp+=$HOME/dropbox/dev/vim-breeze
     set rtp+=$HOME/dropbox/dev/vim-tube
     set rtp+=$HOME/dropbox/dev/vim-go-syntax
-    set rtp+=/usr/local/go/misc/vim
+    set rtp+=/usr/local/opt/go/misc/vim
 
     set rtp+=~/.vim/bundle/vundle/
     call vundle#rc()
 
-    Bundle 'gcmt/indentLine'
     Bundle 'gmarik/vundle'
     Bundle 'tpope/vim-fugitive'
-    Bundle 'tpope/vim-haml'
+    Bundle 'airblade/vim-gitgutter'
     Bundle 'Lokaltog/vim-easymotion'
-    Bundle 'sjl/vitality.vim'
     Bundle 'majutsushi/tagbar'
     Bundle 'scrooloose/nerdtree'
     Bundle 'scrooloose/nerdcommenter'
     Bundle 'SirVer/ultisnips'
     Bundle 'scrooloose/syntastic'
-    Bundle 'ap/vim-css-color'
-    Bundle 'airblade/vim-gitgutter'
     Bundle 'mileszs/ack.vim'
     Bundle 'sjl/gundo.vim'
     Bundle 'terryma/vim-multiple-cursors'
-    Bundle 'terryma/vim-expand-region'
     Bundle "Valloric/YouCompleteMe"
     Bundle 'kien/ctrlp.vim'
+    Bundle 'gcmt/indentLine'
     Bundle 'nsf/gocode'
     Bundle 'tpope/vim-markdown'
+    Bundle 'tpope/vim-haml'
+    Bundle 'sjl/vitality.vim'
+    Bundle 'ap/vim-css-color'
 
     filetype plugin indent on
     syntax on
@@ -72,7 +74,6 @@
     set nobackup
 
     set shell=/usr/local/bin/zsh
-    sil !source ~/.zshrc
 
     if $TMUX == ''
         set clipboard+=unnamed
@@ -86,16 +87,14 @@
         au!
 
         au VimResized * wincmd = | redraw
-        au BufWinEnter * call RestoreCursorPosition()
-        "au BufWritePost *.vim call ReloadVimFile()
         au BufWritePost .vimrc so $MYVIMRC
+        au BufWinEnter * call RestoreCursorPosition()
         au FocusLost,FocusGained,CursorHold,VimResized * call PlumSetBackground()
 
         au BufRead,BufNewFile *.pde        setf java
         au BufRead,BufNewFile *.pl         setf prolog
         au BufRead,BufNewFile *.clj        setf clojure
-        au BufRead,BufNewFile *.go         setf go
-        au BufRead,BufNewFile *.json       setf json
+        au BufRead,BufNewFile *.json       setf javascript
         au Filetype python                 setl tw=79 fdm=indent fdn=2 "ofu=pythoncomplete#Complete
         au Filetype markdown               setl tw=120
         au Filetype html,xml               setl nowrap
