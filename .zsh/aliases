@@ -1,6 +1,5 @@
 
 # .aliases
-# take a look at https://github.com/mathiasbynens/dotfiles/blob/master/.aliases 
 
 alias v="workon"
 alias v.d="deactivate"
@@ -30,10 +29,11 @@ alias ...="cd ../.."
 alias ....="cd ../../.."
 alias .....="cd ../../../.."
 
-alias l="ls -G"
-alias ll="ls -lG"
-alias lsa="ls -aG"
-alias lsd='ls -lG | grep "^d"'
+# use -G instead of --colors fo Mac OS X built-in ls utility
+alias l="ls --color"
+alias ll="ls -l --color"
+alias lsa="ls -a --color"
+alias lsd='ls -l --color | grep "^d"'
 
 alias c="clear"
 alias v="vim"
@@ -59,12 +59,8 @@ alias update="brew update; brew upgrade; brew cleanup"
 alias hidef="defaults write com.apple.finder AppleShowAllFiles -bool NO && killall Finder"
 alias showf="defaults write com.apple.finder AppleShowAllFiles -bool YES && killall Finder"
 
-# clean up LaunchServices to remove duplicates in the “Open With” menu
+# clean up LaunchServices to remove duplicates in the "Open With" menu
 alias lscleanup="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user && killall Finder"
-
-# view HTTP traffic
-alias sniff="sudo ngrep -d 'en1' -t '^(GET|POST) ' 'tcp and port 80'"
-alias httpdump="sudo tcpdump -i en1 -n -s 0 -w - | grep -a -o -E \"Host\: .*|GET \/.*\""
 
 # hide/show all desktop icons
 alias hidedesk="defaults write com.apple.finder CreateDesktop -bool false && killall Finder"

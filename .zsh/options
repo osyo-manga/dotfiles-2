@@ -7,10 +7,11 @@ autoload colors zsh/terminfo
 autoload -U promptinit; promptinit
 autoload -U compinit; compinit
 
-setopt correctall
+setopt correct
 setopt prompt_subst
-setopt hist_ignore_all_dups
+setopt hist_ignore_dups
 setopt hist_ignore_space
+setopt inc_append_history
 setopt nolistambiguous
 setopt extendedglob
 setopt autocd
