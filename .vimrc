@@ -10,12 +10,6 @@
     filetype off
     filetype plugin indent off
 
-    let $PATH = '/usr/local/bin:' . $PATH    
-    let $PATH = $HOME . '/bin:' . $PATH    
-    let $PATH = $HOME . '/bin/go/bin:' . $PATH
-    let $GOPATH = $HOME . '/dropbox/dev/go:' . $GOPATH
-    let $GOPATH = $HOME . '/bin/go:' . $GOPATH
-
     set rtp+=$HOME/dropbox/dev/vim-plum
     set rtp+=$HOME/dropbox/dev/vim-taboo
     set rtp+=$HOME/dropbox/dev/vim-ozzy
@@ -65,6 +59,7 @@
     set iskeyword=_,$,@,a-z,A-Z,48-57
     set autochdir
     set autoread
+    set modeline
 
     set viminfo=!,'100,\"100,:20,<50,s10,h,n~/.viminfo
     set history=1000
@@ -72,9 +67,12 @@
     set undofile
     set undodir=~/.vim/undofiles
     set undoreload=10000
+
     set noswapfile
     set nobackup
-    set modeline
+
+    set shell=/usr/local/bin/zsh
+    sil !source ~/.zshrc
 
     if $TMUX == ''
         set clipboard+=unnamed
@@ -96,6 +94,7 @@
         au BufRead,BufNewFile *.pde        setf java
         au BufRead,BufNewFile *.pl         setf prolog
         au BufRead,BufNewFile *.clj        setf clojure
+        au BufRead,BufNewFile *.go         setf go
         au BufRead,BufNewFile *.json       setf json
         au Filetype python                 setl tw=79 fdm=indent fdn=2 "ofu=pythoncomplete#Complete
         au Filetype markdown               setl tw=120

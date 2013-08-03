@@ -7,7 +7,9 @@
   <colors>
     <option name="CARET_COLOR" value="ff3d00" />
     <option name="GUTTER_BACKGROUND" value="f5f5f5" />
+    <option name="INDENT_GUIDE" value="cfd1cd" />
     <option name="LINE_NUMBERS_COLOR" value="909090" />
+    <option name="SELECTED_INDENT_GUIDE" value="cfd1cd" />
     <option name="SELECTION_BACKGROUND" value="72a2ca" />
   </colors>
   <attributes>

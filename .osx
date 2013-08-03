@@ -35,8 +35,8 @@ defaults write com.apple.menuextra.battery ShowTime -string "NO"
 # Menu bar: hide the useless Time Machine and Volume icons
 defaults write com.apple.systemuiserver menuExtras -array "/System/Library/CoreServices/Menu Extras/TimeMachine.menu" "/System/Library/CoreServices/Menu Extras/AirPort.menu" "/System/Library/CoreServices/Menu Extras/Battery.menu" "/System/Library/CoreServices/Menu Extras/Clock.menu"
 
-# Set highlight color to grey
-defaults write NSGlobalDomain AppleHighlightColor -string '0.900000 0.900000 0.900000'
+# Set highlight color to gold
+defaults write NSGlobalDomain AppleHighlightColor -string '0.984300 0.929400 0.451000'
 
 # Set sidebar icon size to medium
 defaults write NSGlobalDomain NSTableViewDefaultSizeMode -int 2
