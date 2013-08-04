@@ -101,6 +101,9 @@ launchctl unload -w /System/Library/LaunchAgents/com.apple.notificationcenterui.
 # Disable UI sound effects (trash, screen capture, etc)
 defaults write com.apple.systemsound "com.apple.sound.uiaudio.enabled" -int 0
 
+# Disable sound feedback when volume is changed
+defaults write -g "com.apple.sound.beep.feedback" -int 0
+
 ###############################################################################
 # Trackpad, mouse, keyboard, Bluetooth accessories, and input                 #
 ###############################################################################
