@@ -1,5 +1,5 @@
 
-# .exports
+# exports
 
 export EDITOR=/usr/local/bin/vim
 export GREP_OPTIONS="--color=auto"

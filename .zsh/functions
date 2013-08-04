@@ -1,5 +1,5 @@
 
-# .functions
+# functions
 
 # automatically activate virtualenv. Thanks to Kenneth Reitz!
 use_env() {

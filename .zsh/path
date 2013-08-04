@@ -1,5 +1,5 @@
 
-# .path
+# path
 
 # go-related stuff
 export GOROOT=$(brew --prefix go)
@@ -11,7 +11,6 @@ export PATH=$HOME/bin:$PATH
 export PATH=/bin:$PATH
 export PATH=/usr/bin:$PATH
 export PATH=/usr/local/bin:$PATH
-#export PATH=$(brew --prefix plt-racket):$PATH
 export PATH=$(brew --prefix coreutils)/libexec/gnubin:$PATH
 
 export MANPATH=$(brew --prefix coreutils)/libexec/gnuman:$MANPATH

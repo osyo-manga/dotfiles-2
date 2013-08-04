@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # .osx - sane defaults
-# mostly taken from https://github.com/mathiasbynens/dotfiles/blob/master/.osx
+# mostly from https://github.com/mathiasbynens/dotfiles/blob/master/.osx
 
 # Ask for the administrator password upfront
 sudo -v
@@ -97,6 +97,9 @@ defaults write com.apple.SoftwareUpdate ScheduleFrequency -int 1
 
 # Disable Notification Center and remove the menu bar icon
 launchctl unload -w /System/Library/LaunchAgents/com.apple.notificationcenterui.plist
+
+# Disable UI sound effects (trash, screen capture, etc)
+defaults write com.apple.systemsound "com.apple.sound.uiaudio.enabled" -int 0
 
 ###############################################################################
 # Trackpad, mouse, keyboard, Bluetooth accessories, and input                 #

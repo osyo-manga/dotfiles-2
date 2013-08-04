@@ -1,5 +1,5 @@
 
-# .options
+# options
 
 autoload -U colors; colors
 autoload colors zsh/terminfo

@@ -566,11 +566,11 @@ endfu
 
 " strip trailing whitespace
 fu! StripWhitespaces()
-    let save_cursor = getpos(".")
-    let old_query = getreg('/')
+    let cursor = getpos(".")
+    let search = getreg('/')
     :%s/\s\+$//e
-    call setpos('.', save_cursor)
-    call setreg('/', old_query)
+    call setpos('.', cursor)
+    call setreg('/', search)
 endfu
 
 " delete last path component in the command line (found on vim wikia)
@@ -579,12 +579,14 @@ fu! s:RemoveLastPathComponent()
     return substitute(getcmdline(), '\%(\\ \|[\\/]\@!\f\)\+[\\/]\=$\|.$', '', '')
 endfu
 
+" restore the cursor position
 fu! RestoreCursorPosition()
     if line("'\"") > 0 && line("'\"") <= line("$")
         exe "normal `\""
     endif
 endfu
 
+" useful when editing a colorscheme or syntax vim file
 fu! ReloadVimFile()
     let dir = expand("%:p:h:t") 
     if dir == "colors"
