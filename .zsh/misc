@@ -28,6 +28,10 @@ bindkey "^R" history-incremental-search-backward
 bindkey "^P" history-search-backward
 bindkey "^Y" accept-and-hold
 bindkey "^N" insert-last-word
+bindkey "^U" kill-line 
+bindkey "^W" backward-kill-word 
+# fix backspace behavior after entering insert mode
+bindkey "^?" backward-delete-char
 
 # z 
 . `brew --prefix`/etc/profile.d/z.sh
