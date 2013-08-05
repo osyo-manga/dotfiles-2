@@ -1,6 +1,34 @@
 
 # misc
 
+# vi mode
+bindkey -v
+bindkey jj vi-cmd-mode
+
+# change the cursor shape according to the current vi mode (only iterm2)
+# http://superuser.com/questions/151803/how-do-i-customize-zshs-vim-mode
+vim_ins_mode="\033]50;CursorShape=1\a"
+vim_cmd_mode="\033]50;CursorShape=0\a"
+
+function zle-keymap-select {
+  echo -ne "${${KEYMAP/vicmd/${vim_cmd_mode}}/(main|viins)/${vim_ins_mode}}"
+  zle reset-prompt
+}
+zle -N zle-keymap-select
+
+function zle-line-finish {
+  echo -ne $vim_ins_mode
+}
+zle -N zle-line-finish
+
+# useful bindings
+bindkey "^A" beginning-of-line
+bindkey "^E" end-of-line
+bindkey "^R" history-incremental-search-backward
+bindkey "^P" history-search-backward
+bindkey "^Y" accept-and-hold
+bindkey "^N" insert-last-word
+
 # z 
 . `brew --prefix`/etc/profile.d/z.sh
 

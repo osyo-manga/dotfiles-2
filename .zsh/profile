@@ -5,9 +5,7 @@
 # works only with iTerm2
 
 if [ `$(dirname $0)/light` -ge 120000 ]; then
-    echo -e "\033]50;SetProfile=Day\a"
+    echo -ne "\033]50;SetProfile=Day\a"
 else
-    echo -e "\033]50;SetProfile=Night\a"
+    echo -ne "\033]50;SetProfile=Night\a"
 fi
-
-clear

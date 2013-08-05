@@ -7,8 +7,14 @@ alias v.mk="mkvirtualenv"
 alias v.mkpkg="mkvirtualenv --system-site-packages"
 alias v.rm="rmvirtualenv"
 
-alias z.e="vim ~/.zshrc"
 alias z.s="source ~/.zshrc"
+alias z.a="vim `dirname $(readlink $HOME/.zshrc)`/.zsh/aliases"
+alias z.p="vim `dirname $(readlink $HOME/.zshrc)`/.zsh/path"
+alias z.m="vim `dirname $(readlink $HOME/.zshrc)`/.zsh/misc"
+alias z.r="vim `dirname $(readlink $HOME/.zshrc)`/.zsh/prompt"
+alias z.e="vim `dirname $(readlink $HOME/.zshrc)`/.zsh/exports"
+alias z.o="vim `dirname $(readlink $HOME/.zshrc)`/.zsh/options"
+alias z.f="vim `dirname $(readlink $HOME/.zshrc)`/.zsh/functions"
 
 alias p.f="pip freeze"
 alias p.i="pip install -U"
@@ -22,8 +28,11 @@ alias py.d="python setup.py develop"
 alias ipy="ipython"
 alias ipynb="ipython notebook --pylab inline"
 
-alias s="smash --colors"
+alias g.s='git status'
+alias g.i='vim .gitignore'
+alias g.p='git push'
 
+alias cb="cd -"
 alias ..="cd .."
 alias ...="cd ../.."
 alias ....="cd ../../.."
@@ -36,11 +45,12 @@ alias 3.="cd ../../.."
 alias 4.="cd ../../../.."
 alias 5.="cd ../../../../.."
 
-# use -G instead of --colors fo Mac OS X built-in ls utility
+# use -G instead of --color for Mac OS X built-in ls utility
 alias l="ls --color"
-alias ll="ls -l --color"
-alias lsa="ls -a --color"
-alias lsd='ls -l --color | grep "^d"'
+alias la="ls -A --color"
+alias ll="ls -lAh --color"
+alias lsd='ls -lA --color | grep "^d"'
+alias lsg='ls -A | grep'
 
 alias c="clear"
 alias v="vim"
@@ -60,11 +70,12 @@ alias -s zshrc=vim
 hash d=~/dropbox/dev
 hash go=~/dropbox/dev/go
 
-alias update="brew update; brew upgrade; brew cleanup"
+# update/upgrade homebrew
+alias brewu="brew update; brew upgrade; brew cleanup"
 
-# show/hide dotfiles
-alias hidef="defaults write com.apple.finder AppleShowAllFiles -bool NO && killall Finder"
-alias showf="defaults write com.apple.finder AppleShowAllFiles -bool YES && killall Finder"
+# hide/show dotfiles
+alias hidedot="defaults write com.apple.finder AppleShowAllFiles -bool NO && killall Finder"
+alias showdot="defaults write com.apple.finder AppleShowAllFiles -bool YES && killall Finder"
 
 # clean up LaunchServices to remove duplicates in the "Open With" menu
 alias lscleanup="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user && killall Finder"
