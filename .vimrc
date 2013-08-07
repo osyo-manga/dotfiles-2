@@ -13,6 +13,9 @@
     let $PATH = $HOME . '/bin:' . $PATH    
     let $PATH = $HOME . '/bin/go/bin:' . $PATH
 
+    let $GOPATH = $HOME . '/dropbox/dev/go:' . $GOPATH
+    let $GOPATH = $HOME . '/bin/go:' . $GOPATH
+
     set rtp+=$HOME/dropbox/dev/vim-plum
     set rtp+=$HOME/dropbox/dev/vim-taboo
     set rtp+=$HOME/dropbox/dev/vim-ozzy
@@ -119,7 +122,7 @@
     " this may help with slow syntax highlighting
     set synmaxcol=500
     if version >= 704
-        set regexpengine=0
+        set regexpengine=1
     endif
 
     if has("gui_running")
