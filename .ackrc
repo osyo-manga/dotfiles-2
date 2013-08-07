@@ -1,12 +1,28 @@
 
 # .ackrc
 
+# lexically sort filenames
+--sort-files
+
 # case sensitive search only with mixed case
 --smart-case
 
-# ignore tags
+# ignore documentation.
+--ignore-dir=docs
+
+# ignore tag files
 --type-set=tags:is:tags
 --notags
 
-# ignore documentation.
---ignore-dir=docs
+# add types
+--type-add=vim:ext:vimrc
+--type-add=js:ext:json
+
+# set new types
+--type-set=css:ext:sass
+--type-set=markdown:ext:md,mkd,markdown
+
+# colors
+--color-filename=cyan
+--color-match=yellow
+--color-lineno=white 
