@@ -1,7 +1,7 @@
 "  -----------------------------------------------------
 "  vim configuration file
 "  Maintainer: Giacomo Comitti - github.com/gcmt 
-"  Last Change: 3 Aug 2013
+"  Last Change: 9 Aug 2013
 "  -----------------------------------------------------
 
 " BASICS & BUNDLES ------------------------- {{{
@@ -12,7 +12,6 @@
 
     let $PATH = $HOME . '/bin:' . $PATH    
     let $PATH = $HOME . '/bin/go/bin:' . $PATH
-
     let $GOPATH = $HOME . '/dropbox/dev/go:' . $GOPATH
     let $GOPATH = $HOME . '/bin/go:' . $GOPATH
 
@@ -35,6 +34,7 @@
     Bundle 'scrooloose/nerdtree'
     Bundle 'scrooloose/nerdcommenter'
     Bundle 'SirVer/ultisnips'
+    Bundle 'mattn/emmet-vim'
     Bundle 'scrooloose/syntastic'
     Bundle 'mileszs/ack.vim'
     Bundle 'sjl/gundo.vim'
@@ -68,15 +68,13 @@
 
     set viminfo=!,'100,\"100,:20,<50,s10,h,n~/.viminfo
     set history=1000
-    set undolevels=1000
+    set undolevels=10000
     set undofile
     set undodir=~/.vim/undofiles
     set undoreload=10000
 
     set noswapfile
     set nobackup
-
-    set shell=/usr/local/bin/zsh
 
     if $TMUX == ''
         set clipboard+=unnamed
@@ -95,7 +93,6 @@
         au FocusLost,FocusGained,CursorHold,VimResized * call PlumSetBackground()
 
         au BufRead,BufNewFile *.pde        setf java
-        au BufRead,BufNewFile *.pl         setf prolog
         au BufRead,BufNewFile *.clj        setf clojure
         au BufRead,BufNewFile *.json       setf javascript
         au Filetype python                 setl tw=79 fdm=indent fdn=2 "ofu=pythoncomplete#Complete
@@ -133,8 +130,6 @@
         if has("gui_macvim")
             set guifont=Source\ Code\ Pro:h13
             "set guifont=GohuFont:h14
-        else
-            set guifont=Source\ Code\ Pro\ 10
         endif
 
     endif
@@ -248,16 +243,6 @@
     vnoremap < <gv
     vnoremap > >gv
 
-    nnoremap 1 1gt<CR>
-    nnoremap 2 2gt<CR>
-    nnoremap 3 3gt<CR>
-    nnoremap 4 4gt<CR>
-    nnoremap 5 5gt<CR>
-    nnoremap 6 6gt<CR>
-    nnoremap 7 7gt<CR>
-    nnoremap 8 8gt<CR>
-    nnoremap 9 9gt<CR>
-
 " sudo write
     cmap w!! w !sudo tee % > /dev/null
 
@@ -328,6 +313,7 @@ command! -bar -nargs=1 -bang -complete=file Rename
 
 " delete all trailing white-spaces
     nnoremap <F8> :call StripWhitespaces()<CR>
+    inoremap <F8> <ESC>:call StripWhitespaces()<CR>a
 
 " select entire buffer
     nnoremap vg ggVG
@@ -372,13 +358,17 @@ command! -bar -nargs=1 -bang -complete=file Rename
 
 " build tags for the current directory
     nnoremap <F4> :py GenerateTags()<CR>
+    inoremap <F4> <ESC>:py GenerateTags()<CR>a
 
 " toggle between dark and light background
     nnoremap <silent> <F7> :exe 'set bg=' . (&bg == 'dark' ? 'light' : 'dark')<CR>
+    inoremap <silent> <F7> <ESC>:exe 'set bg=' . (&bg == 'dark' ? 'light' : 'dark')<CR>a
 
 " go
     nnoremap <silent> <F6> :exe (&ft == 'go' ? 'Fmt' : '')<CR>:w<CR>
+    inoremap <silent> <F6> <ESC>:exe (&ft == 'go' ? 'Fmt' : '')<CR>:w<CR>a
     nnoremap <silent> <F5> :!go run %<CR>
+    inoremap <silent> <F5> <ESC>:!go run %<CR>a
 
 " }}}
 
@@ -387,11 +377,13 @@ command! -bar -nargs=1 -bang -complete=file Rename
 " Gundo
 
     nnoremap <silent> <F3> :silent GundoToggle<CR>
+    inoremap <silent> <F3> <ESC>:silent GundoToggle<CR>a
 
 " NERDTree
 
     let NERDTreeShowBookmarks = 1
     nnoremap <silent> <F1> :NERDTreeToggle<CR>
+    inoremap <silent> <F1> <ESC>:NERDTreeToggle<CR>a
 
 " Tagbar
 
@@ -400,6 +392,7 @@ command! -bar -nargs=1 -bang -complete=file Rename
     let g:tagbar_width = 40
     let g:tagbar_iconchars = ['+ ', '* '] 
     nnoremap <silent> <F2> :TagbarToggle<CR>
+    inoremap <silent> <F2> <ESC>:TagbarToggle<CR>a
     let g:tagbar_type_go = {
         \ 'ctagstype' : 'go',
         \ 'kinds' : ['p:package','i:imports:1','c:constants','v:variables','t:types','n:interfaces',
@@ -422,6 +415,11 @@ command! -bar -nargs=1 -bang -complete=file Rename
     let g:ozzy_matches_color = 'WarningMsg'
     let g:ozzy_matches_color_darkbg = 'Function'
     nnoremap <leader>- :Ozzy<CR>
+
+" Taboo
+
+    let g:taboo_tab_format = " [%N]%m %f "
+    let g:taboo_modified_tab_flag = "*"
 
 " Tube
 
@@ -458,7 +456,7 @@ command! -bar -nargs=1 -bang -complete=file Rename
 
 " YouCompleteMe
 
-    let g:ycm_filetype_blacklist = {'vim':1, 'go':1}
+    let g:ycm_filetype_blacklist = {'vim':1}
 
 " }}}
 
