@@ -10,27 +10,31 @@ bindkey jj vi-cmd-mode
 vim_ins_mode="\033]50;CursorShape=1\a"
 vim_cmd_mode="\033]50;CursorShape=0\a"
 
-function zle-keymap-select {
+zle-keymap-select() {
   echo -ne "${${KEYMAP/vicmd/${vim_cmd_mode}}/(main|viins)/${vim_ins_mode}}"
   zle reset-prompt
 }
 zle -N zle-keymap-select
 
-function zle-line-finish {
+zle-line-finish() {
   echo -ne $vim_ins_mode
 }
 zle -N zle-line-finish
 
 # useful bindings
-bindkey "^A" beginning-of-line
-bindkey "^E" end-of-line
+# more here: http://www.cs.elte.hu/zsh-manual/zsh_14.html
 bindkey "^R" history-incremental-search-backward
 bindkey "^P" history-search-backward
+bindkey "^N" history-search-forward
 bindkey "^Y" accept-and-hold
-bindkey "^N" insert-last-word
-bindkey "^U" kill-line 
+bindkey "^A" beginning-of-line
+bindkey "^E" end-of-line
+bindkey "^F" forward-word
+bindkey "^B" backward-word
+bindkey "^K" kill-line 
+bindkey "^D" backward-kill-line 
+bindkey "^U" kill-whole-line 
 bindkey "^W" backward-kill-word 
-# fix backspace behavior after entering insert mode
 bindkey "^?" backward-delete-char
 
 # z 
