@@ -209,7 +209,7 @@
     set stl+=%=
     set stl+=%{strlen(&ft)?tolower(&ft).'\ ~\ ':''}
     set stl+=%{winwidth(winnr())>80?(strlen(&fenc)?&fenc.':':'').&ff.'\ ~\ ':''}
-    set stl+=%1l:%02v\ ~\ %L:%P
+    set stl+=%1l:%02v\ (%L)
     set stl+=%#StatusLineErr#%{empty(SyntasticStatuslineFlag())?'':'\ [errors]'}%*\ "
 
 " }}}
@@ -234,11 +234,6 @@
 
     nmap j gj
     nmap k gk
-
-    nnoremap J 3j
-    nnoremap K 3k
-    vnoremap J 3j
-    vnoremap K 3k
 
     vnoremap < <gv
     vnoremap > >gv
@@ -307,9 +302,6 @@ command! -bar -nargs=1 -bang -complete=file Rename
 
 " paste and indent
     nnoremap <silent> <leader>p p`[v`]=
-
-" keep the cursor in place while joining lines
-    nnoremap <leader>j mzJ`z
 
 " delete all trailing white-spaces
     nnoremap <F8> :call StripWhitespaces()<CR>
