@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# .brew
+# brew-commons
 
 brew update
 brew upgrade
@@ -25,8 +25,8 @@ brew install tmux
 brew install ctags
 brew install cmake
 brew install wget --enable-iri
-brew install vim --devel
-brew install macvim --devel
+brew install vim
+brew install macvim
 brew install android-sdk
 brew install z
 
