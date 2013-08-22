@@ -5,15 +5,15 @@
 DIR=$( cd "$( dirname "$0" )" && pwd )
 for file in {.zshrc,.ackrc,.ctags,.tmux.conf,.gitignore_global,.vimrc,.vim}; do
     TARGET="$DIR/$file"
-    DEST="$HOME/$file"
-    if [[ -h $DEST ]]; then
-        echo "Relinkng $DEST to $TARGET"
+    DOTF="$HOME/$file"
+    if [[ -h $DOTF ]]; then
+        echo "Relinkng $DOTF to $TARGET"
         ln -sf $TARGET $HOME
-    elif [[ ! -e $DEST ]]; then
-        echo "Linking $DEST to $TARGET"
-        ln -s $TARGET $DEST
+    elif [[ ! -e $DOTF ]]; then
+        echo "Linking $DOTF to $TARGET"
+        ln -s $TARGET $DOTF
     else
-        echo "$DEST exists as a real file, skipping"        
+        echo "$DOTF exists as a real file, skipping"        
     fi
 done
-unset file DIR TARGET DEST
+unset file DIR TARGET DOTF
