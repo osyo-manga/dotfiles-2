@@ -1,9 +1,4 @@
 
-# .ctags
-
-# ignore python imports (i) and variables (v)
---python-kinds=-iv
-
-# ignore dist and build directories
+--python-kinds=-i
 --exclude=build
 --exclude=dist
