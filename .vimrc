@@ -1,7 +1,7 @@
 "  -----------------------------------------------------
 "  vim configuration file
 "  Maintainer: Giacomo Comitti - github.com/gcmt 
-"  Last Change: 9 Aug 2013
+"  Last Change: 19 Aug 2013
 "  -----------------------------------------------------
 
 " BASICS & BUNDLES ------------------------- {{{
@@ -10,11 +10,13 @@
     filetype off
     filetype plugin indent off
 
-    let $PATH = $HOME . '/bin:' . $PATH    
-    let $PATH = $HOME . '/bin/go/bin:' . $PATH
-    let $GOPATH = $HOME . '/dropbox/dev/go:' . $GOPATH
-    let $GOPATH = $HOME . '/bin/go:' . $GOPATH
+    let $PATH = '/usr/local/bin:' . $PATH    
+    let $PATH = $HOME.'/bin:' . $PATH    
+    let $PATH = $HOME.'/bin/go/bin:' . $PATH
+    let $GOPATH = $HOME.'/dropbox/dev/go:' . $GOPATH
+    let $GOPATH = $HOME.'/bin/go:' . $GOPATH
 
+    set rtp+=$HOME/dropbox/dev/vim-tag-surfer
     set rtp+=$HOME/dropbox/dev/vim-plum
     set rtp+=$HOME/dropbox/dev/vim-taboo
     set rtp+=$HOME/dropbox/dev/vim-ozzy
@@ -40,20 +42,20 @@
     Bundle 'sjl/gundo.vim'
     Bundle 'terryma/vim-multiple-cursors'
     Bundle "Valloric/YouCompleteMe"
-    Bundle 'kien/ctrlp.vim'
     Bundle 'gcmt/indentLine'
     Bundle 'nsf/gocode'
     Bundle 'tpope/vim-markdown'
     Bundle 'tpope/vim-haml'
     Bundle 'sjl/vitality.vim'
     Bundle 'ap/vim-css-color'
+    Bundle 'suan/vim-instant-markdown'
 
     filetype plugin indent on
     syntax on
 
 " }}}
 
-" GENERAL OPTIONS -------------------------- {{{
+" OPTIONS ---------------------------------- {{{
 
     set sessionoptions+=tabpages,globals
     set encoding=utf-8
@@ -72,6 +74,9 @@
     set undofile
     set undodir=~/.vim/undofiles
     set undoreload=10000
+    " little hack for having right version of ruby and python
+    " in MacVim 
+    set shell=bash\ -i
 
     set noswapfile
     set nobackup
@@ -91,16 +96,26 @@
         au BufWritePost .vimrc so $MYVIMRC
         au BufWinEnter * call RestoreCursorPosition()
         au FocusLost,FocusGained,CursorHold,VimResized * call PlumSetBackground()
+        au BufWritePre *.vim,*.py,*.cpp,*.java,*.go sil! call StripWhitespaces()
 
         au BufRead,BufNewFile *.pde        setf java
         au BufRead,BufNewFile *.clj        setf clojure
         au BufRead,BufNewFile *.json       setf javascript
-        au Filetype python                 setl tw=79 fdm=indent fdn=2 "ofu=pythoncomplete#Complete
-        au Filetype markdown               setl tw=120
         au Filetype html,xml               setl nowrap
         au Filetype vim                    setl fdm=marker
-        au Filetype go                     setl list ts=4 noet fdm=syntax fdn=1 ofu=gocomplete#Complete 
-        au Filetype python,cpp,java        au! BufWritePre <buffer> call StripWhitespaces()
+
+        au BufEnter *.py                   normal! zR
+        au Filetype python                 setl fdm=indent fdn=2
+        au Filetype python                 nnoremap <F6> :!python %<CR>
+        au Filetype python                 inoremap <F6> <ESC>:!python %<CR>a
+
+        au BufEnter *.go                   normal! zR
+        au Filetype go                     setl list ts=4 noet fdm=syntax fdn=1 makeprg=go\ build
+        au Filetype go                     setl ofu=gocomplete#Complete
+        au FileType go                     nnoremap <F6> :!go run *.go<CR>
+        au FileType go                     inoremap <F6> <ESC>:!go run *.go<CR>a
+        au FileType go                     nnoremap <F7> :exe (&ft == 'go' ? 'Fmt' : '')<CR>:w<CR>
+        au FileType go                     inoremap <F7> <ESC>:exe (&ft == 'go' ? 'Fmt' : '')<CR>:w<CR>a
 
     augroup END
 
@@ -112,7 +127,7 @@
     let html_no_rendering = 1
 
     " colorscheme options
-    let g:plum_cursorline_highlight_only_linenr = 1
+    "let g:plum_cursorline_highlight_only_linenr = 1
 
     colorscheme plum
 
@@ -128,7 +143,7 @@
         set linespace=0
 
         if has("gui_macvim")
-            set guifont=Source\ Code\ Pro:h13
+            set guifont=Source\ Code\ Pro:h12
             "set guifont=GohuFont:h14
         endif
 
@@ -140,7 +155,7 @@
     set textwidth=79
     set formatoptions=qn1c
     set number
-    set nocursorline
+    set cursorline
 
     set ttyfast
     set notimeout
@@ -157,7 +172,7 @@
     set completeopt=longest,menuone
     set wildmenu
     set wildmode=longest,full
-    set wildignore=*.dll,*.o,*.pyc,*$py.class,*.class,*.fasl
+    set wildignore=*.dll,*.o,*.so,*.pyc,*$py.class,*.class,*.fasl,__pycache__
     set wildignore+=*.jpg,*.jpeg,*.png,*.gif,.DS_Store,.gitignore,.git,tags
     set wildignore+=*.swp,*.dex,*.apk,*.d,*.cache,*.ap_,.env
 
@@ -199,13 +214,13 @@
 
 " }}}
 
-" STATUSLINE & TABLINE --------------------- {{{
+" STATUSLINE ------------------------------- {{{
 
     set laststatus=2
 
     set stl=
     set stl+=\ %w%r%#StatusLineErr#%m%*%h
-    set stl+=\ #%{bufnr('%')}\ %((⎇\ %{fugitive#head()})\ %)%{NiceFilePath()}%#StatusLineBold#%t%*
+    set stl+=\ #%{bufnr('%')}\ %((⎇\ %{fugitive#head()})\ %)%{NiceFilePath()}%t
     set stl+=%=
     set stl+=%{strlen(&ft)?tolower(&ft).'\ ~\ ':''}
     set stl+=%{winwidth(winnr())>80?(strlen(&fenc)?&fenc.':':'').&ff.'\ ~\ ':''}
@@ -231,6 +246,7 @@
     nnoremap ' `
     imap jj <Esc>
     imap jk <Esc>
+    imap kk <Esc>
 
     nmap j gj
     nmap k gk
@@ -303,10 +319,6 @@ command! -bar -nargs=1 -bang -complete=file Rename
 " paste and indent
     nnoremap <silent> <leader>p p`[v`]=
 
-" delete all trailing white-spaces
-    nnoremap <F8> :call StripWhitespaces()<CR>
-    inoremap <F8> <ESC>:call StripWhitespaces()<CR>a
-
 " select entire buffer
     nnoremap vg ggVG
 
@@ -348,23 +360,21 @@ command! -bar -nargs=1 -bang -complete=file Rename
     inoremap <leader>' `
     inoremap <leader>? ~
 
-" build tags for the current directory
-    nnoremap <F4> :py GenerateTags()<CR>
-    inoremap <F4> <ESC>:py GenerateTags()<CR>a
+" delete all trailing white-spaces
+    nnoremap <F8> :call StripWhitespaces()<CR>
+    inoremap <F8> <ESC>:call StripWhitespaces()<CR>a
+
+" make
+    nnoremap <F5> :make<CR>
+    inoremap <F5> <ESC>:make<CR>a
 
 " toggle between dark and light background
-    nnoremap <silent> <F7> :exe 'set bg=' . (&bg == 'dark' ? 'light' : 'dark')<CR>
-    inoremap <silent> <F7> <ESC>:exe 'set bg=' . (&bg == 'dark' ? 'light' : 'dark')<CR>a
-
-" go
-    nnoremap <silent> <F6> :exe (&ft == 'go' ? 'Fmt' : '')<CR>:w<CR>
-    inoremap <silent> <F6> <ESC>:exe (&ft == 'go' ? 'Fmt' : '')<CR>:w<CR>a
-    nnoremap <silent> <F5> :!go run %<CR>
-    inoremap <silent> <F5> <ESC>:!go run %<CR>a
+    "nnoremap <silent> <F7> :exe 'set bg=' . (&bg == 'dark' ? 'light' : 'dark')<CR>
+    "inoremap <silent> <F7> <ESC>:exe 'set bg=' . (&bg == 'dark' ? 'light' : 'dark')<CR>a
 
 " }}}
 
-" PLUGINS ---------------------------------- {{{
+" PLUGINS ---------------------------------- {{{ 
 
 " Gundo
 
@@ -387,7 +397,7 @@ command! -bar -nargs=1 -bang -complete=file Rename
     inoremap <silent> <F2> <ESC>:TagbarToggle<CR>a
     let g:tagbar_type_go = {
         \ 'ctagstype' : 'go',
-        \ 'kinds' : ['p:package','i:imports:1','c:constants','v:variables','t:types','n:interfaces',
+        \ 'kinds' : ['p:package:1','i:imports:1','c:constants','v:variables','t:types','n:interfaces',
                     \ 'w:fields','e:embedded','m:methods','r:constructor','f:functions'],
         \ 'sro' : '.',
         \ 'kind2scope' : {'t' : 'ctype', 'n' : 'ntype'},
@@ -407,6 +417,23 @@ command! -bar -nargs=1 -bang -complete=file Rename
     let g:ozzy_matches_color = 'WarningMsg'
     let g:ozzy_matches_color_darkbg = 'Function'
     nnoremap <leader>- :Ozzy<CR>
+
+" Tag Surfer
+
+    let g:tsurf_ctags_custom_args = ""
+    let g:tsurf_custom_languages = {
+        \"go": {
+            \"bin": "/Users/giacomo/bin/go/bin/gotags", 
+            \"args": "-silent -sort",
+            \"kinds_map": {'p': 'package', 'i': 'import', 'c': 'constant', 'v': 'variable', 't': 'type', 'n': 'interface',
+                \'w': 'field', 'e': 'embedded', 'm': 'method', 'r': 'constructor', 'f': 'function'},
+            \"exclude_kinds": ["package", "import"],
+            \"extensions": [".go"]
+        \}
+    \}
+    let g:tsurf_debug = 1
+    let g:tsurf_matches_color_darkbg = 'Function'
+    nnoremap <leader>. :Tsurf<CR>
 
 " Taboo
 
@@ -450,24 +477,16 @@ command! -bar -nargs=1 -bang -complete=file Rename
 
     let g:ycm_filetype_blacklist = {'vim':1}
 
+" vim-instant-markdown
+
+    let g:instant_markdown_slow = 1
+
 " }}}
 
 " FUNCTIONS -------------------------------- {{{
 
 python << END
 import vim, os
-
-
-def GenerateTags():
-    """Generate tags differently for go sources."""
-    if vim.eval("&ft") == "go":
-        flist = vim.curent.buffer.name
-        #for root, dirs, files in os.walk(vim.eval('getcwd()')):
-            #for f in filter(lambda f: f.endswith(".go"), files):
-                #flist += " " + os.path.join(root, f)
-        vim.command('exe "!gotags {} > tags"'.format(flist)) 
-    else:
-        vim.command('exe "!/usr/local/bin/ctags -R ."')
 
 
 def FindRoot(path, root_markers=None):
@@ -589,4 +608,4 @@ fu! ReloadVimFile()
     endif
 endfu
 
-" }}}
+" }}} 
