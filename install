@@ -3,17 +3,17 @@
 # install
 
 DIR=$( cd "$( dirname "$0" )" && pwd )
-for file in {.zshrc,.ackrc,.ctags,.tmux.conf,.gitignore_global,.vimrc,.vim}; do
+for file in {.zshrc,.ackrc,.ctags,.tmux.conf,.gitconfig,.gitignore_global,.vimrc,.vim}; do
     TARGET="$DIR/$file"
     DOTF="$HOME/$file"
     if [[ -h $DOTF ]]; then
-        echo "Relinkng $DOTF to $TARGET"
+        echo "[OK] Relinkng $DOTF to $TARGET"
         ln -sf $TARGET $HOME
     elif [[ ! -e $DOTF ]]; then
-        echo "Linking $DOTF to $TARGET"
+        echo "[OK] Linking $DOTF to $TARGET"
         ln -s $TARGET $DOTF
     else
-        echo "$DOTF exists as a real file, skipping"        
+        echo "[XX] $DOTF exists as a real file, skipping"        
     fi
 done
 unset file DIR TARGET DOTF

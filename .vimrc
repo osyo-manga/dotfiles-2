@@ -1,7 +1,7 @@
 "  -----------------------------------------------------
 "  vim configuration file
 "  Maintainer: Giacomo Comitti - github.com/gcmt 
-"  Last Change: 19 Aug 2013
+"  Last Change: 29 Aug 2013
 "  -----------------------------------------------------
 
 " BASICS & BUNDLES ------------------------- {{{
@@ -61,7 +61,7 @@
     set encoding=utf-8
     set noautowrite
     set hidden
-    set tags=tags
+    set tags=
     set backspace=2
     set iskeyword=_,$,@,a-z,A-Z,48-57
     set autochdir
@@ -95,27 +95,27 @@
         au VimResized * wincmd = | redraw
         au BufWritePost .vimrc so $MYVIMRC
         au BufWinEnter * call RestoreCursorPosition()
-        au FocusLost,FocusGained,CursorHold,VimResized * call PlumSetBackground()
         au BufWritePre *.vim,*.py,*.cpp,*.java,*.go sil! call StripWhitespaces()
+        au FocusLost,FocusGained,CursorHold,VimResized * call PlumSetBackground()
 
-        au BufRead,BufNewFile *.pde        setf java
-        au BufRead,BufNewFile *.clj        setf clojure
-        au BufRead,BufNewFile *.json       setf javascript
-        au Filetype html,xml               setl nowrap
-        au Filetype vim                    setl fdm=marker
+        au BufRead,BufNewFile *.pde   setf java
+        au BufRead,BufNewFile *.clj   setf clojure
+        au BufRead,BufNewFile *.json  setf javascript
 
-        au BufEnter *.py                   normal! zR
-        au Filetype python                 setl fdm=indent fdn=2
-        au Filetype python                 nnoremap <F6> :!python %<CR>
-        au Filetype python                 inoremap <F6> <ESC>:!python %<CR>a
+        au Filetype gitconfig  setl noet
 
-        au BufEnter *.go                   normal! zR
-        au Filetype go                     setl list ts=4 noet fdm=syntax fdn=1 makeprg=go\ build
-        au Filetype go                     setl ofu=gocomplete#Complete
-        au FileType go                     nnoremap <F6> :!go run *.go<CR>
-        au FileType go                     inoremap <F6> <ESC>:!go run *.go<CR>a
-        au FileType go                     nnoremap <F7> :exe (&ft == 'go' ? 'Fmt' : '')<CR>:w<CR>
-        au FileType go                     inoremap <F7> <ESC>:exe (&ft == 'go' ? 'Fmt' : '')<CR>:w<CR>a
+        au Filetype vim  setl fdm=marker
+
+        au Filetype python   setl fdm=indent fdn=2 fdl=1
+        au Filetype python   nnoremap <F6> :!python %<CR>
+        au Filetype python   inoremap <F6> <ESC>:!python %<CR>a
+
+        au Filetype go  setl list ts=4 noet fdm=syntax fdn=1 makeprg=go\ build
+        au Filetype go  setl ofu=gocomplete#Complete
+        au FileType go  nnoremap <F6> :!go run *.go<CR>
+        au FileType go  inoremap <F6> <ESC>:!go run *.go<CR>a
+        au FileType go  nnoremap <F7> :exe (&ft == 'go' ? 'Fmt' : '')<CR>:w<CR>
+        au FileType go  inoremap <F7> <ESC>:exe (&ft == 'go' ? 'Fmt' : '')<CR>:w<CR>a
 
     augroup END
 
@@ -143,7 +143,7 @@
         set linespace=0
 
         if has("gui_macvim")
-            set guifont=Source\ Code\ Pro:h12
+            set guifont=Source\ Code\ Pro:h13
             "set guifont=GohuFont:h14
         endif
 
@@ -154,8 +154,8 @@
     set nostartofline
     set textwidth=79
     set formatoptions=qn1c
-    set number
-    set cursorline
+    set nonumber
+    set nocursorline
 
     set ttyfast
     set notimeout
@@ -197,6 +197,7 @@
     set splitbelow
     set splitright
 
+    set nowrap
     set nolist
     set fillchars=vert:\|
     set listchars=tab:\|\ ,trail:·,precedes:…,extends:…
@@ -245,8 +246,7 @@
 
     nnoremap ' `
     imap jj <Esc>
-    imap jk <Esc>
-    imap kk <Esc>
+    imap kj <Esc>
 
     nmap j gj
     nmap k gk
@@ -255,14 +255,15 @@
     vnoremap > >gv
 
 " sudo write
-    cmap w!! w !sudo tee % > /dev/null
+    command! -bang SudoWrite 
+        \ w !sudo tee % > /dev/null
 
 " rename the current buffer
-command! -bar -nargs=1 -bang -complete=file Rename
-  \ sav<bang> <args> | 
-  \ setl modified |
-  \ call delete(expand('#:p')) | 
-  \ exec "silent bw " . expand('#:p')
+    command! -bar -nargs=1 -bang -complete=file Rename
+        \ sav<bang> <args> | 
+        \ setl modified |
+        \ call delete(expand('#:p')) | 
+        \ exec "silent bw " . expand('#:p')
 
 " edit the .vimrc file
     nnoremap <silent> <leader>r :e $MYVIMRC<CR>
@@ -412,15 +413,11 @@ command! -bar -nargs=1 -bang -complete=file Rename
     let g:ozzy_track_only = ['/Users/giacomo']
     let g:ozzy_project_mode_flag = '-> '
     let g:ozzy_global_mode_flag = '>> '
-    let g:ozzy_shade_color = 'Comment'
-    let g:ozzy_shade_color_darkbg = 'Comment'
-    let g:ozzy_matches_color = 'WarningMsg'
     let g:ozzy_matches_color_darkbg = 'Function'
     nnoremap <leader>- :Ozzy<CR>
 
 " Tag Surfer
 
-    let g:tsurf_ctags_custom_args = ""
     let g:tsurf_custom_languages = {
         \"go": {
             \"bin": "/Users/giacomo/bin/go/bin/gotags", 
@@ -431,8 +428,7 @@ command! -bar -nargs=1 -bang -complete=file Rename
             \"extensions": [".go"]
         \}
     \}
-    let g:tsurf_debug = 1
-    let g:tsurf_matches_color_darkbg = 'Function'
+    let g:tsurf_debug = 0
     nnoremap <leader>. :Tsurf<CR>
 
 " Taboo
@@ -472,10 +468,6 @@ command! -bar -nargs=1 -bang -complete=file Rename
 
     let g:UltiSnipsSnippetDirectories = ["UltiSnips", "CustomSnips"]
     let g:UltiSnipsExpandTrigger = "<C-J>"
-
-" YouCompleteMe
-
-    let g:ycm_filetype_blacklist = {'vim':1}
 
 " vim-instant-markdown
 
@@ -595,16 +587,6 @@ endfu
 fu! RestoreCursorPosition()
     if line("'\"") > 0 && line("'\"") <= line("$")
         exe "normal `\""
-    endif
-endfu
-
-" useful when editing a colorscheme or syntax vim file
-fu! ReloadVimFile()
-    let dir = expand("%:p:h:t") 
-    if dir == "colors"
-        exe "colo " . g:colors_name
-    elseif dir == "syntax" 
-        syntax on
     endif
 endfu
 

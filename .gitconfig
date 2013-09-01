@@ -1,0 +1,22 @@
+[user]
+	name = Giacomo Comitti
+	email = giacomit@gmail.com
+[core]
+	excludesfile = ~/.gitignore_global
+	editor = vim
+[color]
+	ui = auto
+[push]
+	default = simple
+[merge]
+	log = true
+[alias]
+	br = branch
+	co = checkout
+	ci = commit
+	s = status -s
+	aci = commit --amend
+	l = log --pretty=oneline --graph
+	unstage = reset HEAD --
+	cl = clone --recursive
+	last = log -1 HEAD

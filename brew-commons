@@ -27,7 +27,6 @@ brew install cmake
 brew install wget --enable-iri
 brew install vim
 brew install macvim
-brew install android-sdk
 brew install z
 
 brew cleanup
