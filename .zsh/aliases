@@ -25,7 +25,6 @@ alias py3="python3"
 alias py.i="python setup.py install"
 alias py.d="python setup.py develop"
 alias ipy="ipython"
-alias ipynb="ipython notebook --pylab inline"
 
 alias cb="cd -"
 alias ..="cd .."
