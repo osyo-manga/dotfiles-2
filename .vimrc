@@ -1,7 +1,7 @@
 "  -----------------------------------------------------
 "  vim configuration file
 "  Maintainer: Giacomo Comitti - github.com/gcmt 
-"  Last Change: 29 Aug 2013
+"  Last Change: 8 Sep 2013
 "  -----------------------------------------------------
 
 " BASICS & BUNDLES ------------------------- {{{
@@ -42,7 +42,6 @@
     Bundle 'sjl/gundo.vim'
     Bundle 'terryma/vim-multiple-cursors'
     Bundle "Valloric/YouCompleteMe"
-    Bundle 'gcmt/indentLine'
     Bundle 'nsf/gocode'
     Bundle 'tpope/vim-markdown'
     Bundle 'tpope/vim-haml'
@@ -144,6 +143,7 @@
 
         if has("gui_macvim")
             set guifont=Source\ Code\ Pro:h13
+            "set guifont=Anonymous\ Pro:h14
             "set guifont=GohuFont:h14
         endif
 
@@ -473,6 +473,9 @@
 
     let g:instant_markdown_slow = 1
 
+" YouCompleteMe
+    let g:ycm_filetype_blacklist = {'vim':1}
+
 " }}}
 
 " FUNCTIONS -------------------------------- {{{
@@ -536,13 +539,11 @@ fu! NiceFilePath()
     if !strlen(expand('%')) || &bt == 'help' || &bt == 'nofile'
         return ''
     endif
-
     let path = substitute(expand('%:p:h'), $HOME, '~', '')
     let fname = expand('%:t')
 
     let x = winwidth(winnr()) - 55
-    let x = x < 0 ? 0 : x
-    let max_chars = float2nr(5 * sqrt(x))
+    let max_chars = float2nr(5 * sqrt(x < 0 ? 0 : x))
 
     " be sure the file name is shown entirely
     if max_chars < strlen(fname)
@@ -557,8 +558,7 @@ fu! NiceFilePath()
 
     " round the path to the nearest slash.
     if path[0] != '~' && path[0] != '/'
-        let pos = match(path, '\/') + 1
-        let path = strpart(path, pos)
+        let path = strpart(path, match(path, '\/') + 1)
     endif
 
     if path[0] == '/'
