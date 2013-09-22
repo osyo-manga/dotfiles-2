@@ -9,9 +9,9 @@
 [push]
 	default = simple
 [merge]
-	log = true
+	tool = meld
 [alias]
-	br = branch
+	br = branch -v
 	co = checkout
 	ci = commit
 	s = status -s
