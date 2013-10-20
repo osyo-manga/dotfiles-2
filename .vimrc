@@ -154,7 +154,7 @@
     set nostartofline
     set textwidth=79
     set formatoptions=qn1c
-    set nonumber
+    set number
     set nocursorline
 
     set ttyfast
@@ -433,8 +433,8 @@
 
 " Taboo
 
-    let g:taboo_tab_format = " [%N]%m %f "
-    let g:taboo_modified_tab_flag = "*"
+    let g:taboo_tab_format = "%m %f "
+    let g:taboo_modified_tab_flag = " [*]"
 
 " Tube
 

@@ -2,12 +2,12 @@
 
 # install
 
-for file in {.zshrc,.zsh,.ackrc,.ctags,.tmux.conf,.gitconfig,.gitignore_global,.vimrc,.vim}; do
+for file in {codestyles,colors,templates}; do
     TARGET="$(cd $(dirname $0) ; pwd -P)/$file"
-    ALIAS="$HOME/$file"
+    ALIAS="$HOME/Library/Preferences/AndroidStudioPreview/$file"
     if [[ -h $ALIAS ]]; then
         echo "[OK] Relinkng $ALIAS to $TARGET"
-        ln -sf $TARGET $HOME
+        ln -sf $TARGET "$HOME/Library/Preferences/AndroidStudioPreview"
     elif [[ ! -e $ALIAS ]]; then
         echo "[OK] Linking $ALIAS to $TARGET"
         ln -s $TARGET $ALIAS

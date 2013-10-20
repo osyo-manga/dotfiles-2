@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scheme name="LightCustom" version="124" parent_scheme="Default">
   <option name="LINE_SPACING" value="1.0" />
-  <option name="EDITOR_FONT_SIZE" value="12" />
+  <font>
+    <option name="EDITOR_FONT_NAME" value="Inconsolata-g" />
+    <option name="EDITOR_FONT_SIZE" value="12" />
+  </font>
+  <font>
+    <option name="EDITOR_FONT_NAME" value="Source Code Pro" />
+    <option name="EDITOR_FONT_SIZE" value="12" />
+  </font>
   <option name="CONSOLE_FONT_NAME" value="Menlo" />
-  <option name="EDITOR_FONT_NAME" value="Inconsolata-g" />
   <colors>
     <option name="CARET_COLOR" value="ff3d00" />
     <option name="GUTTER_BACKGROUND" value="f5f5f5" />
@@ -403,7 +409,7 @@
     <option name="FOLDED_TEXT_ATTRIBUTES">
       <value>
         <option name="FOREGROUND" value="666666" />
-        <option name="BACKGROUND" value="dcfadf" />
+        <option name="BACKGROUND" value="eaffeb" />
         <option name="EFFECT_TYPE" value="1" />
       </value>
     </option>
@@ -588,12 +594,11 @@
     <option name="STATIC_FIELD_ATTRIBUTES">
       <value>
         <option name="FOREGROUND" value="82009f" />
-        <option name="FONT_TYPE" value="2" />
       </value>
     </option>
     <option name="STATIC_FINAL_FIELD_ATTRIBUTES">
       <value>
-        <option name="FOREGROUND" value="ff780e" />
+        <option name="FOREGROUND" value="ff8a40" />
       </value>
     </option>
     <option name="STATIC_METHOD_ATTRIBUTES">
