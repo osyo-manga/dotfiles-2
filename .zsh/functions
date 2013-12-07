@@ -1,6 +1,11 @@
 
 # functions
 
+# create a new directory and enter it
+mkd() {
+    mkdir -p "$@" && cd "$@"
+}
+
 # automatically activate virtualenv. Thanks to Kenneth Reitz!
 use_env() {
     typeset venv

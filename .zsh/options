@@ -15,7 +15,7 @@ setopt hist_ignore_dups
 setopt hist_ignore_space
 setopt inc_append_history
 setopt nolistambiguous
-setopt extendedglob
+setopt extended_glob
 setopt autocd
 setopt transient_rprompt
 setopt no_beep
