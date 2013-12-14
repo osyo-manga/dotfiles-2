@@ -1,5 +1,6 @@
 .DS_Store
-undofiles/
-*.swp
 tags
+*.swp
+*.pyc
 .netrwhist
+undofiles/
