@@ -4,15 +4,15 @@
 
 for file in {codestyles,colors,templates}; do
     TARGET="$(cd $(dirname $0) ; pwd -P)/$file"
-    ALIAS="$HOME/Library/Preferences/AndroidStudioPreview/$file"
-    if [[ -h $ALIAS ]]; then
-        echo "[OK] Relinkng $ALIAS to $TARGET"
+    LINK="$HOME/Library/Preferences/AndroidStudioPreview/$file"
+    if [[ -h $LINK ]]; then
+        echo "[OK] Relinkng $LINK to $TARGET"
         ln -sf $TARGET "$HOME/Library/Preferences/AndroidStudioPreview"
-    elif [[ ! -e $ALIAS ]]; then
-        echo "[OK] Linking $ALIAS to $TARGET"
-        ln -s $TARGET $ALIAS
+    elif [[ ! -e $LINK ]]; then
+        echo "[OK] Linking $LINK to $TARGET"
+        ln -s $TARGET $LINK
     else
-        echo "[XX] $ALIAS exists as a real file, skipping"        
+        echo "[XX] $LINK exists as a real file, skipping"        
     fi
 done
-unset file TARGET ALIAS
+unset file TARGET LINK
