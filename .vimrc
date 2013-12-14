@@ -7,12 +7,6 @@
     filetype off
     filetype plugin indent off
 
-    let $PATH = '/usr/local/bin:' . $PATH    
-    let $PATH = $HOME.'/bin:' . $PATH    
-    let $PATH = $HOME.'/bin/go/bin:' . $PATH
-    let $GOPATH = $HOME.'/dropbox/dev/go:' . $GOPATH
-    let $GOPATH = $HOME.'/bin/go:' . $GOPATH
-
     set rtp+=$HOME/dropbox/dev/vim-tag-surfer
     set rtp+=$HOME/dropbox/dev/vim-plum
     set rtp+=$HOME/dropbox/dev/vim-taboo
@@ -20,7 +14,7 @@
     set rtp+=$HOME/dropbox/dev/vim-breeze
     set rtp+=$HOME/dropbox/dev/vim-tube
     set rtp+=$HOME/dropbox/dev/vim-go-syntax
-    set rtp+=/usr/local/opt/go/misc/vim
+    set rtp+=/usr/local/opt/go/libexec/misc/vim
 
     set rtp+=~/.vim/bundle/vundle/
     call vundle#rc()
@@ -47,6 +41,9 @@
 
     filetype plugin indent on
     syntax on
+
+    " personal stuff
+    source $HOME/dropbox/personal/.vimrc
 
 " }}}
 
@@ -86,11 +83,12 @@
     augroup vim_stuff
         au!
 
+        au VimEnter * let $PATH = $HOME.'/bin:/usr/local/bin:'.$PATH
         au VimResized * wincmd = | redraw
-        au BufWritePost .vimrc so $MYVIMRC
+        au BufWritePost .vimrc source $MYVIMRC
         au BufWinEnter * call RestoreCursorPosition()
         au FocusLost,FocusGained,CursorHold,VimResized * call PlumSetBackground()
-        au BufWritePre *.vim,*.py,*.cpp,*.java,*.go silent! call StripWhitespaces()
+        au BufWritePre *.vim,*.py,*.cpp,*.java,*.go sil! call StripWhitespaces()
         au BufReadPost * if &key != "" | set noswf nowb viminfo= nobk nostmp history=0 secure | endif
 
         au BufRead,BufNewFile *.pde   setf java
@@ -101,11 +99,15 @@
 
         au Filetype vim  setl fdm=marker
 
+        au Filetype html  setl sts=2 ts=2 sw=2
+
+        au Filetype css  setl sts=2 ts=2 sw=2
+
         au Filetype python   setl fdm=indent fdn=2 fdl=1
         au Filetype python   nnoremap <F6> :!python %<CR>
         au Filetype python   inoremap <F6> <ESC>:!python %<CR>a
 
-        au Filetype go  setl list ts=4 noet fdm=syntax fdn=1 makeprg=go\ build
+        au Filetype go  setl nolist ts=4 noet fdm=syntax fdn=1 makeprg=go\ build
         au Filetype go  setl ofu=gocomplete#Complete
         au FileType go  nnoremap <F6> :!go run *.go<CR>
         au FileType go  inoremap <F6> <ESC>:!go run *.go<CR>a
@@ -122,7 +124,7 @@
     let html_no_rendering = 1
 
     " colorscheme options
-    "let g:plum_cursorline_highlight_only_linenr = 1
+    let g:plum_cursorline_highlight_only_linenr = 1
 
     colorscheme plum
 
@@ -132,9 +134,9 @@
         set linespace=0
 
         if has("gui_macvim")
-            set guifont=Source\ Code\ Pro:h13
+            "set guifont=Source\ Code\ Pro:h13
             "set guifont=Anonymous\ Pro:h14
-            "set guifont=GohuFont:h14
+            set guifont=GohuFont:h14
         endif
 
     endif
@@ -144,8 +146,10 @@
     set nostartofline
     set textwidth=79
     set formatoptions=qn1c
+
     set number
-    set nocursorline
+    set cursorline
+    set colorcolumn=80
 
     set ttyfast
     set notimeout
@@ -156,7 +160,7 @@
     set virtualedit=all
 
     set title
-    set titlestring=%<%((⎇\ %{fugitive#head()})%)\ %F
+    set titlestring=%<%((⋌\ %{fugitive#head()})%)\ %F
     set titlelen=100
 
     set completeopt=longest,menuone
@@ -189,7 +193,7 @@
 
     set nowrap
     set nolist
-    set fillchars=vert:\|
+    set fillchars=vert:\❘
     set listchars=tab:\|\ ,trail:·,precedes:…,extends:…
     set showbreak=..
     set linebreak
@@ -203,6 +207,18 @@
     set gdefault
     set magic
 
+    fu! CustomFoldText()
+        let line = getline(v:foldstart)
+        if (&foldmethod == 'marker')
+            let line = substitute(line, split(&foldmarker, ',')[0], '', 1)
+        endif
+        let stripped_line = substitute(line, '^ *', '', 1)
+        let stripped_line = substitute(stripped_line, '{$', '', 1)
+        let n = len(line) - len(stripped_line)
+        return '+' . repeat('-', n-1) . ' ' . stripped_line
+    endfu
+    set foldtext=CustomFoldText()
+
 " }}}
 
 " STATUSLINE ------------------------------- {{{
@@ -211,7 +227,7 @@
 
     set stl=
     set stl+=\ %w%r%#StatusLineErr#%m%*%h
-    set stl+=\ #%{bufnr('%')}\ %((⎇\ %{fugitive#head()})\ %)%{NiceFilePath()}%t
+    set stl+=\ #%{bufnr('%')}\ %((⋌\ %{fugitive#head()})\ %)%{NiceFilePath()}%t
     set stl+=%=
     set stl+=%{strlen(&ft)?tolower(&ft).'\ ~\ ':''}
     set stl+=%{winwidth(winnr())>80?(strlen(&fenc)?&fenc.':':'').&ff.'\ ~\ ':''}
@@ -245,14 +261,14 @@
     vnoremap > >gv
 
     " sudo write
-    command! -bang SudoWrite 
+    command! -bang SudoWrite
         \ exec "w !sudo tee % > /dev/null"
 
     " rename the current buffer
     command! -bar -nargs=1 -bang -complete=file Rename
-        \ sav<bang> <args> | 
+        \ sav<bang> <args> |
         \ setl modified |
-        \ call delete(expand('#:p')) | 
+        \ call delete(expand('#:p')) |
         \ exec "silent bw " . expand('#:p')
 
     " edit the .vimrc file
@@ -276,6 +292,12 @@
     nnoremap <down> gT
     nnoremap <left> :bp<CR>
     nnoremap <right> :bn<CR>
+
+    " osx gestures (MacVim only)
+    nnoremap <SwipeDown> gT
+	nnoremap <SwipeUp> gt
+	nnoremap <SwipeLeft> :bN<CR>
+	nnoremap <SwipeRight> :bn<CR>
 
     " clear searches
     nnoremap <silent> <leader><space> :noh<CR>
@@ -320,21 +342,12 @@
     nnoremap n nzzzv
     nnoremap N Nzzzv
 
-    " jump forward one full screen.
-    nnoremap <C-F> <C-F>zz2h  
-    " jump backwards one full screen
-    nnoremap <C-B> <C-B>zz2h  
-    " jump forward a half screen
-    nnoremap <C-D> <C-D>zzh 
-    " jump back one half screen
-    nnoremap <C-U> <C-U>zz
-
-    " shortcuts
+    " useful cheats
     inoremap <C-A> <esc>I
     inoremap <C-Z> <esc>A
     inoremap <C-S> <esc>diwi
     inoremap <C-W> <esc>]}o
-    inoremap <C-E> <esc>]}a 
+    inoremap <C-E> <esc>]}a
 
     " typos
     iabbr lenght length
@@ -361,9 +374,12 @@
     "nnoremap <silent> <F7> :exe 'set bg=' . (&bg == 'dark' ? 'light' : 'dark')<CR>
     "inoremap <silent> <F7> <ESC>:exe 'set bg=' . (&bg == 'dark' ? 'light' : 'dark')<CR>a
 
+    " open hyperlink in the default browser
+    nnoremap <2-LeftMouse> :call OpenHyperlink()<CR>
+
 " }}}
 
-" PLUGINS ---------------------------------- {{{ 
+" PLUGINS ---------------------------------- {{{
 
     " Gundo
 
@@ -381,7 +397,7 @@
     let g:tagbar_left = 0
     let g:tagbar_sort = 0
     let g:tagbar_width = 40
-    let g:tagbar_iconchars = ['+ ', '* '] 
+    let g:tagbar_iconchars = ['+ ', '* ']
     nnoremap <silent> <F2> :TagbarToggle<CR>
     inoremap <silent> <F2> <ESC>:TagbarToggle<CR>a
     let g:tagbar_type_go = {
@@ -408,7 +424,7 @@
 
     let g:tsurf_custom_languages = {
         \"go": {
-            \"bin": "/Users/giacomo/bin/go/bin/gotags", 
+            \"bin": "/Users/giacomo/bin/go/bin/gotags",
             \"args": "-silent -sort",
             \"kinds_map": {'p': 'package', 'i': 'import', 'c': 'constant', 'v': 'variable', 't': 'type', 'n': 'interface',
                 \'w': 'field', 'e': 'embedded', 'm': 'method', 'r': 'constructor', 'f': 'function'},
@@ -450,7 +466,7 @@
 
     " Ack
 
-    nnoremap <leader>s :Ack 
+    nnoremap <leader>s :Ack
 
     " Ultisnips
 
@@ -469,10 +485,7 @@
 
 " FUNCTIONS -------------------------------- {{{
 
-    "nnoremap <leader>k :py GoToMakefile()<CR>
-    "nnoremap <leader>h :py GoToHeaderFile()<CR>
-
-    " generate a decent file path for the statusline
+    " dynamic file path
     fu! NiceFilePath()
         if !strlen(expand('%')) || &bt == 'help' || &bt == 'nofile'
             return ''
@@ -528,4 +541,20 @@
         endif
     endfu
 
-" }}} 
+    " open hyperlinks in the default browser
+    fu! OpenHyperlink()
+        let cursor = getpos(".")
+        exec "normal viW\<ESC>" | exec "normal viW\<ESC>"
+        let start = col("'<")
+        let end = col("'>")
+        let word = strpart(getline("."), start-1, end-start+1)
+        if match(word, "^http://") >= 0 || match(word, "^www\.") >= 0
+            if match(word, "^http://") < 0
+                let word = "http://" . word
+            endif
+            exec "silent !open " . word
+        endif
+        call setpos('.', cursor)
+    endfu
+
+" }}}
