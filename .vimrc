@@ -207,16 +207,6 @@
     set gdefault
     set magic
 
-    fu! CustomFoldText()
-        let line = getline(v:foldstart)
-        if (&foldmethod == 'marker')
-            let line = substitute(line, split(&foldmarker, ',')[0], '', 1)
-        endif
-        let stripped_line = substitute(line, '^ *', '', 1)
-        let stripped_line = substitute(stripped_line, '{$', '', 1)
-        let n = len(line) - len(stripped_line)
-        return '+' . repeat('-', n-1) . ' ' . stripped_line
-    endfu
     set foldtext=CustomFoldText()
 
 " }}}
@@ -362,20 +352,23 @@
     inoremap <leader>' `
     inoremap <leader>? ~
 
+    " delete last path component in the command line
+    cnoremap <C-T> <C-\>e(<SID>RemoveLastPathComponent())<CR>
+
     " delete all trailing white-spaces
     nnoremap <F8> :call StripWhitespaces()<CR>
     inoremap <F8> <ESC>:call StripWhitespaces()<CR>a
 
-    " make
-    nnoremap <F5> :make<CR>
-    inoremap <F5> <ESC>:make<CR>a
+    " open hyperlinks in the default browser
+    nnoremap <2-LeftMouse> :call OpenHyperlink()<CR>
 
     " toggle between dark and light background
     "nnoremap <silent> <F7> :exe 'set bg=' . (&bg == 'dark' ? 'light' : 'dark')<CR>
     "inoremap <silent> <F7> <ESC>:exe 'set bg=' . (&bg == 'dark' ? 'light' : 'dark')<CR>a
 
-    " open hyperlink in the default browser
-    nnoremap <2-LeftMouse> :call OpenHyperlink()<CR>
+    " make
+    nnoremap <F5> :make<CR>
+    inoremap <F5> <ESC>:make<CR>a
 
 " }}}
 
@@ -485,7 +478,8 @@
 
 " FUNCTIONS -------------------------------- {{{
 
-    " dynamic file path
+    " to display a variable-length file path according the witdh of the
+    " current window
     fu! NiceFilePath()
         if !strlen(expand('%')) || &bt == 'help' || &bt == 'nofile'
             return ''
@@ -519,7 +513,7 @@
         return strlen(path) ? path . '/' : ''
     endfu
 
-    " strip trailing whitespace
+    " to strip trailing whitespace
     fu! StripWhitespaces()
         let cursor = getpos(".")
         let search = getreg('/')
@@ -528,20 +522,31 @@
         call setreg('/', search)
     endfu
 
-    " delete last path component in the command line (found on vim wikia)
-    cnoremap <C-T> <C-\>e(<SID>RemoveLastPathComponent())<CR>
+    " to display a better text for closed folds
+    fu! CustomFoldText()
+        let line = getline(v:foldstart)
+        if (&foldmethod == 'marker')
+            let line = substitute(line, split(&foldmarker, ',')[0], '', 1)
+        endif
+        let stripped_line = substitute(line, '^ *', '', 1)
+        let stripped_line = substitute(stripped_line, '{$', '', 1)
+        let n = len(line) - len(stripped_line)
+        return '+' . repeat('-', n-1) . ' ' . stripped_line
+    endfu
+
+    " to delete the last path component in the command line (found on vim wikia)
     fu! s:RemoveLastPathComponent()
         return substitute(getcmdline(), '\%(\\ \|[\\/]\@!\f\)\+[\\/]\=$\|.$', '', '')
     endfu
 
-    " restore the cursor position
+    " to restore the cursor position
     fu! RestoreCursorPosition()
         if line("'\"") > 0 && line("'\"") <= line("$")
             exe "normal `\""
         endif
     endfu
 
-    " open hyperlinks in the default browser
+    " to open hyperlinks in the default browser
     fu! OpenHyperlink()
         let cursor = getpos(".")
         exec "normal viW\<ESC>" | exec "normal viW\<ESC>"
