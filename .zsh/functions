@@ -32,7 +32,7 @@ git_prompt() {
     git rev-parse --git-dir >& /dev/null
     if [[ $? == 0 ]]
     then
-        echo -n "["
+        echo -n "("
         if [[ `git ls-files -u >& /dev/null` == '' ]]
         then
             git diff --quiet >& /dev/null
@@ -51,8 +51,9 @@ git_prompt() {
         else
             echo -n $UNMERGED
         fi
+        echo -n "⎇ "
         echo -n `git branch | grep '* ' | sed 's/..//'`
         echo -n $RESET
-        echo -n "] "
+        echo -n ") "
     fi
 }
