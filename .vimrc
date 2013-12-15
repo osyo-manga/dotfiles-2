@@ -91,6 +91,9 @@
         au BufWritePre *.vim,*.py,*.cpp,*.java,*.go sil! call StripWhitespaces()
         au BufReadPost * if &key != "" | set noswf nowb viminfo= nobk nostmp history=0 secure | endif
 
+        au Filetype text      nnoremap <silent> <buffer> <2-LeftMouse> :call OpenHyperlink()<CR>
+        au Filetype markdown  nnoremap <silent> <buffer> <2-LeftMouse> :call OpenHyperlink()<CR>
+
         au BufRead,BufNewFile *.pde   setf java
         au BufRead,BufNewFile *.clj   setf clojure
         au BufRead,BufNewFile *.json  setf javascript
@@ -104,15 +107,15 @@
         au Filetype css  setl sts=2 ts=2 sw=2
 
         au Filetype python   setl fdm=indent fdn=2 fdl=1
-        au Filetype python   nnoremap <F6> :!python %<CR>
-        au Filetype python   inoremap <F6> <ESC>:!python %<CR>a
+        au Filetype python   nnoremap <buffer> <F6> :!python %<CR>
+        au Filetype python   inoremap <buffer> <F6> <ESC>:!python %<CR>a
 
         au Filetype go  setl nolist ts=4 noet fdm=syntax fdn=1 makeprg=go\ build
         au Filetype go  setl ofu=gocomplete#Complete
-        au FileType go  nnoremap <F6> :!go run *.go<CR>
-        au FileType go  inoremap <F6> <ESC>:!go run *.go<CR>a
-        au FileType go  nnoremap <F7> :exe (&ft == 'go' ? 'Fmt' : '')<CR>:w<CR>
-        au FileType go  inoremap <F7> <ESC>:exe (&ft == 'go' ? 'Fmt' : '')<CR>:w<CR>a
+        au FileType go  nnoremap <buffer> <F6> :!go run *.go<CR>
+        au FileType go  inoremap <buffer> <F6> <ESC>:!go run *.go<CR>a
+        au FileType go  nnoremap <buffer> <F7> :exe (&ft == 'go' ? 'Fmt' : '')<CR>:w<CR>
+        au FileType go  inoremap <buffer> <F7> <ESC>:exe (&ft == 'go' ? 'Fmt' : '')<CR>:w<CR>a
 
     augroup END
 
@@ -124,6 +127,7 @@
     let html_no_rendering = 1
 
     " colorscheme options
+    "let g:plum_force_bg = "dark"
     let g:plum_cursorline_highlight_only_linenr = 1
 
     colorscheme plum
@@ -285,9 +289,9 @@
 
     " osx gestures (MacVim only)
     nnoremap <SwipeDown> gT
-	nnoremap <SwipeUp> gt
-	nnoremap <SwipeLeft> :bN<CR>
-	nnoremap <SwipeRight> :bn<CR>
+    nnoremap <SwipeUp> gt
+    nnoremap <SwipeLeft> :bN<CR>
+    nnoremap <SwipeRight> :bn<CR>
 
     " clear searches
     nnoremap <silent> <leader><space> :noh<CR>
@@ -358,9 +362,6 @@
     " delete all trailing white-spaces
     nnoremap <F8> :call StripWhitespaces()<CR>
     inoremap <F8> <ESC>:call StripWhitespaces()<CR>a
-
-    " open hyperlinks in the default browser
-    nnoremap <2-LeftMouse> :call OpenHyperlink()<CR>
 
     " toggle between dark and light background
     "nnoremap <silent> <F7> :exe 'set bg=' . (&bg == 'dark' ? 'light' : 'dark')<CR>
@@ -553,13 +554,15 @@
         let start = col("'<")
         let end = col("'>")
         let word = strpart(getline("."), start-1, end-start+1)
-        if match(word, "^http://") >= 0 || match(word, "^www\.") >= 0
+        if match(word, "^http://") >= 0 || match(word, "^www\.") >= 0 
             if match(word, "^http://") < 0
                 let word = "http://" . word
             endif
             exec "silent !open " . word
+            call setpos('.', cursor)
+        else
+            exec "normal viW"
         endif
-        call setpos('.', cursor)
     endfu
 
 " }}}
