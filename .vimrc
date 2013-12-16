@@ -87,28 +87,25 @@
         au VimResized * wincmd = | redraw
         au BufWritePost .vimrc source $MYVIMRC
         au BufWinEnter * call RestoreCursorPosition()
+        au BufWritePre * sil! call StripWhitespaces()
         au FocusLost,FocusGained,CursorHold,VimResized * call PlumSetBackground()
-        au BufWritePre *.vim,*.py,*.cpp,*.java,*.go sil! call StripWhitespaces()
-        au BufReadPost * if &key != "" | set noswf nowb viminfo= nobk nostmp history=0 secure | endif
+        au BufReadPost * if &key != "" | setl noswf nowb viminfo= nobk nostmp history=0 secure | endif
 
-        au Filetype text      nnoremap <silent> <buffer> <2-LeftMouse> :call OpenHyperlink()<CR>
-        au Filetype markdown  nnoremap <silent> <buffer> <2-LeftMouse> :call OpenHyperlink()<CR>
-
-        au BufRead,BufNewFile *.pde   setf java
-        au BufRead,BufNewFile *.clj   setf clojure
+        au BufRead,BufNewFile *.pde  setf java
+        au BufRead,BufNewFile *.clj  setf clojure
         au BufRead,BufNewFile *.json  setf javascript
 
+        au Filetype text  nnoremap <silent> <buffer> <2-LeftMouse> :call OpenHyperlink()<CR>
+        au Filetype markdown  nnoremap <silent> <buffer> <2-LeftMouse> :call OpenHyperlink()<CR>
+
         au Filetype gitconfig  setl noet
-
         au Filetype vim  setl fdm=marker
-
         au Filetype html  setl sts=2 ts=2 sw=2
-
         au Filetype css  setl sts=2 ts=2 sw=2
 
-        au Filetype python   setl fdm=indent fdn=2 fdl=1
-        au Filetype python   nnoremap <buffer> <F6> :!python %<CR>
-        au Filetype python   inoremap <buffer> <F6> <ESC>:!python %<CR>a
+        au Filetype python  setl fdm=indent fdn=2 fdl=1
+        au Filetype python  nnoremap <buffer> <F6> :!python %<CR>
+        au Filetype python  inoremap <buffer> <F6> <ESC>:!python %<CR>a
 
         au Filetype go  setl nolist ts=4 noet fdm=syntax fdn=1 makeprg=go\ build
         au Filetype go  setl ofu=gocomplete#Complete
@@ -127,7 +124,7 @@
     let html_no_rendering = 1
 
     " colorscheme options
-    "let g:plum_force_bg = "dark"
+    let g:plum_force_bg = "dark"
     let g:plum_cursorline_highlight_only_linenr = 1
 
     colorscheme plum
@@ -148,12 +145,15 @@
     set noerrorbells vb t_vb=
     set t_Co=256
     set nostartofline
-    set textwidth=79
     set formatoptions=qn1c
+
+    set nowrap
+    set textwidth=79
 
     set number
     set cursorline
-    set colorcolumn=80
+    "set colorcolumn=81
+    call matchadd("SpellRare", "\\%81v[^$]", -1)
 
     set ttyfast
     set notimeout
@@ -164,7 +164,7 @@
     set virtualedit=all
 
     set title
-    set titlestring=%<%((⋌\ %{fugitive#head()})%)\ %F
+    set titlestring=%<%((git:%{fugitive#head()})%)\ %F
     set titlelen=100
 
     set completeopt=longest,menuone
@@ -197,7 +197,7 @@
 
     set nowrap
     set nolist
-    set fillchars=vert:\❘
+    set fillchars=vert:\|
     set listchars=tab:\|\ ,trail:·,precedes:…,extends:…
     set showbreak=..
     set linebreak
@@ -221,7 +221,7 @@
 
     set stl=
     set stl+=\ %w%r%#StatusLineErr#%m%*%h
-    set stl+=\ #%{bufnr('%')}\ %((⋌\ %{fugitive#head()})\ %)%{NiceFilePath()}%t
+    set stl+=\ #%{bufnr('%')}\ %((git:%{fugitive#head()})\ %)%{CustomFilePath()}
     set stl+=%=
     set stl+=%{strlen(&ft)?tolower(&ft).'\ ~\ ':''}
     set stl+=%{winwidth(winnr())>80?(strlen(&fenc)?&fenc.':':'').&ff.'\ ~\ ':''}
@@ -245,8 +245,6 @@
     nnoremap ; :
 
     nnoremap ' `
-    imap jj <Esc>
-    imap kj <Esc>
 
     nmap j gj
     nmap k gk
@@ -256,7 +254,9 @@
 
     " sudo write
     command! -bang SudoWrite
-        \ exec "w !sudo tee % > /dev/null"
+        \ let v:fcs_choice = "reload" |
+        \ exec "w !sudo tee % > /dev/null" |
+        \ let v:fcs_choice = ""
 
     " rename the current buffer
     command! -bar -nargs=1 -bang -complete=file Rename
@@ -329,8 +329,9 @@
     " select entire buffer
     nnoremap vg ggVG
 
-    " don't move on *
+    " don't move on * and #
     nnoremap * *<C-O>
+    nnoremap # #<C-O>
 
     " keep search matches in the middle of the window
     nnoremap n nzzzv
@@ -362,10 +363,6 @@
     " delete all trailing white-spaces
     nnoremap <F8> :call StripWhitespaces()<CR>
     inoremap <F8> <ESC>:call StripWhitespaces()<CR>a
-
-    " toggle between dark and light background
-    "nnoremap <silent> <F7> :exe 'set bg=' . (&bg == 'dark' ? 'light' : 'dark')<CR>
-    "inoremap <silent> <F7> <ESC>:exe 'set bg=' . (&bg == 'dark' ? 'light' : 'dark')<CR>a
 
     " make
     nnoremap <F5> :make<CR>
@@ -481,46 +478,32 @@
 
     " to display a variable-length file path according the witdh of the
     " current window
-    fu! NiceFilePath()
-        if !strlen(expand('%')) || &bt == 'help' || &bt == 'nofile'
-            return ''
-        endif
-        let path = substitute(expand('%:p:h'), $HOME, '~', '')
-        let fname = expand('%:t')
-
-        let x = winwidth(winnr()) - 55
-        let max_chars = float2nr(5 * sqrt(x < 0 ? 0 : x))
-
-        " be sure the file name is shown entirely
-        if max_chars < strlen(fname)
-            let max_chars = strlen(fname)
+    fu! CustomFilePath()
+        if &bt == 'help' || &bt == 'nofile'
+            return expand('%:t')
         endif
 
-        " cut the path if it's too long.
-        let str_len = strlen(path) + strlen(fname)
-        if str_len > max_chars
-            let path = strpart(path, str_len - max_chars)
-        endif
+        let path = substitute(expand('%:p'), $HOME, '~', '')
+        let x = winwidth(winnr()) - 50
+        let available_chars = float2nr(6 * sqrt(x < 0 ? 0 : x))
 
-        " round the path to the nearest slash.
-        if path[0] != '~' && path[0] != '/'
-            let path = strpart(path, match(path, '\/') + 1)
+        if strlen(path) > available_chars
+            let path = strpart(path, strlen(path) - available_chars)
+            " round the path to the nearest slash
+            let cut_pos = match(path, '\/')
+            if cut_pos >= 0
+                let path = strpart(path, cut_pos + 1)
+            endif
         endif
-
-        if path[0] == '/'
-            let path = strpart(path, 1)
-        endif
-
-        return strlen(path) ? path . '/' : ''
+        return path
     endfu
 
     " to strip trailing whitespace
     fu! StripWhitespaces()
         let cursor = getpos(".")
-        let search = getreg('/')
-        :%s/\s\+$//e
+        exec "%s/\\s\\+$//e"
+        call histdel("search", -1)
         call setpos('.', cursor)
-        call setreg('/', search)
     endfu
 
     " to display a better text for closed folds
@@ -530,7 +513,7 @@
             let line = substitute(line, split(&foldmarker, ',')[0], '', 1)
         endif
         let stripped_line = substitute(line, '^ *', '', 1)
-        let stripped_line = substitute(stripped_line, '{$', '', 1)
+        let stripped_line = substitute(stripped_line, '{\s*$', '', 1)
         let n = len(line) - len(stripped_line)
         return '+' . repeat('-', n-1) . ' ' . stripped_line
     endfu
@@ -543,19 +526,24 @@
     " to restore the cursor position
     fu! RestoreCursorPosition()
         if line("'\"") > 0 && line("'\"") <= line("$")
-            exe "normal `\""
+            exec "normal `\""
         endif
     endfu
 
-    " to open hyperlinks in the default browser
+    " to open the hyperlink under cursor in the default browser
     fu! OpenHyperlink()
         let cursor = getpos(".")
-        exec "normal viW\<ESC>" | exec "normal viW\<ESC>"
+        if &ft == "markdown"
+            exec "normal vi)\<ESC>" | exec "normal vi)\<ESC>"
+        else
+            exec "normal viW\<ESC>" | exec "normal viW\<ESC>"
+        endif
         let start = col("'<")
         let end = col("'>")
         let word = strpart(getline("."), start-1, end-start+1)
-        if match(word, "^http://") >= 0 || match(word, "^www\.") >= 0 
-            if match(word, "^http://") < 0
+        echom word
+        if match(word, "^http://\\|https://\\|^www\.") >= 0
+            if match(word, "^http") < 0
                 let word = "http://" . word
             endif
             exec "silent !open " . word
@@ -566,3 +554,5 @@
     endfu
 
 " }}}
+
+" vim: fdm=marker:
