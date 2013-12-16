@@ -88,6 +88,7 @@
         au BufWritePost .vimrc source $MYVIMRC
         au BufWinEnter * call RestoreCursorPosition()
         au BufWritePre * sil! call StripWhitespaces()
+        au FileChangedShell * call HandleFileChangedShellEvent()
         au FocusLost,FocusGained,CursorHold,VimResized * call PlumSetBackground()
         au BufReadPost * if &key != "" | setl noswf nowb viminfo= nobk nostmp history=0 secure | endif
 
@@ -107,8 +108,7 @@
         au Filetype python  nnoremap <buffer> <F6> :!python %<CR>
         au Filetype python  inoremap <buffer> <F6> <ESC>:!python %<CR>a
 
-        au Filetype go  setl nolist ts=4 noet fdm=syntax fdn=1 makeprg=go\ build
-        au Filetype go  setl ofu=gocomplete#Complete
+        au Filetype go  setl nolist ts=4 noet fdm=syntax fdn=1 makeprg=go\ build ofu=gocomplete#Complete
         au FileType go  nnoremap <buffer> <F6> :!go run *.go<CR>
         au FileType go  inoremap <buffer> <F6> <ESC>:!go run *.go<CR>a
         au FileType go  nnoremap <buffer> <F7> :exe (&ft == 'go' ? 'Fmt' : '')<CR>:w<CR>
@@ -124,7 +124,7 @@
     let html_no_rendering = 1
 
     " colorscheme options
-    let g:plum_force_bg = "dark"
+    "let g:plum_force_bg = "dark"
     let g:plum_cursorline_highlight_only_linenr = 1
 
     colorscheme plum
@@ -153,7 +153,7 @@
     set number
     set cursorline
     "set colorcolumn=81
-    call matchadd("SpellRare", "\\%81v[^$]", -1)
+    call matchadd("SpellRare", "\\%81v.", -1)
 
     set ttyfast
     set notimeout
@@ -254,9 +254,8 @@
 
     " sudo write
     command! -bang SudoWrite
-        \ let v:fcs_choice = "reload" |
         \ exec "w !sudo tee % > /dev/null" |
-        \ let v:fcs_choice = ""
+        \ call feedkeys("\\<CR>")
 
     " rename the current buffer
     command! -bar -nargs=1 -bang -complete=file Rename
@@ -476,6 +475,21 @@
 
 " FUNCTIONS -------------------------------- {{{
 
+    " to handle the FileChangedShell event
+    fu! HandleFileChangedShellEvent()
+        let l:msg = "File changed shell "
+        if match(v:fcs_reason, "changed\\|conflict\\|deleted") == 0
+            let l:msg .= "[".v:fcs_reason ."]."
+            let v:fcs_choice = "reload"
+            if v:fcs_reason == "deleted"
+                let &mod = 1
+            endif
+        else
+            let v:fcs_choice = "ask"
+        endif
+        echohl WarningMsg | echom l:msg | echohl None
+    endfu
+
     " to display a variable-length file path according the witdh of the
     " current window
     fu! CustomFilePath()
@@ -541,7 +555,6 @@
         let start = col("'<")
         let end = col("'>")
         let word = strpart(getline("."), start-1, end-start+1)
-        echom word
         if match(word, "^http://\\|https://\\|^www\.") >= 0
             if match(word, "^http") < 0
                 let word = "http://" . word
