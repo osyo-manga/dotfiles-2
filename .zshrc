@@ -1,7 +1,7 @@
 
 # .zshrc
 
-for file in $HOME/.zsh/{profile,path,misc,prompt,exports,aliases,functions,options}; do
+for file in $HOME/.zsh/{profile,options,functions,exports,path,misc,prompt,aliases}; do
     [ -r "$file" ] && source "$file"
 done
 unset file
