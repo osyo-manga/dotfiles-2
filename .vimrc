@@ -142,13 +142,13 @@
 
     endif
 
+    sil! aunmenu Help
+    sil! aunmenu Window
+
     set noerrorbells vb t_vb=
     set t_Co=256
     set nostartofline
     set formatoptions=qn1c
-
-    set nowrap
-    set textwidth=79
 
     set number
     set cursorline
@@ -161,10 +161,10 @@
     set ttimeoutlen=0
 
     set mouse=a
-    set virtualedit=all
+    set virtualedit=insert
 
     set title
-    set titlestring=%<%((git:%{fugitive#head()})%)\ %F
+    set titlestring=%<%((⎇\ %{fugitive#head()})%)\ %F
     set titlelen=100
 
     set completeopt=longest,menuone
@@ -190,15 +190,19 @@
 
     set autoindent
     set smartindent
-    set cindent
 
     set splitbelow
     set splitright
 
     set nowrap
+    set whichwrap+=<,>,h,l,[,]
+
     set nolist
     set fillchars=vert:\|
     set listchars=tab:\|\ ,trail:·,precedes:…,extends:…
+
+    set nowrap
+    set textwidth=79
     set showbreak=..
     set linebreak
 
@@ -221,7 +225,9 @@
 
     set stl=
     set stl+=\ %w%r%#StatusLineErr#%m%*%h
-    set stl+=\ #%{bufnr('%')}\ %((git:%{fugitive#head()})\ %)%{CustomFilePath()}
+    set stl+=\ #%{bufnr('%')}
+    set stl+=\ %((%{fugitive#head()})\ %)
+    set stl+=%{CustomFilePath()}
     set stl+=%=
     set stl+=%{strlen(&ft)?tolower(&ft).'\ ~\ ':''}
     set stl+=%{winwidth(winnr())>80?(strlen(&fenc)?&fenc.':':'').&ff.'\ ~\ ':''}
@@ -234,16 +240,17 @@
 
     let mapleader=","
 
-    command! -complete=file -nargs=* E exec 'e '.<q-args>
-    command! -bang -range=% -complete=file -nargs=* W <line1>,<line2>write<bang> <args>
-    command! -bang Q quit<bang>
-    command! Wa wa | command! WA wa
-    command! Wq wq | command! WQ wq
-    command! On on | command! ON on
-    command! Mes mes | command! M mes
+    cabbrev E e
+    cabbrev W w
+    cabbrev Q q
+    cabbrev Wa wa
+    cabbrev WA wa
+    cabbrev Wq wq
+    cabbrev WQ wq
+    cabbrev Mes mes
+
     nnoremap q: :q
     nnoremap ; :
-
     nnoremap ' `
 
     nmap j gj
@@ -254,8 +261,7 @@
 
     " sudo write
     command! -bang SudoWrite
-        \ exec "w !sudo tee % > /dev/null" |
-        \ call feedkeys("\\<CR>")
+        \ exec "w !sudo tee % > /dev/null"
 
     " rename the current buffer
     command! -bar -nargs=1 -bang -complete=file Rename
@@ -478,7 +484,7 @@
     " to handle the FileChangedShell event
     fu! HandleFileChangedShellEvent()
         let l:msg = "File changed shell "
-        if match(v:fcs_reason, "changed\\|conflict\\|deleted") == 0
+        if v:fcs_reason =~# "changed\\|conflict\\|deleted"
             let l:msg .= "[".v:fcs_reason ."]."
             let v:fcs_choice = "reload"
             if v:fcs_reason == "deleted"
@@ -504,7 +510,7 @@
         if strlen(path) > available_chars
             let path = strpart(path, strlen(path) - available_chars)
             " round the path to the nearest slash
-            let cut_pos = match(path, '\/')
+            let cut_pos = match(path, '/')
             if cut_pos >= 0
                 let path = strpart(path, cut_pos + 1)
             endif
@@ -547,22 +553,17 @@
     " to open the hyperlink under cursor in the default browser
     fu! OpenHyperlink()
         let cursor = getpos(".")
-        if &ft == "markdown"
-            exec "normal vi)\<ESC>" | exec "normal vi)\<ESC>"
-        else
-            exec "normal viW\<ESC>" | exec "normal viW\<ESC>"
-        endif
+        let motion = &ft == "markdown" ? "vi)" : "viW"
+        exec "normal " . motion . "\<ESC>" | exec "normal " . motion . "\<ESC>"
         let start = col("'<")
         let end = col("'>")
         let word = strpart(getline("."), start-1, end-start+1)
-        if match(word, "^http://\\|https://\\|^www\.") >= 0
-            if match(word, "^http") < 0
-                let word = "http://" . word
-            endif
-            exec "silent !open " . word
+        if word =~# "^http://\\|^https://\\|^www\."
+            let link = word =~# "^http" ? word : "http://" . word
+            exec "silent !open " . link
             call setpos('.', cursor)
         else
-            exec "normal viW"
+            exec "normal viw"
         endif
     endfu
 
