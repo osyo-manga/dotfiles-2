@@ -7,6 +7,10 @@
     filetype off
     filetype plugin indent off
 
+    " This prevents YCM server to crash when MacVim.app is opened outside
+    " the terminal.
+    let $PATH = $HOME.'/bin:/usr/local/bin:'.$PATH
+
     set rtp+=$HOME/dropbox/dev/vim-tag-surfer
     set rtp+=$HOME/dropbox/dev/vim-plum
     set rtp+=$HOME/dropbox/dev/vim-taboo
@@ -83,7 +87,6 @@
     augroup vim_stuff
         au!
 
-        au VimEnter * let $PATH = $HOME.'/bin:/usr/local/bin:'.$PATH
         au VimResized * wincmd = | redraw
         au BufWritePost .vimrc source $MYVIMRC
         au BufWinEnter * call RestoreCursorPosition()
@@ -141,9 +144,6 @@
         endif
 
     endif
-
-    sil! aunmenu Help
-    sil! aunmenu Window
 
     set noerrorbells vb t_vb=
     set t_Co=256
@@ -350,13 +350,13 @@
     inoremap <C-E> <esc>]}a
 
     " typos
-    iabbr lenght length
-    iabbr wiht with
-    iabbr prinln println
-    iabbr Flase False
-    iabbr retrun return
-    iabbr NOne None
-    iabbr pytohn python
+    iabbrev lenght length
+    iabbrev wiht with
+    iabbrev prinln println
+    iabbrev Flase False
+    iabbrev retrun return
+    iabbrev NOne None
+    iabbrev pytohn python
 
     " easy backquote and tilde
     inoremap <leader>' `
@@ -475,7 +475,7 @@
 
     " YouCompleteMe
 
-    let g:ycm_filetype_blacklist = {'vim':1}
+    let g:ycm_filetype_blacklist = {'vim' : 1}
 
 " }}}
 
@@ -532,7 +532,7 @@
         if (&foldmethod == 'marker')
             let line = substitute(line, split(&foldmarker, ',')[0], '', 1)
         endif
-        let stripped_line = substitute(line, '^ *', '', 1)
+        let stripped_line = substitute(line, '^\s*', '', 1)
         let stripped_line = substitute(stripped_line, '{\s*$', '', 1)
         let n = len(line) - len(stripped_line)
         return '+' . repeat('-', n-1) . ' ' . stripped_line
@@ -545,8 +545,8 @@
 
     " to restore the cursor position
     fu! RestoreCursorPosition()
-        if line("'\"") > 0 && line("'\"") <= line("$")
-            exec "normal `\""
+        if line('`"') <= line('$')
+            exec 'sil! normal! `"zozz'
         endif
     endfu
 
@@ -554,16 +554,15 @@
     fu! OpenHyperlink()
         let cursor = getpos(".")
         let motion = &ft == "markdown" ? "vi)" : "viW"
-        exec "normal " . motion . "\<ESC>" | exec "normal " . motion . "\<ESC>"
-        let start = col("'<")
-        let end = col("'>")
+        exec "normal! " . motion . "\<ESC>"
+        let [start, end] = [col("'<"), col("'>")]
         let word = strpart(getline("."), start-1, end-start+1)
+        call setpos('.', cursor)
         if word =~# "^http://\\|^https://\\|^www\."
             let link = word =~# "^http" ? word : "http://" . word
             exec "silent !open " . link
-            call setpos('.', cursor)
         else
-            exec "normal viw"
+            exec "normal! viw"
         endif
     endfu
 
