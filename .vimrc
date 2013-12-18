@@ -64,7 +64,6 @@
     set autoread
     set modeline
     set cryptmethod=blowfish
-    set shell=bash\ -i
 
     set viminfo=!,'100,\"100,:20,<50,s10,h,n~/.viminfo
     set history=10000
@@ -88,30 +87,35 @@
         au!
 
         au VimResized * wincmd = | redraw
-        au BufWritePost .vimrc source $MYVIMRC
-        au BufWinEnter * call RestoreCursorPosition()
+        au BufReadPost * call RestoreCursorPosition()
         au BufWritePre * sil! call StripWhitespaces()
         au FileChangedShell * call HandleFileChangedShellEvent()
         au FocusLost,FocusGained,CursorHold,VimResized * call PlumSetBackground()
         au BufReadPost * if &key != "" | setl noswf nowb viminfo= nobk nostmp history=0 secure | endif
 
+        au BufWritePost .vimrc source $MYVIMRC
+        au BufWritePost plum.vim colorscheme plum
+
+        au WinEnter * set cursorline
+        au WinLeave * set nocursorline
+
         au BufRead,BufNewFile *.pde  setf java
         au BufRead,BufNewFile *.clj  setf clojure
         au BufRead,BufNewFile *.json  setf javascript
 
-        au Filetype text  nnoremap <silent> <buffer> <2-LeftMouse> :call OpenHyperlink()<CR>
-        au Filetype markdown  nnoremap <silent> <buffer> <2-LeftMouse> :call OpenHyperlink()<CR>
+        au FileType text  nnoremap <silent> <buffer> <2-LeftMouse> :call OpenHyperlink()<CR>
+        au FileType markdown  nnoremap <silent> <buffer> <2-LeftMouse> :call OpenHyperlink()<CR>
 
-        au Filetype gitconfig  setl noet
-        au Filetype vim  setl fdm=marker
-        au Filetype html  setl sts=2 ts=2 sw=2
-        au Filetype css  setl sts=2 ts=2 sw=2
+        au FileType gitconfig  setl noet
+        au FileType vim  setl fdm=marker
+        au FileType html  setl sts=2 ts=2 sw=2
+        au FileType css  setl sts=2 ts=2 sw=2
 
-        au Filetype python  setl fdm=indent fdn=2 fdl=1
-        au Filetype python  nnoremap <buffer> <F6> :!python %<CR>
-        au Filetype python  inoremap <buffer> <F6> <ESC>:!python %<CR>a
+        au FileType python  setl fdm=indent fdn=2 fdl=1
+        au FileType python  nnoremap <buffer> <F6> :!python %<CR>
+        au FileType python  inoremap <buffer> <F6> <ESC>:!python %<CR>a
 
-        au Filetype go  setl nolist ts=4 noet fdm=syntax fdn=1 makeprg=go\ build ofu=gocomplete#Complete
+        au FileType go  setl nolist ts=4 noet fdm=syntax fdn=1 makeprg=go\ build ofu=gocomplete#Complete
         au FileType go  nnoremap <buffer> <F6> :!go run *.go<CR>
         au FileType go  inoremap <buffer> <F6> <ESC>:!go run *.go<CR>a
         au FileType go  nnoremap <buffer> <F7> :exe (&ft == 'go' ? 'Fmt' : '')<CR>:w<CR>
@@ -145,20 +149,20 @@
 
     endif
 
+    set ttyfast
     set noerrorbells vb t_vb=
     set t_Co=256
     set nostartofline
     set formatoptions=qn1c
 
+    set notimeout
+    set ttimeout
+    set ttimeoutlen=0
+
     set number
     set cursorline
     "set colorcolumn=81
     call matchadd("SpellRare", "\\%81v.", -1)
-
-    set ttyfast
-    set notimeout
-    set ttimeout
-    set ttimeoutlen=0
 
     set mouse=a
     set virtualedit=insert
@@ -240,27 +244,16 @@
 
     let mapleader=","
 
-    cabbrev E e
-    cabbrev W w
-    cabbrev Q q
-    cabbrev Wa wa
-    cabbrev WA wa
-    cabbrev Wq wq
-    cabbrev WQ wq
-    cabbrev Mes mes
-
-    nnoremap q: :q
-    nnoremap ; :
-    nnoremap ' `
-
-    nmap j gj
-    nmap k gk
+    noremap j gj
+    noremap k gk
+    noremap gj j
+    noremap gk k
 
     vnoremap < <gv
     vnoremap > >gv
 
     " sudo write
-    command! -bang SudoWrite
+    command! -bang Write
         \ exec "w !sudo tee % > /dev/null"
 
     " rename the current buffer
@@ -269,18 +262,6 @@
         \ setl modified |
         \ call delete(expand('#:p')) |
         \ exec "silent bw " . expand('#:p')
-
-    " edit the .vimrc file
-    nnoremap <silent> <leader>r :e $MYVIMRC<CR>
-
-    " kill the window
-    nnoremap <silent> Q :q<CR>
-
-    " kill only the buffer but keep the window
-    nnoremap <leader>q :Kwbd<CR>
-
-    " let Y behave like other capitals
-    nnoremap Y y$
 
     " use arrows for moving among tabs and buffers
     inoremap <up> <ESC>gt
@@ -298,28 +279,57 @@
     nnoremap <SwipeLeft> :bN<CR>
     nnoremap <SwipeRight> :bn<CR>
 
+    " windows navigation
+    noremap <C-h> <C-W>h
+    noremap <C-j> <C-W>j
+    noremap <C-k> <C-W>k
+    noremap <C-l> <C-W>l
+
     " clear searches
     nnoremap <silent> <leader><space> :noh<CR>
 
+    " edit the .vimrc file
+    nnoremap <silent> <leader>r :e $MYVIMRC<CR>
+
+    " kill the window
+    nnoremap <silent> Q :q<CR>
+
+    " kill only the buffer but keep the window
+    nnoremap <leader>q :Kwbd<CR>
+
+    " let Y behave like other capitals
+    nnoremap Y y$
+
+    " discard deletion
+    nnoremap <leader>d "_dd
+    vnoremap <leader>d "_d
+
+    " paste the last yanked text
+    nnoremap <C-P> "0p
+    vnoremap <C-P> "0p
+
+    " paste and indent
+    nnoremap <leader>p p`[v`]=
+
     " select the current line excluding starting whitespaces
-    nnoremap vv ^v$
+    nnoremap vv ^vg_
 
     " alternate buffer (last modified/viewed buffer)
-    nnoremap <space> <c-^>
+    nnoremap <SPACE> <C-^>
 
     " move across buffers
     nnoremap <silent> <leader>n :bn<CR>
     nnoremap <silent> <leader>m :bp<CR>
 
     " curly brackets are a nightmare on european keyboards
-    nnoremap <silent> <tab> }
-    vnoremap <silent> <tab> }
+    nnoremap <silent> <TAB> }
+    vnoremap <silent> <TAB> }
     nnoremap <silent> \ {
     vnoremap <silent> \ {
 
     " split windows
-    nnoremap <leader>w <C-w>v<C-w>l
-    nnoremap <leader>W <C-w>s<C-w>l
+    nnoremap <leader>w <C-W>v<C-W>l
+    nnoremap <leader>W <C-W>s<C-W>l
 
     " open/close tabs
     nnoremap <leader>t :tabedit! %<CR>
@@ -327,9 +337,6 @@
     " toggle options
     nnoremap <leader>i :set number!<CR>
     nnoremap <leader>o :set wrap!<CR>
-
-    " paste and indent
-    nnoremap <silent> <leader>p p`[v`]=
 
     " select entire buffer
     nnoremap vg ggVG
@@ -349,24 +356,33 @@
     inoremap <C-W> <ESC>lwi
     inoremap <C-O> <ESC>O
 
+    " pair bracket
     inoremap <silent> { {}<ESC>i
     inoremap <silent> [ []<ESC>i
     inoremap <silent> ( ()<ESC>i
     inoremap <silent> < <><ESC>i
-    inoremap <silent> " ""<ESC>i
-    inoremap <silent> ' ''<ESC>i
 
-    inoremap <silent> <C-E> <ESC>/[)}"'\]>]<CR>:noh<CR>:call histdel("search",-1)<CR>a
-    inoremap <C-I> <CR><ESC>O
+    inoremap <silent> <C-E> <ESC>/[)}\]>]<CR>:noh<CR>:call histdel("search",-1)<CR>a
+    inoremap <C-X> <CR><ESC>O
 
     " typos
     iabbrev lenght length
     iabbrev wiht with
     iabbrev retrun return
+    cabbrev E e
+    cabbrev W w
+    cabbrev Q q
+    cabbrev Wa wa
+    cabbrev WA wa
+    cabbrev Wq wq
+    cabbrev WQ wq
+    cabbrev Mes mes
 
-    " easy backquote and tilde
     inoremap <leader>' `
     inoremap <leader>? ~
+
+    nnoremap q: :q
+    nnoremap ; :
 
     " delete last path component in the command line
     cnoremap <C-S> <C-\>e(<SID>RemoveLastPathComponent())<CR>
@@ -404,8 +420,10 @@
     inoremap <silent> <F2> <ESC>:TagbarToggle<CR>a
     let g:tagbar_type_go = {
         \ 'ctagstype' : 'go',
-        \ 'kinds' : ['p:package:1','i:imports:1','c:constants','v:variables','t:types','n:interfaces',
-                    \ 'w:fields','e:embedded','m:methods','r:constructor','f:functions'],
+        \ 'kinds' : [
+            \ 'p:package:1','i:imports:1','c:constants','v:variables','t:types',
+            \ 'n:interfaces', 'w:fields','e:embedded','m:methods','r:constructor',
+            \ 'f:functions'],
         \ 'sro' : '.',
         \ 'kind2scope' : {'t' : 'ctype', 'n' : 'ntype'},
         \ 'scope2kind' : {'ctype' : 't', 'ntype' : 'n'},
@@ -428,8 +446,10 @@
         \"go": {
             \"bin": "/Users/giacomo/bin/go/bin/gotags",
             \"args": "-silent -sort",
-            \"kinds_map": {'p': 'package', 'i': 'import', 'c': 'constant', 'v': 'variable', 't': 'type', 'n': 'interface',
-                \'w': 'field', 'e': 'embedded', 'm': 'method', 'r': 'constructor', 'f': 'function'},
+            \"kinds_map": {
+                \ 'p': 'package', 'i': 'import', 'c': 'constant', 'v': 'variable',
+                \ 't': 'type', 'n': 'interface', 'w': 'field','e': 'embedded',
+                \ 'm': 'method', 'r': 'constructor', 'f': 'function'},
             \"exclude_kinds": ["package", "import"],
             \"extensions": [".go"]
         \}
@@ -478,6 +498,7 @@
     " Vim Instant Markdown
 
     let g:instant_markdown_slow = 1
+    let g:instant_markdown_autostart = 0
 
     " YouCompleteMe
 
@@ -552,7 +573,7 @@
     " to restore the cursor position
     fu! RestoreCursorPosition()
         if line('`"') <= line('$')
-            exec 'sil! normal! `"zvzz'
+            exec 'sil! normal! g`"zvzz'
         endif
     endfu
 
