@@ -343,31 +343,37 @@
     nnoremap N Nzzzv
 
     " useful cheats
-    inoremap <C-A> <esc>I
-    inoremap <C-Z> <esc>A
-    inoremap <C-S> <esc>diwi
-    inoremap <C-W> <esc>]}o
-    inoremap <C-E> <esc>]}a
+    inoremap <C-A> <ESC>I
+    inoremap <C-Z> <ESC>A
+    inoremap <C-S> <ESC>diwa
+    inoremap <C-W> <ESC>lwi
+    inoremap <C-O> <ESC>O
+
+    inoremap <silent> { {}<ESC>i
+    inoremap <silent> [ []<ESC>i
+    inoremap <silent> ( ()<ESC>i
+    inoremap <silent> < <><ESC>i
+    inoremap <silent> " ""<ESC>i
+    inoremap <silent> ' ''<ESC>i
+
+    inoremap <silent> <C-E> <ESC>/[)}"'\]>]<CR>:noh<CR>:call histdel("search",-1)<CR>a
+    inoremap <C-I> <CR><ESC>O
 
     " typos
     iabbrev lenght length
     iabbrev wiht with
-    iabbrev prinln println
-    iabbrev Flase False
     iabbrev retrun return
-    iabbrev NOne None
-    iabbrev pytohn python
 
     " easy backquote and tilde
     inoremap <leader>' `
     inoremap <leader>? ~
 
     " delete last path component in the command line
-    cnoremap <C-T> <C-\>e(<SID>RemoveLastPathComponent())<CR>
+    cnoremap <C-S> <C-\>e(<SID>RemoveLastPathComponent())<CR>
 
     " delete all trailing white-spaces
-    nnoremap <F8> :call StripWhitespaces()<CR>
-    inoremap <F8> <ESC>:call StripWhitespaces()<CR>a
+    nnoremap <silent> <F8> :call StripWhitespaces()<CR>
+    inoremap <silent> <F8> <ESC>:call StripWhitespaces()<CR>a
 
     " make
     nnoremap <F5> :make<CR>
@@ -546,7 +552,7 @@
     " to restore the cursor position
     fu! RestoreCursorPosition()
         if line('`"') <= line('$')
-            exec 'sil! normal! `"zozz'
+            exec 'sil! normal! `"zvzz'
         endif
     endfu
 
