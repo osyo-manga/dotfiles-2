@@ -356,14 +356,18 @@
     inoremap <C-W> <ESC>lwi
     inoremap <C-O> <ESC>O
 
-    " pair bracket
-    inoremap <silent> { {}<ESC>i
-    inoremap <silent> [ []<ESC>i
-    inoremap <silent> ( ()<ESC>i
-    inoremap <silent> < <><ESC>i
+    " insert pair bracket
+    inoremap <silent> { <C-R>=SmartPairBracketInsertion("{", "}")<CR>
+    inoremap <silent> [ <C-R>=SmartPairBracketInsertion("[", "]")<CR>
+    inoremap <silent> ( <C-R>=SmartPairBracketInsertion("(", ")")<CR>
+    inoremap <silent> < <C-R>=SmartPairBracketInsertion("<", ">")<CR>
 
-    inoremap <silent> <C-E> <ESC>/[)}\]>]<CR>:noh<CR>:call histdel("search",-1)<CR>a
-    inoremap <C-X> <CR><ESC>O
+    " insert pair quote
+    inoremap <silent> " <C-R>=SmartPairQuoteInsertion('"')<CR>
+    inoremap <silent> ' <C-R>=SmartPairQuoteInsertion("'")<CR>
+
+    inoremap <silent> <C-Z> <ESC>/[)}\]>'"]<CR>:noh<CR>:call histdel("search",-1)<CR>a
+    inoremap <silent> <ENTER> <C-R>=SmartEnter()<CR>
 
     " typos
     iabbrev lenght length
@@ -507,6 +511,48 @@
 " }}}
 
 " FUNCTIONS -------------------------------- {{{
+
+    fu! _count(haystack, needle)
+        if type(a:haystack) == 1
+            return count(split(a:haystack, "\\zs"), a:needle)
+        elseif type(a:haystack) == 3 || type(a:haystack) == 4
+            return count(a:haystack, a:needle)
+        endif
+    endfu
+
+    fu! SmartPairQuoteInsertion(quote)
+        let line = getline(".")
+        let context = line[col(".")-2] . line[col(".")-1]
+        let [before, after] = [line[:col(".")-2], line[col(".")-1:]]
+        if a:quote == '"'
+            let special_cond = &ft == "vim" && before =~# "^\\s\\+$"
+        else
+            let special_cond = before[strlen(before)-1] =~# "\[a-zA-Z\]"
+        endif
+        if (special_cond || _count(before, a:quote) != _count(after, a:quote))
+            \ && context !~# "()\\|\[\]\\|{}"
+            return a:quote
+        endif
+        return a:quote.a:quote."\<ESC>i"
+    endfu
+
+    fu! SmartPairBracketInsertion(obr, cbr)
+        let line = getline(".")
+        let [before, after] = [line[:col(".")-2], line[col(".")-1:]]
+        if _count(before, a:obr) != _count(after, a:cbr)
+            return a:obr
+        endif
+        return a:obr.a:cbr."\<ESC>i"
+    endfu
+
+    fu! SmartEnter()
+        let context = getline(".")[col(".")-2] . getline(".")[col(".")-1]
+        if context =~# "()\\|\[\]\\|{}"
+            return "\<CR>\<ESC>O"
+        else
+            return "\<CR>"
+        endif
+    endfu
 
     " to handle the FileChangedShell event
     fu! HandleFileChangedShellEvent()
