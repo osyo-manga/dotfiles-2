@@ -506,7 +506,9 @@
 
     " Ack
 
-    nnoremap <leader>s :Ack
+    command! -nargs=* Ackp exec "Ack ".<q-args>." ".pyeval('_find_project_root()')
+    nnoremap <expr> <leader>a ":Ack "
+    nnoremap <expr> <leader>A ":Ackp "
 
     " Ultisnips
 
@@ -525,6 +527,28 @@
 " }}}
 
 " FUNCTIONS -------------------------------- {{{
+
+python << END
+import vim
+
+def _find_project_root(path=None, markers=None):
+    """To find the the root of the current project.
+
+    `markers` is a list of file/directory names the can be found
+    in a project root directory.
+    """
+    if path is None:
+        path = vim.eval("getcwd()")
+    if markers is None:
+        markers = ['.git', '.svn', '.hg', '.bzr']
+    if path == "/":
+        return ""
+    elif any(m in os.listdir(path) for m in markers):
+        return path
+    else:
+        return _find_project_root(os.path.dirname(path), markers)
+
+END
 
     fu! _count(haystack, needle)
         if type(a:haystack) == 1
