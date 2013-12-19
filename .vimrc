@@ -539,29 +539,27 @@
         else
             let special_cond = before[strlen(before)-1] =~# "\[a-zA-Z\]"
         endif
-        if (special_cond || _count(before, a:quote) != _count(after, a:quote))
-            \ && context !~# "()\\|\[\]\\|{}"
+        if (special_cond || _count(line, a:quote) % 2 != 0) && context !~# "()\\|\[\]\\|{}"
             return a:quote
         endif
         return a:quote.a:quote."\<ESC>i"
     endfu
 
     fu! SmartPairBracketInsertion(obr, cbr)
-        let line = getline(".")
-        let [before, after] = [line[:col(".")-2], line[col(".")-1:]]
-        if _count(before, a:obr) != _count(after, a:cbr)
-            return a:obr
+        if _count(getline("."), a:obr) == _count(getline("."), a:cbr)
+            return a:obr.a:cbr."\<ESC>i"
         endif
-        return a:obr.a:cbr."\<ESC>i"
+        return a:obr
     endfu
 
     fu! SmartEnter()
         let context = getline(".")[col(".")-2] . getline(".")[col(".")-1]
         if context =~# "()\\|\[\]\\|{}"
             return "\<CR>\<ESC>O"
-        else
-            return "\<CR>"
         endif
+        return "\<CR>"
+    endfu
+
     fu! SmartBackspace()
         let line = getline(".")
         let context = getline(".")[col(".")-2] . getline(".")[col(".")-1]
