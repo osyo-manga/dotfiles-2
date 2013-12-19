@@ -376,6 +376,7 @@
 
     inoremap <silent> <C-Z> <ESC>/[)}\]>'"]<CR>:noh<CR>:call histdel("search",-1)<CR>a
     inoremap <silent> <ENTER> <C-R>=SmartEnter()<CR>
+    inoremap <silent> <BS> <C-R>=SmartBackspace()<CR>
 
     " typos
     iabbrev lenght length
@@ -561,6 +562,13 @@
         else
             return "\<CR>"
         endif
+    fu! SmartBackspace()
+        let line = getline(".")
+        let context = getline(".")[col(".")-2] . getline(".")[col(".")-1]
+        if context =~# "()\\|\[\]\\|{}\\|'\\|\"\"" && _count(line, context[0]) == _count(line, context[1])
+            return "\<ESC>la\<BS>\<BS>"
+        endif
+        return "\<BS>"
     endfu
 
     " to handle the FileChangedShell event
