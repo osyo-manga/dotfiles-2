@@ -513,7 +513,7 @@
     " Ultisnips
 
     let g:UltiSnipsSnippetDirectories = ["UltiSnips", "CustomSnips"]
-    let g:UltiSnipsExpandTrigger = "<C-J>"
+    let g:UltiSnipsExpandTrigger = "<C-C>"
 
     " Vim Instant Markdown
 
@@ -590,7 +590,7 @@ END
 
     fu! SmartBackspace()
         let line = getline(".")
-        let context = getline(".")[col(".")-2] . getline(".")[col(".")-1]
+        let context = line[col(".")-2] . line[col(".")-1]
         if context =~# "()\\|\[\]\\|{}\\|'\\|\"\"" && _count(line, context[0]) == _count(line, context[1])
             return "\<ESC>la\<BS>\<BS>"
         endif
