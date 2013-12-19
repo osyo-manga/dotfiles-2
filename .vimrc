@@ -399,7 +399,11 @@
     nnoremap ; :
 
     " delete last path component in the command line
-    cnoremap <C-S> <C-\>e(<SID>RemoveLastPathComponent())<CR>
+    cnoremap <C-T> <C-\>e(RemoveLastPathComponent())<CR>
+    cnoremap <C-W> <C-\>e(RemoveLastWord())<CR>
+
+    " inject the current project root in the command line
+    cnoremap <C-R> <C-\>e(InjectCurrentProjectRoot())<CR>
 
     " delete all trailing white-spaces
     nnoremap <silent> <F8> :call StripWhitespaces()<CR>
@@ -625,9 +629,14 @@
         return '+' . repeat('-', n-1) . ' ' . stripped_line
     endfu
 
-    " to delete the last path component in the command line (found on vim wikia)
-    fu! s:RemoveLastPathComponent()
+    " to delete the last path component in the command line
+    fu! RemoveLastPathComponent()
         return substitute(getcmdline(), '\%(\\ \|[\\/]\@!\f\)\+[\\/]\=$\|.$', '', '')
+    endfu
+
+    " to delete the last word in the command line
+    fu! RemoveLastWord()
+        return substitute(getcmdline(), '\S\+$', '', '')
     endfu
 
     " to restore the cursor position
