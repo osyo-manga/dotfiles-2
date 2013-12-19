@@ -400,6 +400,8 @@
 
     " delete last path component in the command line
     cnoremap <C-T> <C-\>e(RemoveLastPathComponent())<CR>
+
+    " delete last word in the command line
     cnoremap <C-W> <C-\>e(RemoveLastWord())<CR>
 
     " inject the current project root in the command line
@@ -506,7 +508,7 @@
 
     " Ack
 
-    command! -nargs=* Ackp exec "Ack ".<q-args>." ".pyeval('_find_project_root()')
+    command! -bang -nargs=* Ackp exec "Ack".<q-bang>." ".<q-args>." ".pyeval('_find_project_root()')
     nnoremap <expr> <leader>a ":Ack "
     nnoremap <expr> <leader>A ":Ackp "
 
