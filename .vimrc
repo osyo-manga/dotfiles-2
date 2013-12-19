@@ -529,7 +529,7 @@
 " FUNCTIONS -------------------------------- {{{
 
 python << END
-import vim
+import vim, os
 
 def _find_project_root(path=None, markers=None):
     """To find the the root of the current project.
@@ -541,6 +541,7 @@ def _find_project_root(path=None, markers=None):
         path = vim.eval("getcwd()")
     if markers is None:
         markers = ['.git', '.svn', '.hg', '.bzr']
+
     if path == "/":
         return ""
     elif any(m in os.listdir(path) for m in markers):
