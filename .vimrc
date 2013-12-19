@@ -64,6 +64,7 @@
     set autoread
     set modeline
     set cryptmethod=blowfish
+    set shell=bash\ -i
 
     set viminfo=!,'100,\"100,:20,<50,s10,h,n~/.viminfo
     set history=10000
@@ -129,6 +130,7 @@
 
     " syntax options
     let html_no_rendering = 1
+    let python_highlight_builtin_objs = 1
 
     " colorscheme options
     "let g:plum_force_bg = "dark"
@@ -231,7 +233,7 @@
     set stl+=\ %w%r%#StatusLineErr#%m%*%h
     set stl+=\ #%{bufnr('%')}
     set stl+=\ %((%{fugitive#head()})\ %)
-    set stl+=%{CustomFilePath()}
+    set stl+=%{DynamicFilePath()}
     set stl+=%=
     set stl+=%{strlen(&ft)?tolower(&ft).'\ ~\ ':''}
     set stl+=%{winwidth(winnr())>80?(strlen(&fenc)?&fenc.':':'').&ff.'\ ~\ ':''}
@@ -253,8 +255,9 @@
     vnoremap > >gv
 
     " sudo write
-    command! -bang Write
-        \ exec "w !sudo tee % > /dev/null"
+    command! -bang SudoWrite
+        \ exec "w !/usr/bin/sudo tee % > /dev/null" |
+        \ edit!
 
     " rename the current buffer
     command! -bar -nargs=1 -bang -complete=file Rename
@@ -264,20 +267,24 @@
         \ exec "silent bw " . expand('#:p')
 
     " use arrows for moving among tabs and buffers
-    inoremap <up> <ESC>gt
-    inoremap <down> <ESC>gT
-    inoremap <left> <ESC>:bp<CR>
-    inoremap <right> <ESC>:bn<CR>
-    nnoremap <up> gt
     nnoremap <down> gT
+    inoremap <down> <ESC>gT
+    nnoremap <up> gt
+    inoremap <up> <ESC>gt
     nnoremap <left> :bp<CR>
+    inoremap <left> <ESC>:bp<CR>
     nnoremap <right> :bn<CR>
+    inoremap <right> <ESC>:bn<CR>
 
     " osx gestures (MacVim only)
     nnoremap <SwipeDown> gT
+    inoremap <SwipeDown> <ESC>gT
     nnoremap <SwipeUp> gt
-    nnoremap <SwipeLeft> :bN<CR>
+    inoremap <SwipeUp> <ESC>gt
+    nnoremap <SwipeLeft> :bp<CR>
+    inoremap <SwipeLeft> <ESC>:bp<CR>
     nnoremap <SwipeRight> :bn<CR>
+    inoremap <SwipeRight> <ESC>:bn<CR>
 
     " windows navigation
     noremap <C-h> <C-W>h
@@ -351,9 +358,10 @@
 
     " useful cheats
     inoremap <C-A> <ESC>I
-    inoremap <C-Z> <ESC>A
-    inoremap <C-S> <ESC>diwa
+    inoremap <C-E> <ESC>A
+    inoremap <C-S> <ESC>ciw
     inoremap <C-W> <ESC>lwi
+    inoremap <C-B> <ESC>lbi
     inoremap <C-O> <ESC>O
 
     " insert pair bracket
@@ -381,6 +389,7 @@
     cabbrev Wq wq
     cabbrev WQ wq
     cabbrev Mes mes
+    cabbrev Set set
 
     inoremap <leader>' `
     inoremap <leader>? ~
@@ -559,7 +568,6 @@
         let l:msg = "File changed shell "
         if v:fcs_reason =~# "changed\\|conflict\\|deleted"
             let l:msg .= "[".v:fcs_reason ."]."
-            let v:fcs_choice = "reload"
             if v:fcs_reason == "deleted"
                 let &mod = 1
             endif
@@ -571,7 +579,7 @@
 
     " to display a variable-length file path according the witdh of the
     " current window
-    fu! CustomFilePath()
+    fu! DynamicFilePath()
         if &bt == 'help' || &bt == 'nofile'
             return expand('%:t')
         endif
