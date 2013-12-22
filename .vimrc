@@ -11,7 +11,10 @@
     " the terminal.
     let $PATH = $HOME.'/bin:/usr/local/bin:'.$PATH
 
-    set rtp+=$HOME/dropbox/dev/vim-tag-surfer
+    " go stuff
+    let $PATH = $HOME.'/bin/go/bin:'.$PATH
+
+    set rtp+=$HOME/dropbox/dev/vim-surfer
     set rtp+=$HOME/dropbox/dev/vim-plum
     set rtp+=$HOME/dropbox/dev/vim-taboo
     set rtp+=$HOME/dropbox/dev/vim-ozzy
@@ -42,6 +45,7 @@
     Bundle 'tpope/vim-haml'
     Bundle 'sjl/vitality.vim'
     Bundle 'suan/vim-instant-markdown'
+    Bundle 'ap/vim-css-color'
 
     filetype plugin indent on
     syntax on
@@ -66,7 +70,7 @@
     set cryptmethod=blowfish
     set shell=bash\ -i
 
-    set viminfo=!,'100,\"100,:20,<50,s10,h,n~/.viminfo
+    set viminfo=!,'100,:50,h,n~/.viminfo
     set history=10000
     set undolevels=10000
     set undofile
@@ -91,7 +95,7 @@
         au BufReadPost * call RestoreCursorPosition()
         au BufWritePre * sil! call StripWhitespaces()
         au FileChangedShell * call HandleFileChangedShellEvent()
-        au FocusLost,FocusGained,CursorHold,VimResized * call PlumSetBackground()
+        au FocusGained,InsertLeave,InsertEnter * call PlumSetBackground()
         au BufReadPost * if &key != "" | setl noswf nowb viminfo= nobk nostmp history=0 secure | endif
 
         au BufWritePost .vimrc source $MYVIMRC
@@ -101,18 +105,16 @@
         au WinLeave * set nocursorline
 
         au BufRead,BufNewFile *.pde  setf java
-        au BufRead,BufNewFile *.clj  setf clojure
         au BufRead,BufNewFile *.json  setf javascript
 
-        au FileType text  nnoremap <silent> <buffer> <2-LeftMouse> :call OpenHyperlink()<CR>
-        au FileType markdown  nnoremap <silent> <buffer> <2-LeftMouse> :call OpenHyperlink()<CR>
+        au FileType text,markdown  nnoremap <silent> <buffer> <2-LeftMouse> :call OpenHyperlink()<CR>
 
         au FileType gitconfig  setl noet
         au FileType vim  setl fdm=marker
         au FileType html  setl sts=2 ts=2 sw=2
         au FileType css  setl sts=2 ts=2 sw=2
 
-        au FileType python  setl fdm=indent fdn=2 fdl=1
+        au FileType python  setl cin tw=79 fdm=indent fdn=2 fdl=1
         au FileType python  nnoremap <buffer> <F6> :!python %<CR>
         au FileType python  inoremap <buffer> <F6> <ESC>:!python %<CR>a
 
@@ -152,19 +154,24 @@
     endif
 
     set ttyfast
-    set noerrorbells vb t_vb=
+    set noerrorbells
+    set novisualbell
+    set t_vb=
     set t_Co=256
     set nostartofline
     set formatoptions=qn1c
+    set nrformats-=octal
+    set tabpagemax=19
+    set lazyredraw
 
     set notimeout
     set ttimeout
-    set ttimeoutlen=0
+    set ttimeoutlen=50
 
     set number
     set cursorline
     "set colorcolumn=81
-    call matchadd("SpellRare", "\\%81v.", -1)
+    call matchadd("SpellRare", "\\%101v.", -1)
 
     set mouse=a
     set virtualedit=insert
@@ -173,7 +180,9 @@
     set titlestring=%<%((⎇\ %{fugitive#head()})%)\ %F
     set titlelen=100
 
+    set complete-=i
     set completeopt=longest,menuone
+
     set wildmenu
     set wildmode=longest,full
     set wildignore=*.dll,*.o,*.so,*.pyc,*$py.class,*.class,*.fasl,__pycache__
@@ -185,9 +194,10 @@
     set shortmess=IaA
     set noshowmode
 
-    set sidescrolloff=1
-    set scrolloff=0
+    set sidescrolloff=5
+    set scrolloff=5
 
+    set smarttab
     set expandtab
     set softtabstop=4
     set tabstop=4
@@ -208,7 +218,7 @@
     set listchars=tab:\|\ ,trail:·,precedes:…,extends:…
 
     set nowrap
-    set textwidth=79
+    set textwidth=100
     set showbreak=..
     set linebreak
 
@@ -237,7 +247,7 @@
     set stl+=%=
     set stl+=%{strlen(&ft)?tolower(&ft).'\ ~\ ':''}
     set stl+=%{winwidth(winnr())>80?(strlen(&fenc)?&fenc.':':'').&ff.'\ ~\ ':''}
-    set stl+=%1l:%02v\ (%L)
+    set stl+=%1l:%02v\ ~\ %P
     set stl+=%#StatusLineErr#%{empty(SyntasticStatuslineFlag())?'':'\ [errors]'}%*\ "
 
 " }}}
@@ -266,15 +276,15 @@
         \ call delete(expand('#:p')) |
         \ exec "silent bw " . expand('#:p')
 
-    " use arrows for moving among tabs and buffers
-    nnoremap <down> gT
-    inoremap <down> <ESC>gT
-    nnoremap <up> gt
-    inoremap <up> <ESC>gt
-    nnoremap <left> :bp<CR>
-    inoremap <left> <ESC>:bp<CR>
-    nnoremap <right> :bn<CR>
-    inoremap <right> <ESC>:bn<CR>
+    " tabs navigation and relocation
+    nnoremap <left> gT
+    inoremap <left> <ESC>gT
+    nnoremap <right> gt
+    inoremap <right> <ESC>gt
+    nnoremap <silent> <down> :exec 'sil! tabmove ' . (tabpagenr()-2)<CR>
+    inoremap <silent> <down> <ESC>:exec 'sil! tabmove ' . (tabpagenr()-2)<CR>
+    nnoremap <silent> <up> :exec 'sil! tabmove ' . tabpagenr()<CR>
+    inoremap <silent> <up> <ESC>:exec 'sil! tabmove ' . tabpagenr()<CR>
 
     " osx gestures (MacVim only)
     nnoremap <SwipeDown> gT
@@ -302,7 +312,7 @@
     nnoremap <silent> Q :q<CR>
 
     " kill only the buffer but keep the window
-    nnoremap <leader>q :Kwbd<CR>
+    nnoremap <silent> <leader>q :call Kwbd(1)<CR>
 
     " let Y behave like other capitals
     nnoremap Y y$
@@ -329,21 +339,22 @@
     nnoremap <silent> <leader>m :bp<CR>
 
     " curly brackets are a nightmare on european keyboards
-    nnoremap <silent> <TAB> }
-    vnoremap <silent> <TAB> }
-    nnoremap <silent> \ {
-    vnoremap <silent> \ {
+    nnoremap <TAB> }
+    vnoremap <TAB> }
+    nnoremap \ {
+    vnoremap \ {
 
     " split windows
     nnoremap <leader>w <C-W>v<C-W>l
     nnoremap <leader>W <C-W>s<C-W>l
 
     " open/close tabs
-    nnoremap <leader>t :tabedit! %<CR>
+    nnoremap <leader>te :tabedit! <C-R>=expand("%:p")<CR><CR>
+    nnoremap <leader>tc :tabclose<CR>
 
     " toggle options
-    nnoremap <leader>i :set number!<CR>
-    nnoremap <leader>o :set wrap!<CR>
+    nnoremap <leader>on :set number!<CR>
+    nnoremap <leader>ow :set wrap!<CR>
 
     " select entire buffer
     nnoremap vg ggVG
@@ -353,8 +364,8 @@
     nnoremap # #<C-O>
 
     " keep search matches in the middle of the window
-    nnoremap n nzzzv
-    nnoremap N Nzzzv
+    nnoremap n nzvzz
+    nnoremap N Nzvzz
 
     " useful cheats
     inoremap <C-A> <ESC>I
@@ -368,7 +379,6 @@
     inoremap <silent> { <C-R>=SmartPairBracketInsertion("{", "}")<CR>
     inoremap <silent> [ <C-R>=SmartPairBracketInsertion("[", "]")<CR>
     inoremap <silent> ( <C-R>=SmartPairBracketInsertion("(", ")")<CR>
-    inoremap <silent> < <C-R>=SmartPairBracketInsertion("<", ">")<CR>
 
     " insert pair quote
     inoremap <silent> " <C-R>=SmartPairQuoteInsertion('"')<CR>
@@ -462,7 +472,8 @@
 
     " Tag Surfer
 
-    let g:tsurf_custom_languages = {
+    let g:surfer_exclude_kinds = ["field", "package"]
+    let g:surfer_custom_languages = {
         \"go": {
             \"bin": "/Users/giacomo/bin/go/bin/gotags",
             \"args": "-silent -sort",
@@ -470,12 +481,12 @@
                 \ 'p': 'package', 'i': 'import', 'c': 'constant', 'v': 'variable',
                 \ 't': 'type', 'n': 'interface', 'w': 'field','e': 'embedded',
                 \ 'm': 'method', 'r': 'constructor', 'f': 'function'},
-            \"exclude_kinds": ["package", "import"],
+            \"exclude_kinds": ["package", "import", "variable", "constant", "field"],
             \"extensions": [".go"]
         \}
     \}
-    let g:tsurf_debug = 0
-    nnoremap <leader>. :Tsurf<CR>
+    let g:surfer_debug = 0
+    nnoremap <leader>. :Surf<CR>
 
     " Taboo
 
@@ -508,7 +519,9 @@
 
     " Ack
 
-    command! -bang -nargs=* Ackp exec "Ack".<q-bang>." ".<q-args>." ".pyeval('_find_project_root()')
+    command! -bang -nargs=* Ackp
+        \ exec "Ack".<q-bang>." ".(empty(<q-args>)?'<cword>':<q-args>)
+        \ ." ".pyeval('_find_project_root()')
     nnoremap <expr> <leader>a ":Ack "
     nnoremap <expr> <leader>A ":Ackp "
 
@@ -577,7 +590,10 @@ END
     endfu
 
     fu! SmartPairBracketInsertion(obr, cbr)
-        if _count(getline("."), a:obr) == _count(getline("."), a:cbr)
+        let line = getline(".")
+        let context = line[col(".")-2] . line[col(".")-1]
+        let special_cond = a:obr == "(" && context[1] =~# "[a-zA-Z]"
+        if !special_cond && _count(getline("."), a:obr) == _count(getline("."), a:cbr)
             return a:obr.a:cbr."\<ESC>i"
         endif
         return a:obr
@@ -594,7 +610,7 @@ END
     fu! SmartBackspace()
         let line = getline(".")
         let context = line[col(".")-2] . line[col(".")-1]
-        if context =~# "()\\|\[\]\\|{}\\|'\\|\"\"" && _count(line, context[0]) == _count(line, context[1])
+        if context =~# "()\\|\[\]\\|{}\\|''\\|\"\"" && _count(line, context[0]) == _count(line, context[1])
             return "\<ESC>la\<BS>\<BS>"
         endif
         return "\<BS>"
@@ -639,7 +655,7 @@ END
     " to strip trailing whitespace
     fu! StripWhitespaces()
         let cursor = getpos(".")
-        exec "%s/\\s\\+$//e"
+        exec "keepj %s/\\s\\+$//e"
         call histdel("search", -1)
         call setpos('.', cursor)
     endfu
@@ -653,7 +669,7 @@ END
         let stripped_line = substitute(line, '^\s*', '', 1)
         let stripped_line = substitute(stripped_line, '{\s*$', '', 1)
         let n = len(line) - len(stripped_line)
-        return '+' . repeat('-', n-1) . ' ' . stripped_line
+        return '+' . repeat('-', n-2) . ' ' . stripped_line
     endfu
 
     " to delete the last path component in the command line
@@ -686,6 +702,74 @@ END
             exec "silent !open " . link
         else
             exec "normal! viw"
+        endif
+    endfu
+
+    " http://vim.wikia.com/wiki/Deleting_a_buffer_without_closing_the_window
+    " delete the buffer; keep windows; create a scratch buffer if no buffers left
+    fu! Kwbd(kwbdStage)
+
+        if(a:kwbdStage == 1)
+
+            if(!buflisted(winbufnr(0)))
+                bd!
+                return
+            endif
+
+            let s:kwbdBufNum = bufnr("%")
+            let s:kwbdWinNum = winnr()
+
+            windo call Kwbd(2)
+            execute s:kwbdWinNum . 'wincmd w'
+
+            let s:buflistedLeft = 0
+            let s:bufFinalJump = 0
+            let l:nBufs = bufnr("$")
+            let l:i = 1
+
+            while(l:i <= l:nBufs)
+                if(l:i != s:kwbdBufNum)
+                    if(buflisted(l:i))
+                        let s:buflistedLeft = s:buflistedLeft + 1
+                    else
+                        if(bufexists(l:i) && !strlen(bufname(l:i)) && !s:bufFinalJump)
+                            let s:bufFinalJump = l:i
+                        endif
+                    endif
+                endif
+                let l:i = l:i + 1
+            endwhile
+
+            if(!s:buflistedLeft)
+                if(s:bufFinalJump)
+                    windo if(buflisted(winbufnr(0))) | execute "b! " . s:bufFinalJump | endif
+                else
+                    enew
+                    let l:newBuf = bufnr("%")
+                    windo if(buflisted(winbufnr(0))) | execute "b! " . l:newBuf | endif
+                endif
+                execute s:kwbdWinNum . 'wincmd w'
+            endif
+
+            if(buflisted(s:kwbdBufNum) || s:kwbdBufNum == bufnr("%"))
+                execute "bd! " . s:kwbdBufNum
+            endif
+
+            if(!s:buflistedLeft)
+                set buflisted
+                set bufhidden=delete
+                set buftype=
+                setlocal noswapfile
+            endif
+        else
+            if(bufnr("%") == s:kwbdBufNum)
+                let prevbufvar = bufnr("#")
+                if(prevbufvar > 0 && buflisted(prevbufvar) && prevbufvar != s:kwbdBufNum)
+                    b #
+                else
+                    bn
+                endif
+            endif
         endif
     endfu
 
