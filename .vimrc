@@ -134,10 +134,8 @@
     let html_no_rendering = 1
     let python_highlight_builtin_objs = 1
 
-    " colorscheme options
     "let g:plum_force_bg = "dark"
-    let g:plum_cursorline_highlight_only_linenr = 1
-
+    let g:plum_cursorline_style = 3
     colorscheme plum
 
     if has("gui_running")
@@ -146,9 +144,8 @@
         set linespace=0
 
         if has("gui_macvim")
-            "set guifont=Source\ Code\ Pro:h13
-            "set guifont=Anonymous\ Pro:h14
-            set guifont=GohuFont:h14
+            set guifont=Source\ Code\ Pro\ Light:h13
+            "set guifont=GohuFont:h14
         endif
 
     endif
@@ -174,10 +171,10 @@
     call matchadd("SpellRare", "\\%101v.", -1)
 
     set mouse=a
-    set virtualedit=insert
+    set virtualedit=all
 
     set title
-    set titlestring=%<%((⎇\ %{fugitive#head()})%)\ %F
+    set titlestring=%<%{GitCurrentBranch()}\ %F
     set titlelen=100
 
     set complete-=i
@@ -211,7 +208,6 @@
     set splitright
 
     set nowrap
-    set whichwrap+=<,>,h,l,[,]
 
     set nolist
     set fillchars=vert:\|
@@ -472,16 +468,19 @@
 
     " Tag Surfer
 
+
+    let g:surfer_visual_kinds_shape = "\u25cf"
+    let g:surfer_exclude = ["*/[Dd]oc?/*", "*/[Tt]est?/*", "*/[Bb]ench?/*", "*/[Ee]xample?/*"]
     let g:surfer_exclude_kinds = ["field", "package"]
     let g:surfer_custom_languages = {
         \"go": {
-            \"bin": "/Users/giacomo/bin/go/bin/gotags",
+            \"bin": $HOME."/bin/go/bin/gotags",
             \"args": "-silent -sort",
             \"kinds_map": {
                 \ 'p': 'package', 'i': 'import', 'c': 'constant', 'v': 'variable',
                 \ 't': 'type', 'n': 'interface', 'w': 'field','e': 'embedded',
                 \ 'm': 'method', 'r': 'constructor', 'f': 'function'},
-            \"exclude_kinds": ["package", "import", "variable", "constant", "field"],
+            \"exclude_kinds": ["package", "import", "variable", "field"],
             \"extensions": [".go"]
         \}
     \}
@@ -703,6 +702,17 @@ END
         else
             exec "normal! viw"
         endif
+    endfu
+
+    " To return the git branch for the current buffer
+    fu! GitCurrentBranch()
+        if empty(&buftype) && exists("g:loaded_fugitive")
+            let branch = fugitive#head()
+            if !empty(branch)
+                return "(⎇\ " . branch . ")"
+            endif
+        endif
+        return ""
     endfu
 
     " http://vim.wikia.com/wiki/Deleting_a_buffer_without_closing_the_window
