@@ -191,7 +191,7 @@
     set virtualedit=all
 
     set title
-    set titlestring=%<%{GitCurrentBranch()}\ %F
+    set titlestring=%<%{GitCurrentBranch('⎇\ ')}\ %F
     set titlelen=100
 
     set complete-=i
@@ -258,7 +258,7 @@
     set stl=
     set stl+=\ %w%r%#StatusLineErr#%m%*%h
     set stl+=\ #%{bufnr('%')}
-    set stl+=\ %((%{fugitive#head()})\ %)
+    set stl+=\ %(%{GitCurrentBranch('')}\ %)
     set stl+=%{DynamicFilePath()}
     set stl+=%=
     set stl+=%{strlen(&ft)?tolower(&ft).'\ ~\ ':''}
@@ -724,11 +724,11 @@ END
     endfu
 
     " To return the git branch for the current buffer
-    fu! GitCurrentBranch()
+    fu! GitCurrentBranch(prefix)
         if empty(&buftype) && exists("g:loaded_fugitive")
             let branch = fugitive#head()
             if !empty(branch)
-                return "(⎇\ " . branch . ")"
+                return "(" . a:prefix . branch . ")"
             endif
         endif
         return ""
