@@ -597,11 +597,11 @@ END
         let context = line[col(".")-2] . line[col(".")-1]
         let [before, after] = [line[:col(".")-2], line[col(".")-1:]]
         if a:quote == '"'
-            let special_cond = &ft == "vim" && before =~# "^\\s\\+$"
+            let special_cond = &ft == "vim" && before =~ "^\\s*$"
         else
-            let special_cond = before[strlen(before)-1] =~# "\[a-zA-Z\]"
+            let special_cond = before[strlen(before)-1] =~? "\[a-z\]"
         endif
-        if (special_cond || _count(line, a:quote) % 2 != 0) && context !~# "()\\|\[\]\\|{}"
+        if (special_cond || _count(line, a:quote) % 2 != 0) && context !~ "()\\|\[\]\\|{}"
             return a:quote
         endif
         return a:quote.a:quote."\<ESC>i"
@@ -610,7 +610,7 @@ END
     fu! SmartPairBracketInsertion(obr, cbr)
         let line = getline(".")
         let context = line[col(".")-2] . line[col(".")-1]
-        let special_cond = a:obr == "(" && context[1] =~# "[a-zA-Z]"
+        let special_cond = a:obr == "(" && context[1] =~? "[a-z]"
         if !special_cond && _count(getline("."), a:obr) == _count(getline("."), a:cbr)
             return a:obr.a:cbr."\<ESC>i"
         endif
@@ -619,7 +619,7 @@ END
 
     fu! SmartEnter()
         let context = getline(".")[col(".")-2] . getline(".")[col(".")-1]
-        if context =~# "()\\|\[\]\\|{}"
+        if context =~ "()\\|\[\]\\|{}"
             return "\<CR>\<ESC>O"
         endif
         return "\<CR>"
@@ -628,7 +628,7 @@ END
     fu! SmartBackspace()
         let line = getline(".")
         let context = line[col(".")-2] . line[col(".")-1]
-        if context =~# "()\\|\[\]\\|{}\\|''\\|\"\"" && _count(line, context[0]) == _count(line, context[1])
+        if context =~ "()\\|\[\]\\|{}\\|''\\|\"\"" && _count(line, context[0]) == _count(line, context[1])
             return "\<ESC>la\<BS>\<BS>"
         endif
         return "\<BS>"
