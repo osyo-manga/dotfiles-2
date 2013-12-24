@@ -9,6 +9,7 @@
 
 # ignore documentation.
 --ignore-dir=docs
+--ignore-dir=doc
 
 # ignore tag files
 --type-set=tags:is:tags
@@ -25,4 +26,4 @@
 # colors
 --color-filename=cyan
 --color-match=yellow
---color-lineno=white 
+--color-lineno=white

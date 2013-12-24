@@ -24,3 +24,4 @@ setopt no_histbeep
 
 zstyle ':completion:*:descriptions' format '%U%B%d%b%u'
 zstyle ':completion:*:warnings' format '%BSorry, no matches for: %d%b'
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'

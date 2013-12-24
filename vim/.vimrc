@@ -41,11 +41,10 @@
     Bundle 'terryma/vim-multiple-cursors'
     Bundle "Valloric/YouCompleteMe"
     Bundle 'nsf/gocode'
-    Bundle 'tpope/vim-markdown'
-    Bundle 'tpope/vim-haml'
-    Bundle 'sjl/vitality.vim'
-    Bundle 'suan/vim-instant-markdown'
     Bundle 'ap/vim-css-color'
+    Bundle 'tpope/vim-haml'
+    Bundle 'tpope/vim-markdown'
+    Bundle 'suan/vim-instant-markdown'
 
     filetype plugin indent on
     syntax on
@@ -59,6 +58,8 @@
 
     set sessionoptions+=tabpages,globals
     set encoding=utf-8
+    set termencoding=utf-8
+    set fileformats="unix,dos,mac"
     set noautowrite
     set hidden
     set tags=
@@ -148,18 +149,34 @@
             "set guifont=GohuFont:h14
         endif
 
+    else
+
+        augroup iterm_cursor_shape
+            au!
+            " When vims starts set the block shape, while when vim is closed
+            " restore the vertical bar (iTerm)
+            au VimLeave * sil !echo -ne "\033]50;CursorShape=1\a"
+            au VimEnter * sil !echo -ne "\033]50;CursorShape=0\a"
+        augroup END
+
+        " Use the correct cursor shape according to the current mode
+        let &t_SI = "\<Esc>]50;CursorShape=1\x7"  " insert mode (vertical bar)
+        let &t_EI = "\<Esc>]50;CursorShape=0\x7"  " normal mode (block)
+
     endif
 
     set ttyfast
+    set t_Co=256
+    set startofline
+    set tabpagemax=19
+    set lazyredraw
+
     set noerrorbells
     set novisualbell
     set t_vb=
-    set t_Co=256
-    set nostartofline
+
     set formatoptions=qn1c
     set nrformats-=octal
-    set tabpagemax=19
-    set lazyredraw
 
     set notimeout
     set ttimeout
@@ -202,7 +219,7 @@
     set shiftround
 
     set autoindent
-    set smartindent
+    set copyindent
 
     set splitbelow
     set splitright
@@ -227,6 +244,9 @@
     set gdefault
     set magic
 
+    set foldenable
+    set foldcolumn=0
+    set foldopen=block,hor,insert,jump,mark,percent,quickfix,search,tag,undo
     set foldtext=CustomFoldText()
 
 " }}}
@@ -467,7 +487,6 @@
     nnoremap <leader>- :Ozzy<CR>
 
     " Tag Surfer
-
 
     let g:surfer_visual_kinds_shape = "\u25cf"
     let g:surfer_exclude = ["*/[Dd]oc?/*", "*/[Tt]est?/*", "*/[Bb]ench?/*", "*/[Ee]xample?/*"]

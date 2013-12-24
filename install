@@ -2,9 +2,9 @@
 
 # install
 
-for file in {.zshrc,.zsh,.ackrc,.ctags,.tmux.conf,.gitconfig,.gitignore_global,.vimrc,.vim}; do
+for file in {zsh/.zshrc,zsh/.zsh,ack/.ackrc,tmux/.tmux.conf,git/.gitconfig,git/.gitignore_global,vim/.vimrc,vim/.vim}; do
     TARGET="$(cd $(dirname $0) ; pwd -P)/$file"
-    LINK="$HOME/$file"
+    LINK=$HOME/$(basename "$file")
     if [[ -h $LINK ]]; then
         echo "[OK] Relinkng $LINK to $TARGET"
         ln -sf $TARGET $HOME
