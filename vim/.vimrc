@@ -20,7 +20,6 @@
     set rtp+=$HOME/dropbox/dev/vim-ozzy
     set rtp+=$HOME/dropbox/dev/vim-breeze
     set rtp+=$HOME/dropbox/dev/vim-tube
-    set rtp+=$HOME/dropbox/dev/vim-go-syntax
     set rtp+=/usr/local/opt/go/libexec/misc/vim
 
     set rtp+=~/.vim/bundle/vundle/
@@ -30,6 +29,8 @@
     Bundle 'tpope/vim-fugitive'
     Bundle 'airblade/vim-gitgutter'
     Bundle 'Lokaltog/vim-easymotion'
+    Bundle 'goldfeld/vim-seek'
+    Bundle 'tpope/vim-surround'
     Bundle 'majutsushi/tagbar'
     Bundle 'scrooloose/nerdtree'
     Bundle 'scrooloose/nerdcommenter'
@@ -50,7 +51,9 @@
     syntax on
 
     " personal stuff
-    source $HOME/dropbox/personal/.vimrc
+    if filereadable(expand("~/dropbox/personal/.vimrc"))
+        source ~/dropbox/personal/.vimrc
+    endif
 
 " }}}
 
@@ -95,8 +98,7 @@
         au VimResized * wincmd = | redraw
         au BufReadPost * call RestoreCursorPosition()
         au BufWritePre * sil! call StripWhitespaces()
-        au FileChangedShell * call HandleFileChangedShellEvent()
-        au FocusGained,InsertLeave,InsertEnter * call PlumSetBackground()
+        au FocusGained,FocusLost,CursorHold,CursorHoldI * call PlumSetBackground()
         au BufReadPost * if &key != "" | setl noswf nowb viminfo= nobk nostmp history=0 secure | endif
 
         au BufWritePost .vimrc source $MYVIMRC
@@ -115,6 +117,7 @@
         au FileType html  setl sts=2 ts=2 sw=2
         au FileType css  setl sts=2 ts=2 sw=2
 
+        au BufRead,BufNewFile *.py  normal! zR
         au FileType python  setl cin tw=79 fdm=indent fdn=2 fdl=1
         au FileType python  nnoremap <buffer> <F6> :!python %<CR>
         au FileType python  inoremap <buffer> <F6> <ESC>:!python %<CR>a
@@ -281,9 +284,7 @@
     vnoremap > >gv
 
     " sudo write
-    command! -bang SudoWrite
-        \ exec "w !/usr/bin/sudo tee % > /dev/null" |
-        \ edit!
+    command! -bang SudoWrite exec "w !sudo tee % > /dev/null"
 
     " rename the current buffer
     command! -bar -nargs=1 -bang -complete=file Rename
@@ -452,9 +453,10 @@
 
     " NERDTree
 
-    let NERDTreeShowBookmarks = 1
+    let NERDTreeMinimalUI = 1
     nnoremap <silent> <F1> :NERDTreeToggle<CR>
     inoremap <silent> <F1> <ESC>:NERDTreeToggle<CR>a
+    nnoremap - :exec ":edit " . expand("%:p:h")<CR>
 
     " Tagbar
 
@@ -486,15 +488,16 @@
     let g:ozzy_matches_color_darkbg = 'Function'
     nnoremap <leader>- :Ozzy<CR>
 
-    " Tag Surfer
+    " Surfer
 
+    let g:surfer_line_format = [" @ {file}", " ({line})", " class: {class}"]
     let g:surfer_visual_kinds_shape = "\u25cf"
-    let g:surfer_exclude = ["*/[Dd]oc?/*", "*/[Tt]est?/*", "*/[Bb]ench?/*", "*/[Ee]xample?/*"]
-    let g:surfer_exclude_kinds = ["field", "package"]
+    let g:surfer_exclude = ["*/[Dd]oc?/*", "*/[Tt]est?/*"]
+    let g:surfer_exclude_kinds = ["field", "package", "import", "namespace"]
     let g:surfer_custom_languages = {
         \"go": {
-            \"bin": $HOME."/bin/go/bin/gotags",
-            \"args": "-silent -sort",
+            \"ctags_prg": $HOME."/bin/go/bin/gotags",
+            \"ctags_args": "-silent -sort",
             \"kinds_map": {
                 \ 'p': 'package', 'i': 'import', 'c': 'constant', 'v': 'variable',
                 \ 't': 'type', 'n': 'interface', 'w': 'field','e': 'embedded',
@@ -515,11 +518,6 @@
 
     let g:tube_terminal = 'iterm'
 
-    " IndentLine
-
-    let g:indentLine_char = '|'
-    let g:indentLine_fileType = ['html', 'xml', 'java', 'c', 'cpp']
-
     " Syntastic
 
     nnoremap <leader>e :Errors<CR>
@@ -535,13 +533,17 @@
         \ 'passive_filetypes': ['java']
     \ }
 
+    " Easymotion
+
+    hi link EasyMotionTarget WarningMsg
+    hi link EasyMotionShade Comment
+
     " Ack
 
     command! -bang -nargs=* Ackp
         \ exec "Ack".<q-bang>." ".(empty(<q-args>)?'<cword>':<q-args>)
         \ ." ".pyeval('_find_project_root()')
-    nnoremap <expr> <leader>a ":Ack "
-    nnoremap <expr> <leader>A ":Ackp "
+    nnoremap <expr> <leader>a ":Ackp "
 
     " Ultisnips
 
@@ -573,7 +575,7 @@ def _find_project_root(path=None, markers=None):
     if path is None:
         path = vim.eval("getcwd()")
     if markers is None:
-        markers = ['.git', '.svn', '.hg', '.bzr']
+        markers = ['.git', '.svn', '.hg', '.bzr', '.travis.yml']
 
     if path == "/":
         return ""
@@ -632,20 +634,6 @@ END
             return "\<ESC>la\<BS>\<BS>"
         endif
         return "\<BS>"
-    endfu
-
-    " to handle the FileChangedShell event
-    fu! HandleFileChangedShellEvent()
-        let l:msg = "File changed shell "
-        if v:fcs_reason =~# "changed\\|conflict\\|deleted"
-            let l:msg .= "[".v:fcs_reason ."]."
-            if v:fcs_reason == "deleted"
-                let &mod = 1
-            endif
-        else
-            let v:fcs_choice = "ask"
-        endif
-        echohl WarningMsg | echom l:msg | echohl None
     endfu
 
     " to display a variable-length file path according the witdh of the
@@ -719,7 +707,7 @@ END
             let link = word =~# "^http" ? word : "http://" . word
             exec "silent !open " . link
         else
-            exec "normal! viw"
+            exec "normal! \<ESC>viw"
         endif
     endfu
 
@@ -736,6 +724,7 @@ END
 
     " http://vim.wikia.com/wiki/Deleting_a_buffer_without_closing_the_window
     " delete the buffer; keep windows; create a scratch buffer if no buffers left
+    " TODO: prevent tabs to be closed when the last buffer is closed.
     fu! Kwbd(kwbdStage)
 
         if(a:kwbdStage == 1)
