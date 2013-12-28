@@ -7,16 +7,18 @@
     filetype off
     filetype plugin indent off
 
-    " This prevents YCM server to crash when MacVim.app is opened outside
-    " the terminal.
-    let $PATH = $HOME.'/bin:/usr/local/bin:'.$PATH
+    " For some reasons prevents YCM server to crash when MacVim.app is
+    " opened outside the terminal.
+    let $PATH = $HOME.'/opt/bin:/usr/local/bin:'.$PATH
+    let $GOPATH=$HOME.'/dropbox/dev/go:'.$GOPATH
+    let $GOPATH=$HOME.'/opt/go:'.$GOPATH
 
-    set rtp+=$HOME/dropbox/dev/vim-surfer
-    set rtp+=$HOME/dropbox/dev/vim-plum
-    set rtp+=$HOME/dropbox/dev/vim-taboo
-    set rtp+=$HOME/dropbox/dev/vim-ozzy
-    set rtp+=$HOME/dropbox/dev/vim-breeze
-    set rtp+=$HOME/dropbox/dev/vim-tube
+    set rtp+=$HOME/dropbox/dev/vim/surfer
+    set rtp+=$HOME/dropbox/dev/vim/plum
+    set rtp+=$HOME/dropbox/dev/vim/taboo
+    set rtp+=$HOME/dropbox/dev/vim/ozzy
+    set rtp+=$HOME/dropbox/dev/vim/breeze
+    set rtp+=$HOME/dropbox/dev/vim/tube
     set rtp+=/usr/local/opt/go/libexec/misc/vim
 
     set rtp+=~/.vim/bundle/vundle/
@@ -111,8 +113,7 @@
 
         au FileType gitconfig  setl noet
         au FileType vim  setl fdm=marker
-        au FileType html  setl sts=2 ts=2 sw=2
-        au FileType css  setl sts=2 ts=2 sw=2
+        au FileType html,css  setl sts=2 ts=2 sw=2
 
         au BufRead,BufNewFile *.py  normal! zR
         au FileType python  setl cin tw=79 fdm=indent fdn=2 fdl=1
@@ -134,6 +135,7 @@
     " syntax options
     let html_no_rendering = 1
     let python_highlight_builtin_objs = 1
+    let python_version_2 = 1
 
     "let g:plum_force_bg = "dark"
     let g:plum_cursorline_style = 3
