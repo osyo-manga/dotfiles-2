@@ -53,6 +53,6 @@ git_prompt() {
         fi
         echo -n `git branch | grep '* ' | sed 's/..//'`
         echo -n $RESET
-        echo -n ") "
+        echo -n ")"
     fi
 }

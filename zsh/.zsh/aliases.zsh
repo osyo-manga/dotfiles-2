@@ -2,13 +2,13 @@
 # aliases
 
 alias z.s="source ~/.zshrc"
-alias z.a="vim `dirname $(readlink $HOME/.zshrc)`/.zsh/aliases"
-alias z.p="vim `dirname $(readlink $HOME/.zshrc)`/.zsh/path"
-alias z.m="vim `dirname $(readlink $HOME/.zshrc)`/.zsh/misc"
-alias z.r="vim `dirname $(readlink $HOME/.zshrc)`/.zsh/prompt"
+alias z.a="vim `dirname $(readlink $HOME/.zshrc)`/.zsh/aliases.zsh"
+alias z.p="vim `dirname $(readlink $HOME/.zshrc)`/.zsh/path.zsh"
+alias z.m="vim `dirname $(readlink $HOME/.zshrc)`/.zsh/misc.zsh"
+alias z.r="vim `dirname $(readlink $HOME/.zshrc)`/.zsh/prompt.zsh"
 alias z.e="vim `dirname $(readlink $HOME/.zshrc)`/.zsh/exports"
-alias z.o="vim `dirname $(readlink $HOME/.zshrc)`/.zsh/options"
-alias z.f="vim `dirname $(readlink $HOME/.zshrc)`/.zsh/functions"
+alias z.o="vim `dirname $(readlink $HOME/.zshrc)`/.zsh/options.zsh"
+alias z.f="vim `dirname $(readlink $HOME/.zshrc)`/.zsh/functions.zsh"
 
 alias v="workon"
 alias v.d="deactivate"
@@ -65,10 +65,6 @@ alias -s vimrc=vim
 alias -s zshrc=vim
 alias -s gitconfig=vim
 alias -s gitignore=vim
-
-
-# Edit host file
-alias hosts="mvim /etc/hosts"
 
 # Anki
 alias anki="/Applications/Anki.app/Contents/MacOS/Anki -b $HOME/dropbox/anki"
