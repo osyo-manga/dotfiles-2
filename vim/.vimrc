@@ -11,9 +11,6 @@
     " the terminal.
     let $PATH = $HOME.'/bin:/usr/local/bin:'.$PATH
 
-    " go stuff
-    let $PATH = $HOME.'/bin/go/bin:'.$PATH
-
     set rtp+=$HOME/dropbox/dev/vim-surfer
     set rtp+=$HOME/dropbox/dev/vim-plum
     set rtp+=$HOME/dropbox/dev/vim-taboo
@@ -267,7 +264,7 @@
     set stl+=%{strlen(&ft)?tolower(&ft).'\ ~\ ':''}
     set stl+=%{winwidth(winnr())>80?(strlen(&fenc)?&fenc.':':'').&ff.'\ ~\ ':''}
     set stl+=%1l:%02v\ ~\ %P
-    set stl+=%#StatusLineErr#%{empty(SyntasticStatuslineFlag())?'':'\ [errors]'}%*\ "
+    set stl+=%#StatusLineErr#%(\ %{SyntasticStatuslineFlag()}%)%*\ "
 
 " }}}
 
@@ -446,17 +443,13 @@
 
 " PLUGINS ---------------------------------- {{{
 
-    " Gundo
-
-    nnoremap <silent> <F3> :silent GundoToggle<CR>
-    inoremap <silent> <F3> <ESC>:silent GundoToggle<CR>a
-
     " NERDTree
 
     let NERDTreeMinimalUI = 1
+    let NERDTreeWinSize = 30
     nnoremap <silent> <F1> :NERDTreeToggle<CR>
-    inoremap <silent> <F1> <ESC>:NERDTreeToggle<CR>a
-    nnoremap - :exec ":edit " . expand("%:p:h")<CR>
+    inoremap <silent> <F1> <ESC>:NERDTreeToggle<CR>
+    nnoremap - :edit .<CR>
 
     " Tagbar
 
@@ -475,9 +468,14 @@
         \ 'sro' : '.',
         \ 'kind2scope' : {'t' : 'ctype', 'n' : 'ntype'},
         \ 'scope2kind' : {'ctype' : 't', 'ntype' : 'n'},
-        \ 'ctagsbin' : 'gotags',
+        \ 'ctagsbin' : $HOME.'/bin/go/bin/gotags',
         \ 'ctagsargs' : '-sort -silent'
     \ }
+
+    " Gundo
+
+    nnoremap <silent> <F3> :silent GundoToggle<CR>
+    inoremap <silent> <F3> <ESC>:silent GundoToggle<CR>a
 
     " Ozzy
 
@@ -511,8 +509,8 @@
 
     " Taboo
 
-    let g:taboo_tab_format = "%m %f "
-    let g:taboo_modified_tab_flag = " [*]"
+    let g:taboo_tab_format = " %f%m "
+    let g:taboo_modified_tab_flag = " *"
 
     " Tube
 
@@ -520,13 +518,17 @@
 
     " Syntastic
 
-    nnoremap <leader>e :Errors<CR>
-    "nnoremap <leader>E :lcl<CR>
-    let g:syntastic_error_symbol = '*'
-    let g:syntastic_warning_symbol = '*'
-    let g:syntastic_style_error_symbol = '*'
-    let g:syntastic_style_warning_symbol = '*'
-    highlight link SyntasticErrorSign WarningMsg
+    hi link SyntasticErrorSign DiffDelete
+    hi link SyntasticWarningSign DiffChange
+    hi link SyntasticErrorLine DiffDelete
+    hi link SyntasticWarningLine DiffChange
+    hi link SyntasticError None
+    hi link SyntasticWarning None
+
+    nnoremap <silent> <leader>e :Errors<CR>
+    let g:syntastic_stl_format = "[ln:%F (%t)]"
+    let g:syntastic_error_symbol = '>>'
+    let g:syntastic_warning_symbol = '>>'
     let g:syntastic_mode_map = {
         \ 'mode': 'active',
         \ 'active_filetypes': ['c', 'cpp', 'javascript', 'python'],
