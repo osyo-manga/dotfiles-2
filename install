@@ -2,7 +2,7 @@
 
 # install
 
-for file in {zsh/.zshrc,zsh/.zsh,ack/.ackrc,tmux/.tmux.conf,git/.gitconfig,git/.gitignore_global,vim/.vimrc,vim/.vim}; do
+for file in {zsh/.zshrc,zsh/.zsh,ack/.ackrc,ctags/.ctags,tmux/.tmux.conf,git/.gitconfig,git/.gitignore_global,vim/.vimrc,vim/.vim}; do
     TARGET="$(cd $(dirname $0) ; pwd -P)/$file"
     LINK=$HOME/$(basename "$file")
     if [[ -h $LINK ]]; then
@@ -12,7 +12,7 @@ for file in {zsh/.zshrc,zsh/.zsh,ack/.ackrc,tmux/.tmux.conf,git/.gitconfig,git/.
         echo "[OK] Linking $LINK to $TARGET"
         ln -s $TARGET $LINK
     else
-        echo "[XX] $LINK exists as a real file, skipping"        
+        echo "[XX] $LINK exists as a real file, skipping"
     fi
 done
 unset file TARGET LINK
