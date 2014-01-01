@@ -60,13 +60,11 @@
 
     set sessionoptions+=tabpages,globals
     set encoding=utf-8
-    set termencoding=utf-8
     set fileformats="unix,dos,mac"
     set noautowrite
     set hidden
     set tags=
     set backspace=2
-    set iskeyword=_,$,@,a-z,A-Z,48-57
     set autochdir
     set autoread
     set autowrite
@@ -98,14 +96,13 @@
         au VimResized * wincmd = | redraw
         au BufReadPost * call RestoreCursorPosition()
         au BufWritePre * sil! call StripWhitespaces()
-        au FocusGained,FocusLost,CursorHold,CursorHoldI * call PlumSetBackground()
         au BufReadPost * if &key != "" | setl noswf nowb viminfo= nobk nostmp history=0 secure | endif
 
         au BufWritePost .vimrc source $MYVIMRC
-        au BufWritePost plum.vim colorscheme plum
+        au BufWritePost plum.vim nested colorscheme plum
 
-        au WinEnter * set cursorline
-        au WinLeave * set nocursorline
+        "au WinEnter * set cursorline
+        "au WinLeave * set nocursorline
 
         au BufRead,BufNewFile *.pde  setf java
         au BufRead,BufNewFile *.json  setf javascript
@@ -140,7 +137,7 @@
     let python_version_2 = 1
 
     "let g:plum_force_bg = "dark"
-    let g:plum_cursorline_style = 4
+    "let g:plum_cursorline_style = 4
     colorscheme plum
 
     if has("gui_running")
@@ -187,7 +184,7 @@
     set ttimeoutlen=50
 
     set number
-    set cursorline
+    set nocursorline
     call matchadd("SpellRare", "\\%101v.", -1)
 
     set mouse=a
@@ -210,6 +207,7 @@
     set report=0
     set shortmess=IaA
     set noshowmode
+    set showcmd
 
     set sidescrolloff=5
     set scrolloff=5
@@ -252,7 +250,6 @@
     set foldopen=block,hor,insert,jump,mark,percent,quickfix,search,tag,undo
     set foldtext=CustomFoldText()
 
-    hi clear FoldColumn | hi link FoldColumn Hidden
     augroup hide_foldcolumn_signs
         au!
         au Colorscheme * hi clear FoldColumn | hi link FoldColumn Hidden
@@ -389,7 +386,7 @@
     inoremap <silent> " <C-R>=SmartPairQuoteInsertion('"')<CR>
     inoremap <silent> ' <C-R>=SmartPairQuoteInsertion("'")<CR>
 
-    inoremap <silent> <C-Z> <ESC>/[)}\]>'"]<CR>:noh<CR>:call histdel("search",-1)<CR>a
+    inoremap <silent> <C-Z> <ESC>/[)}\]>'"]<CR>:noh<CR>:call histdel("search",-1)<CR>:let @/=''<CR>a
     inoremap <silent> <ENTER> <C-R>=SmartEnter()<CR>
     inoremap <silent> <BS> <C-R>=SmartBackspace()<CR>
 
@@ -447,6 +444,9 @@
     " moving around {{{
     " -------------------------------------------------------------------------
 
+    nnoremap <silent> <leader>n :bnext<CR>
+    nnoremap <silent> <leader>b :bprevious<CR>
+
     nnoremap <TAB> }
     vnoremap <TAB> }
     nnoremap \ {
@@ -456,6 +456,11 @@
     noremap k gk
     noremap gj j
     noremap gk k
+
+    nnoremap <C-B> <C-B>zz
+    nnoremap <C-F> <C-B>zz
+    nnoremap <C-U> <C-U>zz
+    nnoremap <C-D> <C-D>zz
 
     " }}}
 
@@ -467,6 +472,17 @@
 
     nnoremap q: :q
     nnoremap ; :
+
+    nnoremap <leader>s *:nohl<CR>:%s//
+
+    " open explorer
+    nnoremap <leader>ee :edit .<CR>j
+
+    " open finder at the location of the current file
+    nnoremap <silent> <leader>eo :exec "sil !open ".expand("%:p:h")<CR>
+
+    " open iTerm and move to the current directory
+    nnoremap <silent> <leader>et :TubeCd<CR>:TubeFocus<CR>
 
     " clear searches
     nnoremap <silent> <leader><space> :noh<CR>
@@ -499,7 +515,6 @@
     let NERDTreeWinSize = 30
     nnoremap <silent> <F1> :NERDTreeToggle<CR>
     inoremap <silent> <F1> <ESC>:NERDTreeToggle<CR>
-    nnoremap <leader>e :edit .<CR>j
 
     " }}}
 
@@ -521,7 +536,7 @@
         \ 'sro' : '.',
         \ 'kind2scope' : {'t' : 'ctype', 'n' : 'ntype'},
         \ 'scope2kind' : {'ctype' : 't', 'ntype' : 'n'},
-        \ 'ctagsbin' : $HOME.'/bin/go/bin/gotags',
+        \ 'ctagsbin' : $HOME.'/opt/go/bin/gotags',
         \ 'ctagsargs' : '-sort -silent'
     \ }
 
@@ -540,6 +555,7 @@
 
     nnoremap - :Gate<CR>
     nnoremap <leader>- :Gate<CR>#
+    let g:gate_current_line_indicator = " "
     let g:gate_ignore = ["*/[Bb]uild/*"]
     let g:gate_matches_color_darkbg = 'Function'
     let g:gate_debug = 0
@@ -549,14 +565,14 @@
     " Surfer {{{
     " -------------------------------------------------------------------------
 
-    let g:surfer_line_format = [" @ {file}", " ({line})", " class: {class}"]
-    let g:surfer_visual_kinds_shape = "\u25CF"
+    let g:surfer_line_format = [" @ {file}", " ({line})"]
+    let g:surfer_current_line_indicator = " "
     let g:surfer_matches_color_darkbg = 'Function'
-    let g:surfer_exclude = ["*/[Dd]oc?/*", "*/[Tt]est?/*", "*/[Bb]uild/*"]
+    let g:surfer_exclude = ["*/[Dd]oc?/*", "*/[Tt]est?/*", "*/[Bb]uild/*", "*/setup.py"]
     let g:surfer_exclude_kinds = ["field", "package", "import", "namespace"]
     let g:surfer_custom_languages = {
         \"go": {
-            \"ctags_prg": $HOME."/bin/go/bin/gotags",
+            \"ctags_prg": $HOME."/opt/go/bin/gotags",
             \"ctags_args": "-silent -sort",
             \"kinds_map": {
                 \ 'p': 'package', 'i': 'import', 'c': 'constant', 'v': 'variable',
@@ -630,6 +646,14 @@
 
     let g:UltiSnipsSnippetDirectories = ["UltiSnips", "CustomSnips"]
     let g:UltiSnipsExpandTrigger = "<C-C>"
+
+    " }}}
+
+    " Git Gutter {{{
+    " -------------------------------------------------------------------------
+
+    let g:gitgutter_enabled = 1
+    nnoremap <leader>g :GitGutterToggle<CR>
 
     " }}}
 
@@ -837,7 +861,7 @@ END
     " to delete the buffer but leave the window intact
     fu! KillBuffer() " {{{
         if &modified
-            echohl WarningMsg | echom "Write the buffer first." | echohl NONE
+            echohl WarningMsg | echom " Write the buffer first." | echohl None
         else
             let buffers = len(filter(range(1, bufnr('$')), 'buflisted(v:val)'))
             if buffers == 1
@@ -846,7 +870,7 @@ END
                 tabdo windo bprevious
             else
                 bprevious
-                bdelete #
+                sil! bdelete #
             endif
         endif
     endfu " }}}
