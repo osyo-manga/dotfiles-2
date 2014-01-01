@@ -42,8 +42,9 @@ alias 5.="cd ../../../../.."
 # use -G instead of --color for Mac OS X built-in ls utility
 alias l="ls --color"
 alias la="ls -A --color"
-alias ll="ls -lAh --color"
-alias lsd='ls -lA --color | grep "^d"'
+alias ll="ls -lh --color"
+alias lla="ls -lAh --color"
+alias lsd='ls -A --color | grep "^d"'
 alias lsg='ls -A | grep'
 
 alias c="clear"
