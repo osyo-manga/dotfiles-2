@@ -6,6 +6,7 @@
     set nocompatible
     filetype off
     filetype plugin indent off
+    scriptencoding utf8
 
     " For some reasons prevents YCM server to crash when MacVim.app is
     " opened outside the terminal.
@@ -13,6 +14,7 @@
     let $GOPATH=$HOME.'/dropbox/dev/go:'.$GOPATH
     let $GOPATH=$HOME.'/opt/go:'.$GOPATH
 
+    set rtp+=$HOME/dropbox/dev/vim/chronos
     set rtp+=$HOME/dropbox/dev/vim/surfer
     set rtp+=$HOME/dropbox/dev/vim/gate
     set rtp+=$HOME/dropbox/dev/vim/plum
@@ -59,7 +61,7 @@
 " OPTIONS ---------------------------------- {{{
 
     set sessionoptions+=tabpages,globals
-    set encoding=utf-8
+    set encoding=utf8
     set fileformats="unix,dos,mac"
     set noautowrite
     set hidden
@@ -72,8 +74,8 @@
     set cryptmethod=blowfish
     set shell=bash\ -i
 
-    set viminfo=!,'100,:50,h,n~/.viminfo
-    set history=10000
+    set viminfo=!,'100,h,n~/.viminfo
+    set history=1000
     set undolevels=10000
     set undofile
     set undodir=~/.vim/undofiles
@@ -101,9 +103,6 @@
         au BufWritePost .vimrc source $MYVIMRC
         au BufWritePost plum.vim nested colorscheme plum
 
-        "au WinEnter * set cursorline
-        "au WinLeave * set nocursorline
-
         au BufRead,BufNewFile *.pde  setf java
         au BufRead,BufNewFile *.json  setf javascript
 
@@ -114,12 +113,14 @@
         au FileType vim  setl fdm=marker
         au FileType html,css  setl sts=2 ts=2 sw=2
 
-        au BufEnter *.py let g:_match_id = matchadd("SpellRare", "\\%80v.", -1)
+        au BufWinEnter *.py let g:_match_id = matchadd("SpellRare", "\\%81v.", -1)
+        au BufWinLeave *.py sil! call matchdelete(g:_match_id)
         au FileType python  setl cin tw=79 fdm=indent fdn=2 fdl=1
         au FileType python  nnoremap <buffer> <F6> :!python %<CR>
         au FileType python  inoremap <buffer> <F6> <ESC>:!python %<CR>a
 
-        au FileType go  setl nolist ts=4 noet fdm=syntax fdn=1 makeprg=go\ build ofu=gocomplete#Complete
+        au FileType go  setl nolist ts=4 noet fdm=syntax fdn=1
+        au Filetype go  setl makeprg=go\ build ofu=gocomplete#Complete
         au FileType go  nnoremap <buffer> <F6> :!go run *.go<CR>
         au FileType go  inoremap <buffer> <F6> <ESC>:!go run *.go<CR>a
         au FileType go  nnoremap <buffer> <F7> :exe (&ft == 'go' ? 'Fmt' : '')<CR>:w<CR>
@@ -183,7 +184,7 @@
     set ttimeout
     set ttimeoutlen=50
 
-    set number
+    set nonumber
     set nocursorline
     call matchadd("SpellRare", "\\%101v.", -1)
 
@@ -191,7 +192,7 @@
     set virtualedit=all
 
     set title
-    set titlestring=%<%{GitCurrentBranch('⎇\ ')}\ %F
+    set titlestring=%<%{GitCurrentBranch('')}\ %F
     set titlelen=100
 
     set complete-=i
@@ -199,9 +200,8 @@
 
     set wildmenu
     set wildmode=longest,full
-    set wildignore=*.dll,*.o,*.so,*.pyc,*$py.class,*.class,*.fasl,__pycache__
-    set wildignore+=*.jpg,*.jpeg,*.png,*.gif,.DS_Store,.gitignore,.git,tags
-    set wildignore+=*.swp,*.dex,*.apk,*.d,*.cache,*.ap_,*.jar,*.bat,*.dat
+    set wildignore=*.o,*.so,*.pyc,*.class,*.fasl,.DS_Store,.gitignore,.git,tags
+    set wildignore+=*.swp,*.cache,*.jar,*.bat,*.dat
 
     set cmdheight=1
     set report=0
@@ -209,8 +209,8 @@
     set noshowmode
     set showcmd
 
-    set sidescrolloff=5
-    set scrolloff=5
+    set sidescrolloff=3
+    set scrolloff=3
 
     set smarttab
     set expandtab
@@ -219,8 +219,7 @@
     set shiftwidth=4
     set shiftround
 
-    set autoindent
-    set copyindent
+    set smartindent
 
     set splitbelow
     set splitright
@@ -250,6 +249,7 @@
     set foldopen=block,hor,insert,jump,mark,percent,quickfix,search,tag,undo
     set foldtext=CustomFoldText()
 
+    hi clear FoldColumn | hi link FoldColumn Hidden
     augroup hide_foldcolumn_signs
         au!
         au Colorscheme * hi clear FoldColumn | hi link FoldColumn Hidden
@@ -262,12 +262,12 @@
     set laststatus=2
 
     set stl=
-    set stl+=\ %(%w%r%#StatusLineErr#%m%*%h\ %)
+    set stl+=\ %(%w%r%h\ %)
     set stl+=%(%{GitCurrentBranch('')}\ %)
     set stl+=%{DynamicFilePath()}
+    set stl+=\ %#StatusLineErr#%{&mod?'*':''}%*
     set stl+=%=
     set stl+=%{AlternateBuffer()}
-    set stl+=%{strlen(&ft)?tolower(&ft).'\ ~\ ':''}
     set stl+=%1l:%02v\ ~\ %P\ "
 
 " }}}
@@ -312,8 +312,7 @@
     " -------------------------------------------------------------------------
 
     " open/close tabs
-    nnoremap <silent> <leader>tt :tabedit!<CR>
-    nnoremap <silent> <leader>te :tabedit! <C-R>=expand("%:p")<CR><CR>
+    nnoremap <silent> <leader>tt :tabedit! <C-R>=expand("%:p")<CR><CR>
     nnoremap <silent> <leader>tc :tabclose<CR>
     nnoremap <silent> <leader>to :tabonly<CR>
 
@@ -344,8 +343,8 @@
     noremap <C-l> <C-W>l
 
     " split windows
-    nnoremap <leader>w <C-W>v<C-W>l
-    nnoremap <leader>W <C-W>s<C-W>l
+    nnoremap <leader>w <C-W>v<C-W>l:b #<CR>
+    nnoremap <leader>W <C-W>s<C-W>l:b #<CR>
 
     " }}}
 
@@ -424,7 +423,7 @@
     cnoremap <C-T> <C-\>e(RemoveLastPathComponent())<CR>
 
     " delete last word in the command line
-    cnoremap <C-W> <C-\>e(RemoveLastWord())<CR>
+    cnoremap <C-S> <C-\>e(RemoveLastWord())<CR>
 
     " }}}
 
@@ -494,6 +493,7 @@
     nnoremap <silent> <leader>on :set number!<CR>
     nnoremap <silent> <leader>ow :set wrap!<CR>
     nnoremap <silent> <leader>ol :set list!<CR>
+    nnoremap <silent> <leader>oi :call PrintFileInfo()<CR>
 
     " delete trailing whitespaces
     nnoremap <silent> <F8> :call StripWhitespaces()<CR>
@@ -550,14 +550,25 @@
 
     " }}}
 
+    " Chronos {{{
+    " -------------------------------------------------------------------------
+
+    nnoremap <leader>h :Chronos<CR>
+    let g:chronos_current_line_indicator = " "
+    let g:chronos_matches_color_darkbg = 'Function'
+    let g:chronos_debug = 0
+
+    " }}}
+
     " Gate {{{
     " -------------------------------------------------------------------------
 
     nnoremap - :Gate<CR>
     nnoremap <leader>- :Gate<CR>#
+    let g:gate_exclude_extension_from_matching = 1
     let g:gate_current_line_indicator = " "
-    let g:gate_ignore = ["*/[Bb]uild/*"]
     let g:gate_matches_color_darkbg = 'Function'
+    let g:gate_ignore = ["*/[Bb]uild/*"]
     let g:gate_debug = 0
 
     " }}}
@@ -605,16 +616,14 @@
     " Syntastic {{{
     " -------------------------------------------------------------------------
 
-    hi link SyntasticErrorSign DiffDelete
-    hi link SyntasticWarningSign DiffChange
-    hi link SyntasticErrorLine DiffDelete
-    hi link SyntasticWarningLine DiffChange
+    hi link SyntasticErrorSign WarningMsg
+    hi link SyntasticWarningSign ModeMsg
     hi link SyntasticError None
     hi link SyntasticWarning None
 
     let g:syntastic_stl_format = "[ln:%F (%t)]"
-    let g:syntastic_error_symbol = '>>'
-    let g:syntastic_warning_symbol = '>>'
+    let g:syntastic_error_symbol = 'xx'
+    let g:syntastic_warning_symbol = 'vv'
     let g:syntastic_mode_map = {
         \ 'mode': 'active',
         \ 'active_filetypes': ['c', 'cpp', 'javascript', 'python'],
@@ -757,56 +766,12 @@ END
         return "\<BS>"
     endfu " }}}
 
-    " to display a variable-length file path according the witdh of the
-    " current window
-    fu! DynamicFilePath() " {{{
-        if &bt == 'help' || &bt == 'nofile'
-            return expand('%:t')
-        endif
-
-        let path = substitute(expand('%:p'), $HOME, '~', '')
-        let x = winwidth(winnr()) - 60
-        let available_chars = float2nr(6 * sqrt(x < 0 ? 0 : x))
-
-        if strlen(path) > available_chars
-            let path = strpart(path, strlen(path) - available_chars)
-            " round the path to the nearest slash
-            let cut_pos = match(path, '/')
-            if cut_pos >= 0
-                let path = strpart(path, cut_pos + 1)
-            endif
-        endif
-        return path
-    endfu " }}}
-
     " to strip trailing whitespace
     fu! StripWhitespaces() " {{{
         let cursor = getpos(".")
         exec "keepj %s/\\s\\+$//e"
         call histdel("search", -1)
         call setpos('.', cursor)
-    endfu " }}}
-
-    " to display a better text for closed folds
-    fu! CustomFoldText() " {{{
-        let line = getline(v:foldstart)
-        if (&foldmethod == 'marker')
-            let line = substitute(line, split(&foldmarker, ',')[0], '', 1)
-        endif
-        let stripped_line = substitute(line, '^\s*', '', 1)
-        let stripped_line = substitute(stripped_line, '{\s*$', '', 1)
-        let n = len(line) - len(stripped_line)
-        return '+' . repeat('-', n-2) . ' ' . stripped_line
-    endfu " }}}
-
-    " to delete the last path component in the command line
-    fu! RemoveLastPathComponent() " {{{
-        return substitute(getcmdline(), '\%(\\ \|[\\/]\@!\f\)\+[\\/]\=$\|.$', '', '')
-    endfu " }}}
-
-    " to delete the last word in the command line
-    fu! RemoveLastWord() " {{{
-        return substitute(getcmdline(), '\S\+$', '', '')
     endfu " }}}
 
     " to restore the cursor position
@@ -832,6 +797,54 @@ END
         endif
     endfu " }}}
 
+    " to delete the last path component in the command line
+    fu! RemoveLastPathComponent() " {{{
+        return substitute(getcmdline(), '\%(\\ \|[\\/]\@!\f\)\+[\\/]\=$\|.$', '', '')
+    endfu " }}}
+
+    " to delete the last word in the command line
+    fu! RemoveLastWord() " {{{
+        return substitute(getcmdline(), '\S\+$', '', '')
+    endfu " }}}
+
+    " to display a better text for closed folds
+    fu! CustomFoldText() " {{{
+        let line = getline(v:foldstart)
+        if (&foldmethod == 'marker')
+            let line = substitute(line, split(&foldmarker, ',')[0], '', 1)
+        endif
+        let stripped_line = substitute(line, '^\s*', '', 1)
+        let stripped_line = substitute(stripped_line, '{\s*$', '', 1)
+        let n = len(line) - len(stripped_line)
+        return '+' . repeat('-', n-2) . ' ' . stripped_line
+    endfu " }}}
+
+    " to display a variable-length file path according the witdh of the
+    " current window
+    fu! DynamicFilePath() " {{{
+        if &bt == 'help' || &bt == 'nofile'
+            return expand('%:t')
+        endif
+
+        let fname = expand('%:t')
+        let fpath = substitute(expand('%:p:h'), $HOME, '~', '')
+        let x = winwidth(winnr()) - 60
+        let available_chars = float2nr(5 * sqrt(x < 0 ? 0 : x))
+
+        if strlen(fpath) > available_chars
+            let fpath = strpart(fpath, strlen(fpath) - available_chars)
+            " round the path to the nearest slash
+            let cut_pos = match(fpath, '/')
+            if cut_pos >= 0
+                let fpath = strpart(fpath, cut_pos + 1)
+            endif
+        endif
+        if !empty(fpath)
+            let fpath = fpath . "/"
+        endif
+        return fpath . fname
+    endfu " }}}
+
     " to return the git branch for the current buffer
     fu! GitCurrentBranch(prefix) " {{{
         if winwidth(winnr()) < 70
@@ -852,10 +865,22 @@ END
             return ""
         endif
         let alt_buffer = expand('#:t')
-        if !empty(alt_buffer)
+        if !empty(alt_buffer) && buflisted(expand("#:p"))
             return "" . alt_buffer . "!\ ~\ "
         endif
         return ""
+    endfu " }}}
+
+    " to print info of the current file
+    fu! PrintFileInfo() " {{{
+        let msg = " [["
+        let msg .= " ft:" . &ft
+        let msg .= ", fenc:" . &fenc
+        let msg .= ", ff:" . &ff
+        let msg .= ", lines:" . line("$")
+        let msg .= ", size:" . getfsize(expand("%:p"))/1024 . "Kb"
+        let msg .= " ]]"
+        echo msg
     endfu " }}}
 
     " to delete the buffer but leave the window intact
