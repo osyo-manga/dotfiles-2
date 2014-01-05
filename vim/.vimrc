@@ -6,7 +6,6 @@
     set nocompatible
     filetype off
     filetype plugin indent off
-    scriptencoding utf8
 
     " For some reasons prevents YCM server to crash when MacVim.app is
     " opened outside the terminal.
@@ -63,13 +62,11 @@
     set sessionoptions+=tabpages,globals
     set encoding=utf8
     set fileformats="unix,dos,mac"
-    set noautowrite
     set hidden
     set tags=
     set backspace=2
     set autochdir
     set autoread
-    set autowrite
     set modeline
     set cryptmethod=blowfish
     set shell=bash\ -i
@@ -200,7 +197,7 @@
 
     set wildmenu
     set wildmode=longest,full
-    set wildignore=*.o,*.so,*.pyc,*.class,*.fasl,.DS_Store,.gitignore,.git,tags
+    set wildignore=*.o,*.so,*.pyc,*.class,*.fasl,tags
     set wildignore+=*.swp,*.cache,*.jar,*.bat,*.dat
 
     set cmdheight=1
@@ -235,14 +232,12 @@
     set showbreak=..
     set linebreak
 
-    set wrapscan
     set ignorecase
     set smartcase
     set showmatch
     set incsearch
     set hlsearch
     set gdefault
-    set magic
 
     set foldenable
     set foldcolumn=1
@@ -263,9 +258,9 @@
 
     set stl=
     set stl+=\ %(%w%r%h\ %)
+    set stl+=\ %(%#StatusLineErr#%{&mod?'(+)':''}%*\ %)
     set stl+=%(%{GitCurrentBranch('')}\ %)
     set stl+=%{DynamicFilePath()}
-    set stl+=\ %#StatusLineErr#%{&mod?'*':''}%*
     set stl+=%=
     set stl+=%{AlternateBuffer()}
     set stl+=%1l:%02v\ ~\ %P\ "
@@ -334,7 +329,7 @@
     " -------------------------------------------------------------------------
 
     " kill the window
-    nnoremap <silent> Q :q<CR>
+    nnoremap <silent> Q :call CloseWindow()<CR>
 
     " windows navigation
     noremap <C-h> <C-W>h
@@ -351,17 +346,14 @@
     " buffers {{{
     " -------------------------------------------------------------------------
 
+    nmap <silent> <leader>n :bnext<CR>
+    nmap <silent> <leader>b :bprevious<CR>
+
     " kill only the buffer but keep the window
-    nnoremap <silent> <leader>q :call KillBuffer()<CR>
+    nmap <silent> <leader>q :call KillBuffer(1)<CR>
 
-    " go to the alternate buffer (last modified/viewed buffer)
+    " go to the alternate buffer
     nnoremap <SPACE> <C-^>
-
-    " move across buffers
-    nnoremap <SwipeLeft> :bp<CR>
-    inoremap <SwipeLeft> <ESC>:bp<CR>
-    nnoremap <SwipeRight> :bn<CR>
-    inoremap <SwipeRight> <ESC>:bn<CR>
 
     " }}}
 
@@ -392,10 +384,6 @@
     " let Y behave like other capitals
     nnoremap Y y$
 
-    " discard deletion
-    nnoremap <leader>d "_dd
-    vnoremap <leader>d "_d
-
     " paste the last yanked text
     nnoremap <C-P> "0p
     vnoremap <C-P> "0p
@@ -406,13 +394,16 @@
     " select the current line excluding starting whitespaces
     nnoremap vv ^vg_
 
-    " typos
-    iabbrev lenght length
-    iabbrev wiht with
-    iabbrev retrun return
+    " reselect visual selection after indenting
+    vnoremap < <gv
+    vnoremap > >gv
+    vnoremap = =gv
 
-    inoremap <leader>' `
-    inoremap <leader>? ~
+    " move the current line or selection
+    nmap + :.move .+1<CR>==
+    nmap - :.move .-2<CR>==
+    vmap + :move '>+1<CR>gv=
+    vmap - :move '<-2<CR>gv=
 
     " }}}
 
@@ -443,44 +434,36 @@
     " moving around {{{
     " -------------------------------------------------------------------------
 
-    nnoremap <silent> <leader>n :bnext<CR>
-    nnoremap <silent> <leader>b :bprevious<CR>
+    nmap <TAB> }
+    xmap <TAB> }
+    nmap \ {
+    xmap \ {
 
-    nnoremap <TAB> }
-    vnoremap <TAB> }
-    nnoremap \ {
-    vnoremap \ {
+    nnoremap j gj
+    nnoremap k gk
+    xnoremap j j
+    xnoremap k k
 
-    noremap j gj
-    noremap k gk
-    noremap gj j
-    noremap gk k
-
-    nnoremap <C-B> <C-B>zz
-    nnoremap <C-F> <C-B>zz
-    nnoremap <C-U> <C-U>zz
-    nnoremap <C-D> <C-D>zz
+    nmap J 5j
+    nmap K 5k
+    xmap J 5j
+    xmap K 5k
 
     " }}}
 
     " misc {{{
     " -------------------------------------------------------------------------
 
-    vnoremap < <gv
-    vnoremap > >gv
-
     nnoremap q: :q
     nnoremap ; :
 
-    nnoremap <leader>s *:nohl<CR>:%s//
+    nnoremap gp vipgq
 
     " open explorer
     nnoremap <leader>ee :edit .<CR>j
 
-    " open finder at the location of the current file
-    nnoremap <silent> <leader>eo :exec "sil !open ".expand("%:p:h")<CR>
-
-    " open iTerm and move to the current directory
+    " open the finder (or terminal) at the location of the current file
+    nnoremap <silent> <leader>ef :exec "sil !open ".expand("%:p:h")<CR>
     nnoremap <silent> <leader>et :TubeCd<CR>:TubeFocus<CR>
 
     " clear searches
@@ -489,18 +472,22 @@
     " edit .vimrc
     nnoremap <silent> <leader>r :e $MYVIMRC<CR>
 
-    " toggle options
+    " delete trailing whitespaces
+    nnoremap <silent> <F8> :call StripWhitespaces()<CR>
+    inoremap <silent> <F8> <ESC>:call StripWhitespaces()<CR>a
+
     nnoremap <silent> <leader>on :set number!<CR>
     nnoremap <silent> <leader>ow :set wrap!<CR>
     nnoremap <silent> <leader>ol :set list!<CR>
     nnoremap <silent> <leader>oi :call PrintFileInfo()<CR>
 
-    " delete trailing whitespaces
-    nnoremap <silent> <F8> :call StripWhitespaces()<CR>
-    inoremap <silent> <F8> <ESC>:call StripWhitespaces()<CR>a
+    " typos
+    iabbrev lenght length
+    iabbrev wiht with
+    iabbrev retrun return
 
-    nnoremap <F5> :make<CR>
-    inoremap <F5> <ESC>:make<CR>a
+    inoremap <leader>' `
+    inoremap <leader>? ~
 
     " }}}
 
@@ -550,8 +537,8 @@
 
     " }}}
 
-    " Chronos {{{
-    " -------------------------------------------------------------------------
+   " Chronos {{{
+   " -------------------------------------------------------------------------
 
     nnoremap <leader>h :Chronos<CR>
     let g:chronos_current_line_indicator = " "
@@ -563,8 +550,7 @@
     " Gate {{{
     " -------------------------------------------------------------------------
 
-    nnoremap - :Gate<CR>
-    nnoremap <leader>- :Gate<CR>#
+    nnoremap <leader>- :Gate<CR>
     let g:gate_exclude_extension_from_matching = 1
     let g:gate_current_line_indicator = " "
     let g:gate_matches_color_darkbg = 'Function'
@@ -601,8 +587,8 @@
     " Taboo {{{
     " -------------------------------------------------------------------------
 
-    let g:taboo_tab_format = " %f%m "
-    let g:taboo_modified_tab_flag = " *"
+    let g:taboo_tab_format = " #%N %f%m "
+    let g:taboo_modified_tab_flag = " +"
 
     " }}}
 
@@ -718,17 +704,15 @@ END
         endif
     endfu " }}}
 
-    " Utomatically insert a closint quote
+    " Automatically insert a closint quote
     fu! SmartPairQuoteInsertion(quote) " {{{
         let line = getline(".")
         let context = line[col(".")-2] . line[col(".")-1]
-        let [before, after] = [line[:col(".")-2], line[col(".")-1:]]
-        if a:quote == '"'
-            let special_cond = &ft == "vim" && before =~ "^\\s*$"
-        else
-            let special_cond = before[strlen(before)-1] =~? "\[a-z\]"
+        if &ft == "vim" && line[:col(".")-2] =~ "^\\s*$"
+            return a:quote
         endif
-        if (special_cond || _count(line, a:quote) % 2 != 0) && context !~ "()\\|\[\]\\|{}"
+        let odd_brackets = _count(line, a:quote) % 2 != 0
+        if odd_brackets || context[0] =~? "\[a-z\]" || context[1] =~? "\[a-z\]"
             return a:quote
         endif
         return a:quote.a:quote."\<ESC>i"
@@ -755,8 +739,7 @@ END
         return "\<CR>"
     endfu " }}}
 
-    " if the cursor is inside an opening and closing brackets,
-    " delete both
+    " if the cursor is inside an opening and closing brackets, delete both
     fu! SmartBackspace() " {{{
         let line = getline(".")
         let context = line[col(".")-2] . line[col(".")-1]
@@ -839,10 +822,9 @@ END
                 let fpath = strpart(fpath, cut_pos + 1)
             endif
         endif
-        if !empty(fpath)
-            let fpath = fpath . "/"
-        endif
-        return fpath . fname
+
+        let cond = empty(fname)
+        return (cond ? "" : fpath ."/") . (cond ? "[no name]" : fname)
     endfu " }}}
 
     " to return the git branch for the current buffer
@@ -884,18 +866,74 @@ END
     endfu " }}}
 
     " to delete the buffer but leave the window intact
-    fu! KillBuffer() " {{{
-        if &modified
-            echohl WarningMsg | echom " Write the buffer first." | echohl None
-        else
-            let buffers = len(filter(range(1, bufnr('$')), 'buflisted(v:val)'))
-            if buffers == 1
+    " http://vim.wikia.com/wiki/Deleting_a_buffer_without_closing_the_window
+    fu! KillBuffer(kwbdStage) " {{{
+        if(a:kwbdStage == 1)
+            if(!buflisted(winbufnr(0)))
+                bd!
+                return
+            endif
+            let s:kwbdBufNum = bufnr("%")
+            let s:kwbdWinNum = winnr()
+            windo call KillBuffer(2)
+            execute s:kwbdWinNum . 'wincmd w'
+            let s:buflistedLeft = 0
+            let s:bufFinalJump = 0
+            let l:nBufs = bufnr("$")
+            let l:i = 1
+            while(l:i <= l:nBufs)
+                if(l:i != s:kwbdBufNum)
+                    if(buflisted(l:i))
+                        let s:buflistedLeft = s:buflistedLeft + 1
+                    else
+                        if(bufexists(l:i) && !strlen(bufname(l:i)) && !s:bufFinalJump)
+                            let s:bufFinalJump = l:i
+                        endif
+                    endif
+                endif
+                let l:i = l:i + 1
+            endwhile
+            if(!s:buflistedLeft)
+                if(s:bufFinalJump)
+                    windo if(buflisted(winbufnr(0))) | execute "b! " . s:bufFinalJump | endif
+                else
+                    enew
+                    let l:newBuf = bufnr("%")
+                    windo if(buflisted(winbufnr(0))) | execute "b! " . l:newBuf | endif
+                endif
+                execute s:kwbdWinNum . 'wincmd w'
+            endif
+            if(buflisted(s:kwbdBufNum) || s:kwbdBufNum == bufnr("%"))
+                execute "bd! " . s:kwbdBufNum
+            endif
+            if(!s:buflistedLeft)
+                set buflisted
                 set bufhidden=delete
-                enew
-                tabdo windo bprevious
+                set buftype=
+                setlocal noswapfile
+            endif
+        else
+            if(bufnr("%") == s:kwbdBufNum)
+                let prevbufvar = bufnr("#")
+                if(prevbufvar > 0 && buflisted(prevbufvar) && prevbufvar != s:kwbdBufNum)
+                    b #
+                else
+                    bn
+                endif
+            endif
+        endif
+    endfu " }}}
+
+    " to close the current window
+    fu! CloseWindow() " {{{
+        if &modified && (!&hidden || !&autowriteall)
+            echohl WarningMsg | echom " Write the buffer first" | echohl None
+        else
+            let windows = tabpagewinnr(tabpagenr(), "$")
+            if windows == 1
+                echohl WarningMsg | echom " Use :q" | echohl None
             else
-                bprevious
-                sil! bdelete #
+                exec "q"
             endif
         endif
     endfu " }}}
