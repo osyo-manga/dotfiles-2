@@ -402,9 +402,6 @@
     " delete last path component in the command line
     cnoremap <C-T> <C-\>e(RemoveLastPathComponent())<CR>
 
-    " delete last word in the command line
-    cnoremap <C-S> <C-\>e(RemoveLastWord())<CR>
-
     " }}}
 
     " search {{{
