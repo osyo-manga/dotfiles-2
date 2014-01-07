@@ -110,7 +110,7 @@
     if has("gui_running")
 
         set guioptions=mc  " remove 'e' for terminal-style tabs
-        set linespace=0
+        set linespace=1
 
         if has("gui_macvim")
             set guifont=Source\ Code\ Pro\ Light:h13
@@ -239,7 +239,7 @@
     set hlsearch
     set gdefault
 
-    set foldenable
+    set nofoldenable
     set foldcolumn=1
     set foldopen=block,hor,insert,jump,mark,percent,quickfix,search,tag,undo
     set foldtext=CustomFoldText()
@@ -257,9 +257,9 @@
     set laststatus=2
 
     set stl=
-    set stl+=\ %(%w%r%h\ %)
-    set stl+=\ %(%#StatusLineErr#%{&mod?'(+)':''}%*\ %)
-    set stl+=%(%{GitCurrentBranch('')}\ %)
+    set stl+=\ %(%q%w%r%h\ %)
+    set stl+=%(%#StatusLineErr#%m%*\ %)
+    set stl+=#%n\ %(%{GitCurrentBranch('')}\ %)
     set stl+=%{FilePath()}
     set stl+=%=
     set stl+=%{AlternateBuffer()}
@@ -348,10 +348,14 @@
 
     " edit to the alternate buffer; if it is already visible just move to
     " the window containing the buffer
-    nnoremap <silent> <leader><SPACE> :call EditAlternateBuffer()<CR>
+    nnoremap <silent> <leader>- :call GoToBuffer("#")<CR>
 
-    nnoremap <silent> <ENTER> :bnext<CR>
-    nnoremap <silent> <BS> :bprevious<CR>
+    nnoremap <silent> <ENTER> :bn<CR>
+    nnoremap <silent> <BS> :bp<CR>
+
+    for i in range(1, 9)
+        exec "nnoremap <silent> <leader>".i." :call GoToBuffer(".i.")<CR>"
+    endfor
 
     " }}}
 
@@ -416,7 +420,7 @@
     nnoremap N Nzvzz
 
     " clear searches
-    nnoremap <silent> <leader>m :noh<CR>
+    nnoremap <silent> <leader><SPACE> :noh<CR>
 
     " }}}
 
@@ -545,7 +549,8 @@
     " Gate {{{
     " -------------------------------------------------------------------------
 
-    nnoremap <leader>- :Gate<CR>
+    nnoremap - :Gate<CR>
+    nnoremap _ :Gate<CR>#
     let g:gate_exclude_extension_from_matching = 1
     let g:gate_current_line_indicator = " "
     let g:gate_matches_color_darkbg = 'Function'
@@ -557,6 +562,8 @@
     " Surfer {{{
     " -------------------------------------------------------------------------
 
+    nnoremap <leader>. :Surf<CR>
+    let g:surfer_debug = 0
     let g:surfer_line_format = [" @ {file}", " ({line})"]
     let g:surfer_current_line_indicator = " "
     let g:surfer_matches_color_darkbg = 'Function'
@@ -574,8 +581,6 @@
             \"extensions": [".go"]
         \}
     \}
-    let g:surfer_debug = 0
-    nnoremap <leader>. :Surf<CR>
 
     " }}}
 
@@ -876,7 +881,7 @@ END
             endif
             let ei = &eventignore
             set eventignore=all
-            tabdo windo if bufnr("%") == currbufnr | bnext | endif
+            tabdo windo if bufnr("%") == currbufnr | bnext! | endif
             let &eventignore=ei
         endif
     endfu " }}}
@@ -895,17 +900,20 @@ END
         endif
     endfu " }}}
 
-    " to edit to the alternate buffer; if it is already visible, then move to
+    " to edit to the buffer n; if it is already visible, then move to
     " the window containing the buffer
-    fu! EditAlternateBuffer() " {{{
-        let winnr = bufwinnr(bufnr(expand("#")))
+    fu! GoToBuffer(n) " {{{
+        let winnr = bufwinnr(a:n)
         if winnr >= 0
             exec winnr . "wincmd w"
         else
-            b#
+            if a:n == "#" || buflisted(a:n)
+                exec "b " . a:n
+            else
+                echohl WarningMsg | echom " No such buffer" | echohl None
+            endif
         endif
-    endfu
-    " }}}
+    endfu " }}}
 
 " }}}
 
