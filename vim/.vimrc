@@ -80,8 +80,8 @@
         au FileType vim  setl fdm=marker
         au FileType html,css  setl sts=2 ts=2 sw=2
 
-        au BufWinEnter *.py let g:_match_id = matchadd("SpellRare", "\\%81v.", -1)
-        au BufWinLeave *.py sil! call matchdelete(g:_match_id)
+        au BufWinEnter *.py let g:match80 = matchadd("SpellRare", "\\%81v.", -1)
+        au BufWinLeave *.py sil! call matchdelete(g:match80) | unlet! g:match80
         au FileType python  setl cin tw=79 fdm=indent fdn=2 fdl=1
         au FileType python  nnoremap <buffer> <F6> :!python %<CR>
         au FileType python  inoremap <buffer> <F6> <ESC>:!python %<CR>a
@@ -216,6 +216,7 @@
     set shiftwidth=4
     set shiftround
 
+    set autoindent
     set smartindent
 
     set splitbelow
@@ -269,15 +270,13 @@
 
 " MAPPINGS --------------------------------- {{{
 
-    " basic {{{
+    " basic
     " -------------------------------------------------------------------------
 
     let mapleader=","
     inoremap jj <ESC>
 
-    " }}}
-
-    " commands {{{
+    " commands
     " -------------------------------------------------------------------------
 
     " sudo write
@@ -295,9 +294,7 @@
     cabbrev Wa wa | cabbrev Wq wq | cabbrev Set set | cabbrev Mes mes
     cabbrev Echo echo | cabbrev ehco echo
 
-    " }}}
-
-    " tabs {{{
+    " tabs
     " -------------------------------------------------------------------------
 
     " tabs
@@ -316,9 +313,7 @@
     nnoremap <silent> <up> :exec 'sil! tabmove ' . tabpagenr()<CR>
     inoremap <silent> <up> <ESC>:exec 'sil! tabmove ' . tabpagenr()<CR>
 
-    " }}}
-
-    " windows {{{
+    " windows
     " -------------------------------------------------------------------------
 
     " close the window
@@ -337,9 +332,7 @@
     nnoremap <C-SPACE> <C-W>W
     nnoremap <SPACE> <C-W>w
 
-    " }}}
-
-    " buffers {{{
+    " buffers
     " -------------------------------------------------------------------------
 
     " kill the buffer but keep the window
@@ -350,16 +343,11 @@
     " the window containing the buffer
     nnoremap <silent> <leader>- :call GoToBuffer("#")<CR>
 
-    nnoremap <silent> <ENTER> :bn<CR>
-    nnoremap <silent> <BS> :bp<CR>
-
     for i in range(1, 9)
         exec "nnoremap <silent> <leader>".i." :call GoToBuffer(".i.")<CR>"
     endfor
 
-    " }}}
-
-    " editing {{{
+    " editing
     " -------------------------------------------------------------------------
 
     " useful cheats
@@ -398,17 +386,16 @@
     vnoremap < <gv
     vnoremap > >gv
 
-    " }}}
+    nnoremap <silent> <BS> :call Wildfire("c")<CR>
+    nnoremap <silent> <ENTER> :call Wildfire("v")<CR>
 
-    " command line {{{
+    " command line
     " -------------------------------------------------------------------------
 
     " delete last path component in the command line
     cnoremap <C-T> <C-\>e(RemoveLastPathComponent())<CR>
 
-    " }}}
-
-    " search {{{
+    " search
     " -------------------------------------------------------------------------
 
     " don't move on * and #
@@ -422,9 +409,7 @@
     " clear searches
     nnoremap <silent> <leader><SPACE> :noh<CR>
 
-    " }}}
-
-    " moving around {{{
+    " moving around
     " -------------------------------------------------------------------------
 
     nnoremap <TAB> }
@@ -442,9 +427,7 @@
     xmap J 5j
     xmap K 5k
 
-    " }}}
-
-    " misc {{{
+    " misc
     " -------------------------------------------------------------------------
 
     nnoremap q: :q
@@ -488,13 +471,11 @@
     inoremap <C-T> ~
     cnoremap <C-T> ~
 
-    " }}}
-
 " }}}
 
 " PLUGINS ---------------------------------- {{{
 
-    " NERDTree {{{
+    " NERDTree
     " -------------------------------------------------------------------------
 
     let NERDTreeMinimalUI = 1
@@ -502,9 +483,7 @@
     nnoremap <silent> <F1> :NERDTreeToggle<CR>
     inoremap <silent> <F1> <ESC>:NERDTreeToggle<CR>
 
-    " }}}
-
-    " Tagbar {{{
+    " Tagbar
     " -------------------------------------------------------------------------
 
     let g:tagbar_left = 0
@@ -526,17 +505,13 @@
         \ 'ctagsargs' : '-sort -silent'
     \ }
 
-    " }}}
-
-    " Gundo {{{
+    " Gundo
     " -------------------------------------------------------------------------
 
     nnoremap <silent> <F3> :silent GundoToggle<CR>
     inoremap <silent> <F3> <ESC>:silent GundoToggle<CR>a
 
-    " }}}
-
-    " Chronos {{{
+    " Chronos
     " -------------------------------------------------------------------------
 
     nnoremap <leader>h :Chronos<CR>
@@ -544,9 +519,7 @@
     let g:chronos_matches_color_darkbg = 'Function'
     let g:chronos_debug = 0
 
-    " }}}
-
-    " Gate {{{
+    " Gate
     " -------------------------------------------------------------------------
 
     nnoremap - :Gate<CR>
@@ -557,9 +530,7 @@
     let g:gate_ignore = ["*/[Bb]uild/*"]
     let g:gate_debug = 0
 
-    " }}}
-
-    " Surfer {{{
+    " Surfer
     " -------------------------------------------------------------------------
 
     nnoremap <leader>. :Surf<CR>
@@ -582,24 +553,18 @@
         \}
     \}
 
-    " }}}
-
-    " Taboo {{{
+    " Taboo
     " -------------------------------------------------------------------------
 
     let g:taboo_tab_format = " #%N %f%m "
     let g:taboo_modified_tab_flag = " *"
 
-    " }}}
-
-    " Tube {{{
+    " Tube
     " -------------------------------------------------------------------------
 
     let g:tube_terminal = 'iterm'
 
-    " }}}
-
-    " Syntastic {{{
+    " Syntastic
     " -------------------------------------------------------------------------
 
     hi link SyntasticErrorSign WarningMsg
@@ -616,17 +581,13 @@
         \ 'passive_filetypes': ['java']
     \ }
 
-    " }}}
-
-    " Easymotion {{{
+    " Easymotion
     " -------------------------------------------------------------------------
 
     hi link EasyMotionTarget WarningMsg
     hi link EasyMotionShade Comment
 
-    " }}}
-
-    " Ack {{{
+    " Ack
     " -------------------------------------------------------------------------
 
     command! -bang -nargs=* Ackp
@@ -634,38 +595,27 @@
         \ ." ".pyeval('_find_project_root()')
     nnoremap <expr> <leader>a ":Ackp "
 
-    " }}}
-
-    " Ultisnips {{{
+    " Ultisnips
     " -------------------------------------------------------------------------
 
     let g:UltiSnipsSnippetDirectories = ["UltiSnips", "CustomSnips"]
     let g:UltiSnipsExpandTrigger = "<C-C>"
 
-    " }}}
-
-    " GitGutter {{{
+    " GitGutter
     " -------------------------------------------------------------------------
 
-    let g:gitgutter_enabled = 1
     nnoremap <leader>og :GitGutterToggle<CR>
 
-    " }}}
-
-    " InstantMarkdown {{{
+    " InstantMarkdown
     " -------------------------------------------------------------------------
 
     let g:instant_markdown_slow = 1
     let g:instant_markdown_autostart = 0
 
-    " }}}
-
-    " YouCompleteMe {{{
+    " YouCompleteMe
     " -------------------------------------------------------------------------
 
     let g:ycm_filetype_blacklist = {'vim' : 1}
-
-    " }}}
 
 " }}}
 
@@ -674,7 +624,7 @@
 python << END
 import vim, os
 
-def _find_project_root(path=None, markers=None): # {{{
+def _find_project_root(path=None, markers=None):
     """To find the the root of the current project.
 
     `markers` is a list of file/directory names the can be found
@@ -692,34 +642,32 @@ def _find_project_root(path=None, markers=None): # {{{
     else:
         return _find_project_root(os.path.dirname(path), markers)
 
-    # }}}
-
 END
 
-    fu! _count(haystack, needle) " {{{
+    fu! _count(haystack, needle)
         if type(a:haystack) == 1
             return count(split(a:haystack, "\\zs"), a:needle)
         elseif type(a:haystack) == 3 || type(a:haystack) == 4
             return count(a:haystack, a:needle)
         endif
-    endfu " }}}
+    endfu
 
     " Automatically insert a closing quote
-    fu! SmartPairQuoteInsertion(quote) " {{{
+    fu! SmartPairQuoteInsertion(quote)
         let line = getline(".")
         let context = line[col(".")-2] . line[col(".")-1]
         if &ft == "vim" && line[:col(".")-2] =~ "^\\s*$"
             return a:quote
         endif
         let odd_brackets = _count(line, a:quote) % 2 != 0
-        if odd_brackets || context[0] =~? "\[a-z\]" || context[1] =~? "\[a-z\]"
+        if odd_brackets || context[0] =~ "\\" || context[0] =~? "\[a-z\]" || context[1] =~? "\[a-z\]"
             return a:quote
         endif
         return a:quote.a:quote."\<ESC>i"
-    endfu " }}}
+    endfu
 
     " Utomatically insert a closing bracket
-    fu! SmartPairBracketInsertion(obr, cbr) " {{{
+    fu! SmartPairBracketInsertion(obr, cbr)
         let line = getline(".")
         let context = line[col(".")-2] . line[col(".")-1]
         let special_cond = a:obr == "(" && context[1] =~? "[a-z]"
@@ -727,45 +675,82 @@ END
             return a:obr.a:cbr."\<ESC>i"
         endif
         return a:obr
-    endfu " }}}
+    endfu
 
     " if the cursor is inside an opening and closing brackets,
     " add a new line in between
-    fu! SmartEnter() " {{{
+    fu! SmartEnter()
         let context = getline(".")[col(".")-2] . getline(".")[col(".")-1]
         if context =~ "()\\|\[\]\\|{}"
             return "\<CR>\<ESC>O"
         endif
         return "\<CR>"
-    endfu " }}}
+    endfu
 
     " if the cursor is inside an opening and closing brackets, delete both
-    fu! SmartBackspace() " {{{
+    fu! SmartBackspace()
         let line = getline(".")
         let context = line[col(".")-2] . line[col(".")-1]
         if context =~ "()\\|\[\]\\|{}\\|''\\|\"\"" && _count(line, context[0]) == _count(line, context[1])
             return "\<ESC>la\<BS>\<BS>"
         endif
         return "\<BS>"
-    endfu " }}}
+    endfu
+
+    " to delete, change or select the closest text object
+    " delimited by ', ", ), ] or }
+    fu! Wildfire(action)
+
+        let winview = winsaveview()
+        let candidates = ['vi"', "vi'", "vi)", "vi]", "vi}"]
+        let [curline, curcol] = [getpos(".")[1], getpos(".")[2]]
+        let sizes = {}
+
+        for candidate in candidates
+
+            exe "norm! v\<ESC>" . candidate . "\<ESC>"
+            let [startline, startcol] = [line("'<"), col("'<")]
+            let [endline, endcol] = [line("'>"), col("'>")]
+
+            if startline == endline
+                if startcol != endcol && curcol >= startcol && curcol <= endcol
+                    let size = strlen(strpart(getline("'<"), startcol, endcol-startcol+1))
+                    let sizes[size] = candidate
+                endif
+            endif
+
+            cal winrestview(winview)
+
+        endfor
+
+        if len(sizes)
+            let action = a:action == "c" ? "d" : a:action
+            exe "norm! \<ESC>" . action . sizes[min(keys(sizes))][1:]
+        endif
+
+        if a:action == "c" && len(sizes)
+            startinsert
+        endif
+
+    endfu
 
     " to strip trailing whitespace
-    fu! RemoveTrailingWhitespaces() " {{{
+    fu! RemoveTrailingWhitespaces()
         let cursor = getpos(".")
         exec "keepj %s/\\s\\+$//e"
         call histdel("search", -1)
         call setpos('.', cursor)
-    endfu " }}}
+    endfu
 
     " to restore the cursor position
-    fu! RestoreCursorPosition() " {{{
+    fu! RestoreCursorPosition()
         if line('`"') <= line('$')
             exec 'sil! normal! g`"zvzz'
         endif
-    endfu " }}}
+    endfu
 
     " to open the hyperlink under cursor in the default browser
-    fu! OpenHyperlink() " {{{
+    fu! OpenHyperlink()
         let cursor = getpos(".")
         let motion = &ft == "markdown" ? "vi)" : "viW"
         exec "normal! " . motion . "\<ESC>"
@@ -778,15 +763,15 @@ END
         else
             exec "normal! \<ESC>viw"
         endif
-    endfu " }}}
+    endfu
 
     " to delete the last path component in the command line
-    fu! RemoveLastPathComponent() " {{{
+    fu! RemoveLastPathComponent()
         return substitute(getcmdline(), '\%(\\ \|[\\/]\@!\f\)\+[\\/]\=$\|.$', '', '')
-    endfu " }}}
+    endfu
 
     " to display a better text for closed folds
-    fu! CustomFoldText() " {{{
+    fu! CustomFoldText()
         let line = getline(v:foldstart)
         if (&foldmethod == 'marker')
             let line = substitute(line, split(&foldmarker, ',')[0], '', 1)
@@ -795,11 +780,11 @@ END
         let stripped_line = substitute(stripped_line, '{\s*$', '', 1)
         let n = len(line) - len(stripped_line)
         return '+' . repeat('-', n-2) . ' ' . stripped_line
-    endfu " }}}
+    endfu
 
     " to display a variable-length file path according the witdh of the
     " current window
-    fu! FilePath() " {{{
+    fu! FilePath()
         if &bt == 'help' || &bt == 'nofile'
             return expand('%:t')
         endif
@@ -820,10 +805,10 @@ END
 
         let cond = empty(fname)
         return (cond ? "" : fpath ."/") . (cond ? "[no name]" : fname)
-    endfu " }}}
+    endfu
 
     " to return the git branch for the current buffer
-    fu! GitCurrentBranch(prefix) " {{{
+    fu! GitCurrentBranch(prefix)
         if winwidth(winnr()) > 70
             if empty(&buftype) && exists("g:loaded_fugitive")
                 let branch = fugitive#head()
@@ -833,10 +818,10 @@ END
             endif
         endif
         return ""
-    endfu " }}}
+    endfu
 
     " to return the alternate buffer for the current buffer
-    fu! AlternateBuffer() " {{{
+    fu! AlternateBuffer()
         if winwidth(winnr()) > 50
             let alt_buffer = expand('#:t')
             if !empty(alt_buffer) && buflisted(expand("#:p"))
@@ -844,10 +829,10 @@ END
             endif
         endif
         return ""
-    endfu " }}}
+    endfu
 
     " to print info of the current file
-    fu! PrintFileInfo() " {{{
+    fu! PrintFileInfo()
         let fpath = expand("%:p")
         let msg = " [["
         let msg .= " ft:" . &ft
@@ -863,10 +848,10 @@ END
         let msg .= ", size:" . getfsize(fpath)/1024 . "Kb"
         let msg .= " ]]"
         echo msg
-    endfu " }}}
+    endfu
 
     " to delete the buffer but leave the window intact
-    fu! CloseBuffer(bang) " {{{
+    fu! CloseBuffer(bang)
         if &modified && !a:bang
             echohl WarningMsg | echom " Write the buffer first." | echohl None
         else
@@ -884,10 +869,10 @@ END
             tabdo windo if bufnr("%") == currbufnr | bnext! | endif
             let &eventignore=ei
         endif
-    endfu " }}}
+    endfu
 
     " to close the current window
-    fu! CloseWindow() " {{{
+    fu! CloseWindow()
         if &modified && !&hidden && !&autowriteall
             echohl WarningMsg | echom " Write the buffer first" | echohl None
         else
@@ -898,11 +883,11 @@ END
                 q
             endif
         endif
-    endfu " }}}
+    endfu
 
     " to edit to the buffer n; if it is already visible, then move to
     " the window containing the buffer
-    fu! GoToBuffer(n) " {{{
+    fu! GoToBuffer(n)
         let winnr = bufwinnr(a:n)
         if winnr >= 0
             exec winnr . "wincmd w"
@@ -913,7 +898,7 @@ END
                 echohl WarningMsg | echom " No such buffer" | echohl None
             endif
         endif
-    endfu " }}}
+    endfu
 
 " }}}
 
