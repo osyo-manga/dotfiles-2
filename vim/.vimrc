@@ -13,9 +13,9 @@
     let $GOPATH=$HOME.'/dropbox/dev/go:'.$GOPATH
     let $GOPATH=$HOME.'/opt/go:'.$GOPATH
 
-    set rtp+=$HOME/dropbox/dev/vim/chronos
     set rtp+=$HOME/dropbox/dev/vim/surfer
     set rtp+=$HOME/dropbox/dev/vim/gate
+    set rtp+=$HOME/dropbox/dev/vim/wildfire
     set rtp+=$HOME/dropbox/dev/vim/plum
     set rtp+=$HOME/dropbox/dev/vim/taboo
     set rtp+=$HOME/dropbox/dev/vim/breeze
@@ -74,7 +74,7 @@
         au BufRead,BufNewFile *.json  setf javascript
 
         au FileType text,markdown,rest  nnoremap <silent> <buffer> <2-LeftMouse> :call OpenHyperlink()<CR>
-        au FileType text,markdown,rest setl nonumber foldcolumn=2
+        au FileType text,markdown,rest  setl nonu nornu foldcolumn=2
 
         au FileType gitconfig  setl noet
         au FileType vim  setl fdm=marker
@@ -341,7 +341,7 @@
 
     " edit to the alternate buffer; if it is already visible just move to
     " the window containing the buffer
-    nnoremap <silent> <leader>- :call GoToBuffer("#")<CR>
+    nnoremap <silent> _ :call GoToBuffer("#")<CR>
 
     for i in range(1, 9)
         exec "nnoremap <silent> <leader>".i." :call GoToBuffer(".i.")<CR>"
@@ -385,9 +385,6 @@
     " don't lose selection after indenting
     vnoremap < <gv
     vnoremap > >gv
-
-    nnoremap <silent> <BS> :call Wildfire("c")<CR>
-    nnoremap <silent> <ENTER> :call Wildfire("v")<CR>
 
     " command line
     " -------------------------------------------------------------------------
@@ -454,6 +451,7 @@
     inoremap <silent> <F8> <ESC>:call RemoveTrailingWhitespaces()<CR>a
 
     nnoremap <silent> <leader>on :set number!<CR>
+    nnoremap <silent> <leader>or :set relativenumber!<CR>
     nnoremap <silent> <leader>ow :set wrap!<CR>
     nnoremap <silent> <leader>ol :set list!<CR>
     nnoremap <silent> <leader>os :setl spell!<CR>
@@ -511,19 +509,12 @@
     nnoremap <silent> <F3> :silent GundoToggle<CR>
     inoremap <silent> <F3> <ESC>:silent GundoToggle<CR>a
 
-    " Chronos
-    " -------------------------------------------------------------------------
-
-    nnoremap <leader>h :Chronos<CR>
-    let g:chronos_current_line_indicator = " "
-    let g:chronos_matches_color_darkbg = 'Function'
-    let g:chronos_debug = 0
-
     " Gate
     " -------------------------------------------------------------------------
 
     nnoremap - :Gate<CR>
-    nnoremap _ :Gate<CR>#
+    nnoremap <leader>- :Gate<CR>#
+    let g:gate_mod_flags = 1
     let g:gate_exclude_extension_from_matching = 1
     let g:gate_current_line_indicator = " "
     let g:gate_matches_color_darkbg = 'Function'
@@ -670,7 +661,7 @@ END
     fu! SmartPairBracketInsertion(obr, cbr)
         let line = getline(".")
         let context = line[col(".")-2] . line[col(".")-1]
-        let special_cond = a:obr == "(" && context[1] =~? "[a-z]"
+        let special_cond = a:obr == "(" && context[1] =~? "\[a-z_\"']"
         if !special_cond && _count(getline("."), a:obr) == _count(getline("."), a:cbr)
             return a:obr.a:cbr."\<ESC>i"
         endif
@@ -695,43 +686,6 @@ END
             return "\<ESC>la\<BS>\<BS>"
         endif
         return "\<BS>"
-    endfu
-
-    " to delete, change or select the closest text object
-    " delimited by ', ", ), ] or }
-    fu! Wildfire(action)
-
-        let winview = winsaveview()
-        let candidates = ['vi"', "vi'", "vi)", "vi]", "vi}"]
-        let [curline, curcol] = [getpos(".")[1], getpos(".")[2]]
-        let sizes = {}
-
-        for candidate in candidates
-
-            exe "norm! v\<ESC>" . candidate . "\<ESC>"
-            let [startline, startcol] = [line("'<"), col("'<")]
-            let [endline, endcol] = [line("'>"), col("'>")]
-
-            if startline == endline
-                if startcol != endcol && curcol >= startcol && curcol <= endcol
-                    let size = strlen(strpart(getline("'<"), startcol, endcol-startcol+1))
-                    let sizes[size] = candidate
-                endif
-            endif
-
-            cal winrestview(winview)
-
-        endfor
-
-        if len(sizes)
-            let action = a:action == "c" ? "d" : a:action
-            exe "norm! \<ESC>" . action . sizes[min(keys(sizes))][1:]
-        endif
-
-        if a:action == "c" && len(sizes)
-            startinsert
-        endif
-
     endfu
 
     " to strip trailing whitespace
@@ -862,11 +816,11 @@ END
                 enew!
                 set nobuflisted
             else
-                bnext!
+                sil! bnext!
             endif
             let ei = &eventignore
             set eventignore=all
-            tabdo windo if bufnr("%") == currbufnr | bnext! | endif
+            tabdo windo if bufnr("%") == currbufnr | sil! bnext! | endif
             let &eventignore=ei
         endif
     endfu
