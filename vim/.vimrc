@@ -514,10 +514,8 @@
 
     nnoremap - :Gate<CR>
     nnoremap <leader>- :Gate<CR>#
-    let g:gate_mod_flags = 1
     let g:gate_exclude_extension_from_matching = 1
-    let g:gate_current_line_indicator = " "
-    let g:gate_matches_color_darkbg = 'Function'
+    let g:gate_matches = {"color_darkbg": "Function"}
     let g:gate_ignore = ["*/[Bb]uild/*"]
     let g:gate_debug = 0
 
