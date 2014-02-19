@@ -478,7 +478,7 @@
     augroup END
 
     let g:netrw_banner = 0
-	let g:netrw_list_hide= '\(^\|\s\s\)\zs\.\S\+,\.pyc$,^tags$'
+    let g:netrw_list_hide= '\(^\|\s\s\)\zs\.\S\+,\.pyc$,^tags$'
     nnoremap <F1> :edit .<CR>
     nnoremap <leader>ee :edit .<CR>
     nnoremap <leader>et :tabe .<CR>
@@ -572,10 +572,15 @@
     " Ack
     " -------------------------------------------------------------------------
 
-    command! -bang -nargs=* Ackp
-        \ exec "Ack".<q-bang>." ".(empty(<q-args>)?'<cword>':<q-args>)
+    command! -nargs=* Ackp
+        \ exec "Ack ".(empty(<q-args>)?'<cword>':<q-args>)
         \ ." ".pyeval('_find_project_root()')
-    nnoremap <expr> <leader>a ":Ackp "
+    nnoremap <expr> <leader>A ":Ackp "
+
+    command! -nargs=* Ackb
+        \ exec "Ack ".(empty(<q-args>)?'<cword>':<q-args>)
+        \ ." ".join(pyeval('_buffers()'), ' ')
+    nnoremap <expr> <leader>a ":Ackb "
 
     " Ultisnips
     " -------------------------------------------------------------------------
@@ -606,6 +611,16 @@
 python << END
 import vim, os
 
+def _eval(expr, fmt=None):
+    """To evaluate the given expression."""
+    val = vim.eval(expr)
+    if fmt is bool:
+        return False if val == u'0' else True
+    elif fmt is int:
+        return int(val)
+    else:
+        return val
+
 def _find_project_root(path=None, markers=None):
     """To find the the root of the current project.
 
@@ -613,7 +628,7 @@ def _find_project_root(path=None, markers=None):
     in a project root directory.
     """
     if path is None:
-        path = vim.eval("getcwd()")
+        path = _eval("getcwd()")
     if markers is None:
         markers = ['.git', '.svn', '.hg', '.bzr', '.travis.yml']
 
@@ -623,6 +638,15 @@ def _find_project_root(path=None, markers=None):
         return path
     else:
         return _find_project_root(os.path.dirname(path), markers)
+
+def _buflisted(expr):
+    """To check if a buffer is listed. See :h buflisted()"""
+    return _eval("buflisted({})".format(repr(expr)), fmt=bool)
+
+def _buffers():
+    """To return a list of all listed buffers."""
+    buffers = filter(None, imap(lambda b: b.name, vim.buffers))
+    return filter(lambda b: _buflisted(b), buffers)
 
 END
 
