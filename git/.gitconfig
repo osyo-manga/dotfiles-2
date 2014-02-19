@@ -13,6 +13,7 @@
 [alias]
 	br = branch -v
 	co = checkout
+	cm = checkout master
 	ci = commit
 	s = status -s
 	aci = commit --amend
