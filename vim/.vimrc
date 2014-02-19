@@ -31,10 +31,9 @@
     Bundle 'airblade/vim-gitgutter'
     Bundle 'Lokaltog/vim-easymotion'
     Bundle 'goldfeld/vim-seek'
+    Bundle 'scrooloose/nerdcommenter'
     Bundle 'tpope/vim-surround'
     Bundle 'majutsushi/tagbar'
-    Bundle 'scrooloose/nerdtree'
-    Bundle 'scrooloose/nerdcommenter'
     Bundle 'SirVer/ultisnips'
     Bundle 'mattn/emmet-vim'
     Bundle 'scrooloose/syntastic'
@@ -53,7 +52,7 @@
 
     " personal stuff
     sil! source ~/dropbox/personal/.vimrc
-    let postit = fnamemodify(expand("`readlink $HOME/.vimrc`"), ":h") . "/.postit.txt"
+
 
 " }}}
 
@@ -66,6 +65,7 @@
         au BufReadPost * call RestoreCursorPosition()
         au BufWritePre * sil! call RemoveTrailingWhitespaces()
         au BufReadPost * if &key != "" | setl noswf nowb viminfo= nobk nostmp history=0 secure | endif
+        au BufEnter * if !empty(&buftype) | setl scrolloff=0 | endif
 
         au BufWritePost .vimrc source $MYVIMRC
         au BufWritePost plum.vim nested colorscheme plum
@@ -73,24 +73,19 @@
         au BufRead,BufNewFile *.pde  setf java
         au BufRead,BufNewFile *.json  setf javascript
 
-        au FileType text,markdown,rest  nnoremap <silent> <buffer> <2-LeftMouse> :call OpenHyperlink()<CR>
-        au FileType text,markdown,rest  setl nonu nornu foldcolumn=2
+        au BufRead,BufNewFile *.txt,*.md,*.rst  setl nonu nornu foldcolumn=2
+        au BufRead,BufNewFile *.txt,*.md,*.rst  nnoremap <silent> <buffer> <2-LeftMouse> :call OpenHyperlink()<CR>
 
-        au FileType gitconfig  setl noet
-        au FileType vim  setl fdm=marker
-        au FileType html,css  setl sts=2 ts=2 sw=2
+        au BufRead,BufNewFile .gitconfig  setl noet
+        au BufRead,BufNewFile *.vim,.vimrc  setl fdm=marker
+        au BufRead,BufNewFile *.html,*.css  setl sts=2 ts=2 sw=2
 
         au BufWinEnter *.py let g:match80 = matchadd("SpellRare", "\\%81v.", -1)
         au BufWinLeave *.py sil! call matchdelete(g:match80) | unlet! g:match80
-        au FileType python  setl cin tw=79 fdm=indent fdn=2 fdl=1
-        au FileType python  nnoremap <buffer> <F6> :!python %<CR>
-        au FileType python  inoremap <buffer> <F6> <ESC>:!python %<CR>a
+        au BufRead,BufNewFile *.py  setl cin tw=79 fdm=indent fdn=2 fdl=1
 
-        au FileType go  setl nolist ts=4 noet fdm=syntax fdn=1 makeprg=go\ build
-        au FileType go  nnoremap <buffer> <F6> :!go run *.go<CR>
-        au FileType go  inoremap <buffer> <F6> <ESC>:!go run *.go<CR>a
-        au FileType go  nnoremap <buffer> <F7> :exe (&ft == 'go' ? 'Fmt' : '')<CR>:w<CR>
-        au FileType go  inoremap <buffer> <F7> <ESC>:exe (&ft == 'go' ? 'Fmt' : '')<CR>:w<CR>a
+        au BufRead,BufNewFile *.go  setl nolist ts=4 noet fdm=syntax fdn=1 makeprg=go\ build
+        au BufRead,BufNewFile *.go  nnoremap <buffer> <F5> :Fmt<CR>:w<CR>
 
     augroup END
 
@@ -100,8 +95,6 @@
 
     " syntax options
     let html_no_rendering = 1
-    let python_highlight_builtin_objs = 1
-    let python_version_2 = 1
 
     "let g:plum_force_bg = "dark"
     "let g:plum_cursorline_style = 4
@@ -172,8 +165,7 @@
     set formatoptions=qn1c
     set nrformats-=octal
 
-    set notimeout
-    set ttimeout
+    set timeout
     set ttimeoutlen=50
 
     set nonumber
@@ -184,11 +176,11 @@
     set virtualedit=all
 
     set title
-    set titlestring=%<%{GitCurrentBranch('')}\ %F
+    set titlestring=%<%{GitCurrentBranch('⎇\ ')}\ %F
     set titlelen=100
 
     set tabpagemax=19
-    set showtabline=2
+    set showtabline=1
 
     set complete-=i
     set completeopt=longest,menuone
@@ -197,8 +189,7 @@
     set wildmenu
     set wildmode=longest,full
     set wildignore=*.o,*.so,*.pyc,*.class,*.fasl,tags
-    set wildignore+=*.swp,*.cache,*.jar,*.bat,*.dat
-
+    set wildignore+=*.swp,*.cache,*.jar,*.bat,*.dat,*.gif
 
     set cmdheight=1
     set report=0
@@ -206,7 +197,7 @@
     set noshowmode
     set showcmd
 
-    set sidescrolloff=3
+    set sidescrolloff=1
     set scrolloff=3
 
     set smarttab
@@ -216,7 +207,6 @@
     set shiftwidth=4
     set shiftround
 
-    set autoindent
     set smartindent
 
     set splitbelow
@@ -259,8 +249,7 @@
 
     set stl=
     set stl+=\ %(%q%w%r%h\ %)
-    set stl+=%(%#StatusLineErr#%m%*\ %)
-    set stl+=#%n\ %(%{GitCurrentBranch('')}\ %)
+    set stl+=%#StatusLineErr#%m%*\ #%n\ "
     set stl+=%{FilePath()}
     set stl+=%=
     set stl+=%{AlternateBuffer()}
@@ -301,17 +290,13 @@
     nnoremap <silent> <leader>tt :tabedit! <C-R>=expand("%:p")<CR><CR>
     nnoremap <silent> <leader>tc :tabclose<CR>
 
-    " go to next/previous tabs
-    nnoremap <silent> <left> :tabprevious<CR>
-    inoremap <silent> <left> <ESC>:tabprevious<CR>
-    nnoremap <silent> <right> :tabnext<CR>
-    inoremap <silent> <right> <ESC>:tabnext<CR>
+    " go to next/previous tab
+    nnoremap <silent> [t :tabprevious<CR>
+    nnoremap <silent> ]t :tabnext<CR>
 
     " tabs relocation
-    nnoremap <silent> <down> :exec 'sil! tabmove ' . (tabpagenr()-2)<CR>
-    inoremap <silent> <down> <ESC>:exec 'sil! tabmove ' . (tabpagenr()-2)<CR>
-    nnoremap <silent> <up> :exec 'sil! tabmove ' . tabpagenr()<CR>
-    inoremap <silent> <up> <ESC>:exec 'sil! tabmove ' . tabpagenr()<CR>
+    nnoremap <silent> <left> :exec 'sil! tabmove ' . (tabpagenr()-2)<CR>
+    nnoremap <silent> <right> :exec 'sil! tabmove ' . tabpagenr()<CR>
 
     " windows
     " -------------------------------------------------------------------------
@@ -334,6 +319,10 @@
 
     " buffers
     " -------------------------------------------------------------------------
+
+    " go to next/previous buffer
+    nnoremap <silent> ]b :bnext<CR>
+    nnoremap <silent> [b :bprevious<CR>
 
     " kill the buffer but keep the window
     nnoremap <silent> <leader>q :call CloseBuffer(0)<CR>
@@ -367,20 +356,25 @@
     inoremap <silent> " <C-R>=SmartPairQuoteInsertion('"')<CR>
     inoremap <silent> ' <C-R>=SmartPairQuoteInsertion("'")<CR>
 
-    inoremap <silent> <C-Z> <ESC>:let _ls=@/<CR>/[)}\]>'"]<CR>
-        \:noh<CR>:cal histdel("/",-1)<CR>:let @/=_ls<CR>:unl _ls<CR>a
+    inoremap <silent> <C-Z> <ESC>:set nows<CR>:let _ls=@/<CR>/[)}\]>'"`]<CR>
+        \:noh<CR>:cal histdel("/",-1)<CR>:let @/=_ls<CR>:unl _ls<CR>:set ws<CR>a
+
     inoremap <silent> <ENTER> <C-R>=SmartEnter()<CR>
     inoremap <silent> <BS> <C-R>=SmartBackspace()<CR>
 
     " let Y behave like other capitals
     nnoremap Y y$
 
+    " select the current line without indentation
+    nnoremap vv ^vg_
+
     " paste and indent
     nnoremap <leader>p p`[v`]=
+    nnoremap <leader>P P`[v`]=
 
     " paste the last yanked text
-    nnoremap <leader>P "0p
-    vnoremap <leader>P "0p
+    nnoremap <C-P> "0p
+    vnoremap <C-P> "0p
 
     " don't lose selection after indenting
     vnoremap < <gv
@@ -432,10 +426,6 @@
 
     nnoremap gp vipgq
 
-    " open explorer
-    nnoremap <leader>ee :edit .<CR>j
-    nnoremap <leader>et :tabe .<CR>j
-
     " open the finder (or terminal) at the location of the current file
     nnoremap <silent> <leader>ef :exec "sil !open ".expand("%:p:h")<CR>
     nnoremap <silent> <leader>er :TubeCd<CR>:TubeFocus<CR>
@@ -443,12 +433,8 @@
     " edit .vimrc
     nnoremap <silent> <leader>r :e $MYVIMRC<CR>
 
-    " view postit
-    nnoremap <expr> <leader>y ":e " . postit . "<CR>"
-
-    " delete trailing white spaces
-    nnoremap <silent> <F8> :call RemoveTrailingWhitespaces()<CR>
-    inoremap <silent> <F8> <ESC>:call RemoveTrailingWhitespaces()<CR>a
+    " delete trailing whitespaces
+    nnoremap <silent> <F4> :call RemoveTrailingWhitespaces()<CR>
 
     nnoremap <silent> <leader>on :set number!<CR>
     nnoremap <silent> <leader>or :set relativenumber!<CR>
@@ -464,6 +450,16 @@
     iabbrev wiht with
     iabbrev retrun return
 
+    " quickfix window
+    nnoremap <silent> <leader>xx :cwindow<CR>
+    nnoremap <silent> <leader>xp :clist<CR>
+    nnoremap <silent> <leader>xc :cclose<CR>
+    nnoremap <silent> <leader>xz :call setqflist([])<CR>
+
+    " go to the next/previous error in the quickfix list
+    nnoremap <silent> ]e :cnext<CR>
+    nnoremap <silent> [e :cprevious<CR>
+
     inoremap <C-B> `
     cnoremap <C-B> `
     inoremap <C-T> ~
@@ -473,13 +469,19 @@
 
 " PLUGINS ---------------------------------- {{{
 
-    " NERDTree
+    " Netrw
     " -------------------------------------------------------------------------
 
-    let NERDTreeMinimalUI = 1
-    let NERDTreeWinSize = 30
-    nnoremap <silent> <F1> :NERDTreeToggle<CR>
-    inoremap <silent> <F1> <ESC>:NERDTreeToggle<CR>
+    augroup netrw
+        au!
+        au FileType netrw map <buffer> o <CR>
+    augroup END
+
+    let g:netrw_banner = 0
+	let g:netrw_list_hide= '\(^\|\s\s\)\zs\.\S\+,\.pyc$,^tags$'
+    nnoremap <F1> :edit .<CR>
+    nnoremap <leader>ee :edit .<CR>
+    nnoremap <leader>et :tabe .<CR>
 
     " Tagbar
     " -------------------------------------------------------------------------
@@ -514,38 +516,29 @@
 
     nnoremap - :Gate<CR>
     nnoremap <leader>- :Gate<CR>#
-    let g:gate_exclude_extension_from_matching = 1
-    let g:gate_matches = {"color_darkbg": "Function"}
-    let g:gate_ignore = ["*/[Bb]uild/*"]
     let g:gate_debug = 0
+    let g:gate_match_file_extension = 0
+    let g:gate_mod_flags = {"active": 1}
+    let g:gate_matches = {"color_darkbg": "Function"}
+    let g:gate_ignore = ["*/[Bb]uild/*", "*.log"]
+    let g:gate_filters = {"&": ["*_test.*"]}
 
     " Surfer
     " -------------------------------------------------------------------------
 
     nnoremap <leader>. :Surf<CR>
+    "set tags=/Users/giacomo/dropbox/dev/vim/surfer/tags
     let g:surfer_debug = 0
-    let g:surfer_line_format = [" @ {file}", " ({line})"]
-    let g:surfer_current_line_indicator = " "
-    let g:surfer_matches_color_darkbg = 'Function'
-    let g:surfer_exclude = ["*/[Dd]oc?/*", "*/[Tt]est?/*", "*/[Bb]uild/*", "*/setup.py"]
-    let g:surfer_exclude_kinds = ["field", "package", "import", "namespace"]
-    let g:surfer_custom_languages = {
-        \"go": {
-            \"ctags_prg": $HOME."/opt/go/bin/gotags",
-            \"ctags_args": "-silent -sort",
-            \"kinds_map": {
-                \ 'p': 'package', 'i': 'import', 'c': 'constant', 'v': 'variable',
-                \ 't': 'type', 'n': 'interface', 'w': 'field','e': 'embedded',
-                \ 'm': 'method', 'r': 'constructor', 'f': 'function'},
-            \"exclude_kinds": ["package", "import", "variable", "field"],
-            \"extensions": [".go"]
-        \}
-    \}
+    let g:surfer_exclude_tags = []
+    let g:surfer_exclude_kinds = ["import", "namespace", "package"]
+    let g:surfer_line_format = [" @ {file}", " ({line})", " {kind}"]
+    let g:surfer_matches = {"color_darkbg": "Function"}
 
     " Taboo
     " -------------------------------------------------------------------------
 
     let g:taboo_tab_format = " #%N %f%m "
+    let g:taboo_renamed_tab_format = " #%N [%f] "
     let g:taboo_modified_tab_flag = " *"
 
     " Tube
@@ -679,8 +672,11 @@ END
     " if the cursor is inside an opening and closing brackets, delete both
     fu! SmartBackspace()
         let line = getline(".")
-        let context = line[col(".")-2] . line[col(".")-1]
-        if context =~ "()\\|\[\]\\|{}\\|''\\|\"\"" && _count(line, context[0]) == _count(line, context[1])
+        let col = col(".")
+        let context = line[col-2] . line[col-1]
+        if line[col-3] . line[col-2] =~ "()\\|\[\]\\|{}\\|''\\|\"\"\\|``"
+            return "\<ESC>i"
+        elseif context =~ "()\\|\[\]\\|{}\\|''\\|\"\"\\|``\\|<>" && _count(line, context[0]) == _count(line, context[1])
             return "\<ESC>la\<BS>\<BS>"
         endif
         return "\<BS>"
@@ -805,20 +801,22 @@ END
     " to delete the buffer but leave the window intact
     fu! CloseBuffer(bang)
         if &modified && !a:bang
-            echohl WarningMsg | echom " Write the buffer first." | echohl None
+            echohl WarningMsg | echo " Write the buffer first" | echohl None
         else
             let currbufnr = bufnr("%")
             set bufhidden=delete
             let buffers = len(filter(range(1, bufnr('$')), 'buflisted(v:val)'))
-            if buffers == 1
+            if buffers == 0
+                echohl WarningMsg | echo " No more buffers to close" | echohl None
+            elseif buffers == 1
                 enew!
                 set nobuflisted
             else
-                sil! bnext!
+                bnext!
             endif
             let ei = &eventignore
             set eventignore=all
-            tabdo windo if bufnr("%") == currbufnr | sil! bnext! | endif
+            tabdo windo if bufnr("%") == currbufnr | bnext! | endif
             let &eventignore=ei
         endif
     endfu
@@ -826,7 +824,7 @@ END
     " to close the current window
     fu! CloseWindow()
         if &modified && !&hidden && !&autowriteall
-            echohl WarningMsg | echom " Write the buffer first" | echohl None
+            echohl WarningMsg | echo " Write the buffer first" | echohl None
         else
             let windows = tabpagewinnr(tabpagenr(), "$")
             if windows == 1
@@ -847,7 +845,7 @@ END
             if a:n == "#" || buflisted(a:n)
                 exec "b " . a:n
             else
-                echohl WarningMsg | echom " No such buffer" | echohl None
+                echohl WarningMsg | echo " No such buffer" | echohl None
             endif
         endif
     endfu
