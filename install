@@ -2,17 +2,25 @@
 
 # install
 
-for file in {zsh/.zshrc,zsh/.zsh,ack/.ackrc,ctags/.ctags,tmux/.tmux.conf,git/.gitconfig,git/.gitignore_global,vim/.vimrc,vim/.vim}; do
+for file in {zsh/{.zshrc,.zsh},ack/.ackrc,ctags/.ctags,tmux/.tmux.conf,git/{.gitconfig,.gitignore_global},vim/{.vimrc,.vim}}; do
     TARGET="$(cd $(dirname $0) ; pwd -P)/$file"
     LINK=$HOME/$(basename "$file")
     if [[ -h $LINK ]]; then
-        echo "[OK] Relinkng $LINK to $TARGET"
+        echo "[OK] Relinkng ~${LINK#$HOME} to ~${TARGET#$HOME}"
         ln -sf $TARGET $HOME
     elif [[ ! -e $LINK ]]; then
-        echo "[OK] Linking $LINK to $TARGET"
+        echo "[OK] Linking ~${LINK#$HOME} to ~${TARGET#$HOME}"
         ln -s $TARGET $LINK
     else
-        echo "[XX] $LINK exists as a real file, skipping"
+        echo "[XX] ~${LINK#$HOME} exists as a real file, skipping"
     fi
 done
+
+if [[ -d ~/.vim/bundle/vundle ]]; then
+    echo "[VIM] Vundle already installed."
+else
+    echo "[VIM] Vundle is being installed."
+    git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
+fi
+
 unset file TARGET LINK
