@@ -53,7 +53,6 @@
     " personal stuff
     sil! source ~/dropbox/personal/.vimrc
 
-
 " }}}
 
 " AUTOCOMMANDS ----------------------------- {{{
@@ -112,7 +111,7 @@
 
     else
 
-        augroup iterm_cursor_shape
+        augroup iterm
             au!
             " When vims starts set the block shape, while when vim is closed
             " restore the vertical bar (iTerm)
@@ -176,7 +175,7 @@
     set virtualedit=all
 
     set title
-    set titlestring=%<%{GitCurrentBranch('⎇\ ')}\ %F
+    set titlestring=(\ %{&ft},\ %{&ff},\ %{&fenc}\ )\ %<%{GitCurrentBranch('⎇\ ')}\ %F
     set titlelen=100
 
     set tabpagemax=19
@@ -247,13 +246,9 @@
 
     set laststatus=2
 
-    set stl=
-    set stl+=\ %(%q%w%r%h\ %)
-    set stl+=%#StatusLineErr#%m%*\ #%n\ "
-    set stl+=%{FilePath()}
+    set stl=%(\ %q%w%r%h%#StatusLineErr#%m%*%)\ #%n\ %{FilePath()}
     set stl+=%=
-    set stl+=%{AlternateBuffer()}
-    set stl+=%1l:%02v\ ~\ %P\ "
+    set stl+=%{AlternateBuffer()}%1l:%02v\ ~\ %P\ "
 
 " }}}
 
@@ -433,22 +428,15 @@
     " edit .vimrc
     nnoremap <silent> <leader>r :e $MYVIMRC<CR>
 
-    " delete trailing whitespaces
-    nnoremap <silent> <F4> :call RemoveTrailingWhitespaces()<CR>
-
+    " options
     nnoremap <silent> <leader>on :set number!<CR>
     nnoremap <silent> <leader>or :set relativenumber!<CR>
     nnoremap <silent> <leader>ow :set wrap!<CR>
     nnoremap <silent> <leader>ol :set list!<CR>
     nnoremap <silent> <leader>os :setl spell!<CR>
 
-    " print file info
-    nnoremap <silent> <leader>i :call PrintFileInfo()<CR>
-
-    " typos
-    iabbrev lenght length
-    iabbrev wiht with
-    iabbrev retrun return
+    " print file size info
+    nnoremap <silent> <leader>i :call PrintFileSizeInfo()<CR>
 
     " quickfix window
     nnoremap <silent> <leader>xx :cwindow<CR>
@@ -459,6 +447,11 @@
     " go to the next/previous error in the quickfix list
     nnoremap <silent> ]e :cnext<CR>
     nnoremap <silent> [e :cprevious<CR>
+
+    " typos
+    iabbrev lenght length
+    iabbrev wiht with
+    iabbrev retrun return
 
     inoremap <C-B> `
     cnoremap <C-B> `
@@ -511,6 +504,14 @@
     nnoremap <silent> <F3> :silent GundoToggle<CR>
     inoremap <silent> <F3> <ESC>:silent GundoToggle<CR>a
 
+    " Gundo
+    " -------------------------------------------------------------------------
+
+    let g:wildfire_objects = {
+        \ "*" : ["i'", 'i"', "i)", "i]", "i}", "ip"],
+        \ "html,xml" : ["it"],
+    \ }
+
     " Gate
     " -------------------------------------------------------------------------
 
@@ -527,7 +528,6 @@
     " -------------------------------------------------------------------------
 
     nnoremap <leader>. :Surf<CR>
-    "set tags=/Users/giacomo/dropbox/dev/vim/surfer/tags
     let g:surfer_debug = 0
     let g:surfer_exclude_tags = []
     let g:surfer_exclude_kinds = ["import", "namespace", "package"]
@@ -754,29 +754,24 @@ END
         return '+' . repeat('-', n-2) . ' ' . stripped_line
     endfu
 
-    " to display a variable-length file path according the witdh of the
+    " to display a variable-length file path according the width of the
     " current window
     fu! FilePath()
-        if &bt == 'help' || &bt == 'nofile'
-            return expand('%:t')
+        let tail = expand('%:p:t')
+        if empty(tail)
+            return "[no name]"
         endif
-
-        let fname = expand('%:t')
-        let fpath = substitute(expand('%:p:h'), $HOME, '~', '')
-        let x = winwidth(winnr()) - 60
-        let available_chars = float2nr(5 * sqrt(x < 0 ? 0 : x))
-
-        if strlen(fpath) > available_chars
-            let fpath = strpart(fpath, strlen(fpath) - available_chars)
-            " round the path to the nearest slash
-            let cut_pos = match(fpath, '/')
-            if cut_pos >= 0
-                let fpath = strpart(fpath, cut_pos + 1)
-            endif
+        if !empty(&bt)
+            return tail
         endif
-
-        let cond = empty(fname)
-        return (cond ? "" : fpath ."/") . (cond ? "[no name]" : fname)
+        let head = substitute(expand('%:p:h'), $HOME, '~', '') . "/"
+        let x = winwidth(winnr()) - 50
+        let maxlen = float2nr(5 * sqrt(x < 0 ? 0 : x))
+        if strlen(head) > maxlen
+            let head = strpart(head, strlen(head) - maxlen)
+            let head = strpart(head, match(head, '/') + 1)
+        endif
+        return head . tail
     endfu
 
     " to return the git branch for the current buffer
@@ -797,28 +792,26 @@ END
         if winwidth(winnr()) > 50
             let alt_buffer = expand('#:t')
             if !empty(alt_buffer) && buflisted(expand("#:p"))
-                return "" . alt_buffer . "!\ ~\ "
+                return "[[ " . alt_buffer . " ]]\ ~\ "
             endif
         endif
         return ""
     endfu
 
     " to print info of the current file
-    fu! PrintFileInfo()
+    fu! PrintFileSizeInfo()
         let fpath = expand("%:p")
-        let msg = " [["
-        let msg .= " ft:" . &ft
-        let msg .= ", fenc:" . &fenc
-        let msg .= ", ff:" . &ff
-        let msg .= ", lines:" . line("$")
+        let msg = ' "' . bufname("%") . '"'
+        let msg .= " -- "
+        let msg .= "lines: " . line("$")
         if &ft =~? "text\\|markdown"
             let out = system("wc -w " . shellescape(fpath))
             if v:shell_error == 0
-                let msg .= ", words:" . matchstr(out, "\\d\\+")
+                let msg .= ", words: " . matchstr(out, "\\d\\+")
             endif
         endif
-        let msg .= ", size:" . getfsize(fpath)/1024 . "Kb"
-        let msg .= " ]]"
+        let msg .= ", size: " . getfsize(fpath)/1024 . "Kb"
+        let msg .= " --"
         echo msg
     endfu
 
