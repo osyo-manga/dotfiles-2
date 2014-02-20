@@ -175,7 +175,8 @@
     set virtualedit=all
 
     set title
-    set titlestring=(\ %{&ft},\ %{&ff},\ %{&fenc}\ )\ %<%{GitCurrentBranch('⎇\ ')}\ %F
+    set titlestring=(\ %(%{&ft},\ %)%(%{&ff}%)%(,\ %{&fenc}%)\ )
+    set titlestring+=\ %<%{GitCurrentBranch('⎇\ ')}\ %F
     set titlelen=100
 
     set tabpagemax=19
@@ -465,33 +466,38 @@
     " Netrw
     " -------------------------------------------------------------------------
 
+    nnoremap <F1> :edit .<CR>
+    nnoremap <leader>ee :edit .<CR>
+    nnoremap <leader>et :tabe .<CR>
+
+    let g:netrw_banner = 0
+    let g:netrw_bufsettings = "noma nomod nu nuw=2 nowrap ro nobl"
+    let g:netrw_list_hide= '\(^\|\s\s\)\zs\.\S\+,\.pyc$,^tags$'
+
     augroup netrw
         au!
+
         au FileType netrw map <buffer> o <CR>
         au FileType netrw map <buffer> \ -
+
         exec "au FileType netrw map <buffer> " . 0 . " :" . 10 . "<CR>o"
         for n in range(1, 9)
             exec "au FileType netrw map <buffer> " . n . " :" . n . "<CR>o"
             exec "au FileType netrw map <buffer> <leader>" . n . " :" . (10+n) . "<CR>o"
         endfor
-    augroup END
 
-    let g:netrw_banner = 0
-    let g:netrw_bufsettings = "noma nomod nu nuw=2 nowrap ro nobl"
-    let g:netrw_list_hide= '\(^\|\s\s\)\zs\.\S\+,\.pyc$,^tags$'
-    nnoremap <F1> :edit .<CR>
-    nnoremap <leader>ee :edit .<CR>
-    nnoremap <leader>et :tabe .<CR>
+    augroup END
 
     " Tagbar
     " -------------------------------------------------------------------------
+
+    nnoremap <silent> <F2> :TagbarToggle<CR>
+    inoremap <silent> <F2> <ESC>:TagbarToggle<CR>a
 
     let g:tagbar_left = 0
     let g:tagbar_sort = 0
     let g:tagbar_width = 40
     let g:tagbar_iconchars = ['+ ', '* ']
-    nnoremap <silent> <F2> :TagbarToggle<CR>
-    inoremap <silent> <F2> <ESC>:TagbarToggle<CR>a
     let g:tagbar_type_go = {
         \ 'ctagstype' : 'go',
         \ 'kinds' : [
@@ -524,6 +530,7 @@
 
     nnoremap - :Gate<CR>
     nnoremap <leader>- :Gate<CR>#
+
     let g:gate_debug = 0
     let g:gate_match_file_extension = 0
     let g:gate_mod_flags = {"active": 1}
@@ -535,6 +542,7 @@
     " -------------------------------------------------------------------------
 
     nnoremap <leader>. :Surf<CR>
+
     let g:surfer_debug = 0
     let g:surfer_exclude_tags = []
     let g:surfer_exclude_kinds = ["import", "namespace", "package"]
@@ -672,26 +680,24 @@ END
         if &ft == "vim" && line[:col(".")-2] =~ "^\\s*$"
             return a:quote
         endif
-        let odd_brackets = _count(line, a:quote) % 2 != 0
-        if odd_brackets || context[0] =~ "\\" || context[0] =~? "\[a-z\]" || context[1] =~? "\[a-z\]"
+        let odd_quotes = _count(line, a:quote) % 2 != 0
+        if odd_quotes || context[0] =~? "\[a-z\]" || context[1] =~? "\[a-z\]"
             return a:quote
         endif
         return a:quote.a:quote."\<ESC>i"
     endfu
 
-    " Utomatically insert a closing bracket
+    " Automatically insert a closing brace
     fu! SmartPairBracketInsertion(obr, cbr)
         let line = getline(".")
         let context = line[col(".")-2] . line[col(".")-1]
-        let special_cond = a:obr == "(" && context[1] =~? "\[a-z_\"']"
-        if !special_cond && _count(getline("."), a:obr) == _count(getline("."), a:cbr)
-            return a:obr.a:cbr."\<ESC>i"
+        if context[1] =~? "\\S" || _count(line, a:obr) != _count(line, a:cbr)
+            return a:obr
         endif
-        return a:obr
+        return a:obr.a:cbr."\<ESC>i"
     endfu
 
-    " if the cursor is inside an opening and closing brackets,
-    " add a new line in between
+    " if the cursor is inside enclosing braces, add a new line in between
     fu! SmartEnter()
         let context = getline(".")[col(".")-2] . getline(".")[col(".")-1]
         if context =~ "()\\|\[\]\\|{}"
@@ -700,15 +706,15 @@ END
         return "\<CR>"
     endfu
 
-    " if the cursor is inside an opening and closing brackets, delete both
+    " if the cursor is inside enclosing braces, delete both
     fu! SmartBackspace()
         let line = getline(".")
-        let col = col(".")
-        let context = line[col-2] . line[col-1]
-        if line[col-3] . line[col-2] =~ "()\\|\[\]\\|{}\\|''\\|\"\"\\|``"
-            return "\<ESC>i"
-        elseif context =~ "()\\|\[\]\\|{}\\|''\\|\"\"\\|``\\|<>" && _count(line, context[0]) == _count(line, context[1])
+        let context = line[col(".")-2] . line[col(".")-1]
+        let pattern = "()\\|\[\]\\|{}\\|''\\|\"\"\\|``\\|<>"
+        if context =~ pattern
             return "\<ESC>la\<BS>\<BS>"
+        elseif line[col(".")-3] . line[col(".")-2] =~ pattern
+            return "\<ESC>i"
         endif
         return "\<BS>"
     endfu
@@ -783,12 +789,10 @@ END
 
     " to return the git branch for the current buffer
     fu! GitCurrentBranch(prefix)
-        if winwidth(winnr()) > 70
-            if empty(&buftype) && exists("g:loaded_fugitive")
-                let branch = fugitive#head()
-                if !empty(branch)
-                    return "(" . a:prefix . branch . ")"
-                endif
+        if winwidth(winnr()) > 70 && empty(&buftype) && exists("g:loaded_fugitive")
+            let branch = fugitive#head()
+            if !empty(branch)
+                return "(" . a:prefix . branch . ")"
             endif
         endif
         return ""
@@ -796,11 +800,9 @@ END
 
     " to return the alternate buffer for the current buffer
     fu! AlternateBuffer()
-        if winwidth(winnr()) > 50
-            let alt_buffer = expand('#:t')
-            if !empty(alt_buffer) && buflisted(expand("#:p"))
-                return "[[ " . alt_buffer . " ]]\ ~\ "
-            endif
+        let alt_buffer = expand('#:t')
+        if winwidth(winnr()) > 50 && !empty(alt_buffer) && buflisted(expand("#:p"))
+            return "[[ " . alt_buffer . " ]]\ ~\ "
         endif
         return ""
     endfu
@@ -809,16 +811,14 @@ END
     fu! PrintFileSizeInfo()
         let fpath = expand("%:p")
         let msg = ' "' . bufname("%") . '"'
-        let msg .= " -- "
-        let msg .= "lines: " . line("$")
+        let msg .= " -- lines: " . line("$")
         if &ft =~? "text\\|markdown"
             let out = system("wc -w " . shellescape(fpath))
             if v:shell_error == 0
                 let msg .= ", words: " . matchstr(out, "\\d\\+")
             endif
         endif
-        let msg .= ", size: " . getfsize(fpath)/1024 . "Kb"
-        let msg .= " --"
+        let msg .= ", size: " . getfsize(fpath)/1024 . "Kb -- "
         echo msg
     endfu
 
