@@ -468,9 +468,16 @@
     augroup netrw
         au!
         au FileType netrw map <buffer> o <CR>
+        au FileType netrw map <buffer> \ -
+        exec "au FileType netrw map <buffer> " . 0 . " :" . 10 . "<CR>o"
+        for n in range(1, 9)
+            exec "au FileType netrw map <buffer> " . n . " :" . n . "<CR>o"
+            exec "au FileType netrw map <buffer> <leader>" . n . " :" . (10+n) . "<CR>o"
+        endfor
     augroup END
 
     let g:netrw_banner = 0
+    let g:netrw_bufsettings = "noma nomod nu nuw=2 nowrap ro nobl"
     let g:netrw_list_hide= '\(^\|\s\s\)\zs\.\S\+,\.pyc$,^tags$'
     nnoremap <F1> :edit .<CR>
     nnoremap <leader>ee :edit .<CR>
