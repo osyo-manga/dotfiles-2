@@ -175,7 +175,7 @@
     set virtualedit=all
 
     set title
-    set titlestring=(\ %(%{&ft},\ %)%(%{&ff}%)%(,\ %{&fenc}%)\ )
+    set titlestring=(\ %(%{&ft},\ %)%{&ff}%(,\ %{&fenc}%)\ )
     set titlestring+=\ %<%{GitCurrentBranch('⎇\ ')}\ %F
     set titlelen=100
 
@@ -259,7 +259,7 @@
     " -------------------------------------------------------------------------
 
     let mapleader=","
-    inoremap jj <ESC>
+    inoremap jk <ESC>
 
     " commands
     " -------------------------------------------------------------------------
@@ -282,13 +282,14 @@
     " tabs
     " -------------------------------------------------------------------------
 
-    " tabs
-    nnoremap <silent> <leader>tt :tabedit! <C-R>=expand("%:p")<CR><CR>
-    nnoremap <silent> <leader>tc :tabclose<CR>
+    nnoremap <silent> <leader>t :tabedit! <C-R>=expand("%:p")<CR><CR>
+    nnoremap <silent> <leader>T :tabedit! <C-R>=expand("#:p")<CR><CR>
+    nnoremap <silent> <leader>y :tabclose<CR>
 
-    " go to next/previous tab
-    nnoremap <silent> [t :tabprevious<CR>
-    nnoremap <silent> ]t :tabnext<CR>
+    " go to the nth tab
+    for i in range(1, 9)
+        exec "nnoremap <silent> <D-".i."> ".i."gt"
+    endfor
 
     " tabs relocation
     nnoremap <silent> <left> :exec 'sil! tabmove ' . (tabpagenr()-2)<CR>
@@ -305,29 +306,29 @@
     nnoremap <C-J> <C-W>j
     nnoremap <C-K> <C-W>k
     nnoremap <C-L> <C-W>l
+    nnoremap <C-SPACE> <C-W>W
+    nnoremap <SPACE> <C-W>w
 
     " split windows
     nnoremap <leader>w <C-W>v:b#<CR>
     nnoremap <leader>W <C-W>s:b#<CR>
 
-    nnoremap <C-SPACE> <C-W>W
-    nnoremap <SPACE> <C-W>w
-
     " buffers
     " -------------------------------------------------------------------------
 
     " go to next/previous buffer
-    nnoremap <silent> ]b :bnext<CR>
-    nnoremap <silent> [b :bprevious<CR>
+    nnoremap <silent> <leader>n :bnext<CR>
+    nnoremap <silent> <leader>b :bprevious<CR>
 
     " kill the buffer but keep the window
     nnoremap <silent> <leader>q :call CloseBuffer(0)<CR>
     nnoremap <silent> <leader>Q :call CloseBuffer(1)<CR>
 
-    " edit to the alternate buffer; if it is already visible just move to
+    " go to the alternate buffer; if it is already visible just move to
     " the window containing the buffer
     nnoremap <silent> _ :call GoToBuffer("#")<CR>
 
+    " go to the nth buffer
     for i in range(1, 9)
         exec "nnoremap <silent> <leader>".i." :call GoToBuffer(".i.")<CR>"
     endfor
@@ -423,13 +424,14 @@
     nnoremap gp vipgq
 
     " open the finder (or terminal) at the location of the current file
-    nnoremap <silent> <leader>ef :exec "sil !open ".expand("%:p:h")<CR>
-    nnoremap <silent> <leader>er :TubeCd<CR>:TubeFocus<CR>
+    nnoremap <silent> <leader>f :exec "sil !open ".expand("%:p:h")<CR>
+    nnoremap <silent> <leader>F :TubeCd<CR>:TubeFocus<CR>
 
     " edit .vimrc
     nnoremap <silent> <leader>r :e $MYVIMRC<CR>
+    nnoremap <silent> <leader>R :tabe $MYVIMRC<CR>
 
-    " options
+    " toggle options
     nnoremap <silent> <leader>on :set number!<CR>
     nnoremap <silent> <leader>or :set relativenumber!<CR>
     nnoremap <silent> <leader>ow :set wrap!<CR>
@@ -438,6 +440,9 @@
 
     " print file size info
     nnoremap <silent> <leader>i :call PrintFileSizeInfo()<CR>
+
+    " command-line window
+    nnoremap <silent> <leader>h q:
 
     " quickfix window
     nnoremap <silent> <leader>xx :cwindow<CR>
@@ -467,25 +472,18 @@
     " -------------------------------------------------------------------------
 
     nnoremap <F1> :edit .<CR>
-    nnoremap <leader>ee :edit .<CR>
-    nnoremap <leader>et :tabe .<CR>
+    inoremap <F1> <ESC>:edit .<CR>
+    nnoremap <leader>e :edit .<CR>
+    nnoremap <leader>E :tabe .<CR>
 
     let g:netrw_banner = 0
-    let g:netrw_bufsettings = "noma nomod nu nuw=2 nowrap ro nobl"
-    let g:netrw_list_hide= '\(^\|\s\s\)\zs\.\S\+,\.pyc$,^tags$'
+    let g:netrw_liststyle = 3
+    let g:netrw_list_hide = '\(^\|\s\s\)\zs\.\S\+,\.pyc$,^tags$'
 
     augroup netrw
         au!
-
-        au FileType netrw map <buffer> o <CR>
-        au FileType netrw map <buffer> \ -
-
-        exec "au FileType netrw map <buffer> " . 0 . " :" . 10 . "<CR>o"
-        for n in range(1, 9)
-            exec "au FileType netrw map <buffer> " . n . " :" . n . "<CR>o"
-            exec "au FileType netrw map <buffer> <leader>" . n . " :" . (10+n) . "<CR>o"
-        endfor
-
+        au FileType netrw nmap <buffer> o <CR>
+        au FileType netrw nmap <buffer> <leader>q :bdelete<CR>
     augroup END
 
     " Tagbar
@@ -520,6 +518,7 @@
     " Gundo
     " -------------------------------------------------------------------------
 
+    let g:wildfire_debug = 0
     let g:wildfire_objects = {
         \ "*" : ["i'", 'i"', "i)", "i]", "i}", "ip"],
         \ "html,xml" : ["it"],
@@ -543,7 +542,7 @@
 
     nnoremap <leader>. :Surf<CR>
 
-    let g:surfer_debug = 0
+    let g:surfer_debug = 1
     let g:surfer_exclude_tags = []
     let g:surfer_exclude_kinds = ["import", "namespace", "package"]
     let g:surfer_line_format = [" @ {file}", " ({line})", " {kind}"]
@@ -603,9 +602,10 @@
     let g:UltiSnipsSnippetDirectories = ["UltiSnips", "CustomSnips"]
     let g:UltiSnipsExpandTrigger = "<C-C>"
 
-    " GitGutter
+    " itGutter
     " -------------------------------------------------------------------------
 
+    let g:gitgutter_map_keys = 0
     nnoremap <leader>og :GitGutterToggle<CR>
 
     " InstantMarkdown
@@ -618,6 +618,7 @@
     " -------------------------------------------------------------------------
 
     let g:ycm_filetype_blacklist = {'vim' : 1}
+    let g:ycm_collect_identifiers_from_comments_and_strings = 0
 
 " }}}
 
@@ -630,7 +631,7 @@ def _eval(expr, fmt=None):
     """To evaluate the given expression."""
     val = vim.eval(expr)
     if fmt is bool:
-        return False if val == u'0' else True
+        return False if val == '0' else True
     elif fmt is int:
         return int(val)
     else:
@@ -645,7 +646,7 @@ def _find_project_root(path=None, markers=None):
     if path is None:
         path = _eval("getcwd()")
     if markers is None:
-        markers = ['.git', '.svn', '.hg', '.bzr', '.travis.yml']
+        markers = ['.git', '.svn', '.hg', '.bzr']
 
     if path == "/":
         return ""
@@ -691,7 +692,7 @@ END
     fu! SmartPairBracketInsertion(obr, cbr)
         let line = getline(".")
         let context = line[col(".")-2] . line[col(".")-1]
-        if context[1] =~? "\\S" || _count(line, a:obr) != _count(line, a:cbr)
+        if context[1] =~? "\\a" || _count(line, a:obr) != _count(line, a:cbr)
             return a:obr
         endif
         return a:obr.a:cbr."\<ESC>i"
