@@ -86,6 +86,12 @@
         au BufRead,BufNewFile *.go  setl nolist ts=4 noet fdm=syntax fdn=1 makeprg=go\ build
         au BufRead,BufNewFile *.go  nnoremap <buffer> <F5> :Fmt<CR>:w<CR>
 
+        au VimEnter,TabEnter * let t:positions = {}
+        au WinEnter,FocusGained * let &colorcolumn = join(range(1, winwidth("%")), ",")
+        au CursorHold,CursorHoldI * set colorcolumn=0
+        au CursorMoved,CursorMovedI * if get(t:positions, winnr(), getpos(".")[1:2]) != getpos(".")[1:2] | set colorcolumn=0 | endif
+        au WinLeave,FocusLost * let t:positions[winnr()] = getpos(".")[1:2] | set colorcolumn=0
+
     augroup END
 
 " }}}
