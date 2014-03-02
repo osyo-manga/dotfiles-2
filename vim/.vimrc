@@ -89,7 +89,7 @@
         " let me see in which window I'm switching to
         au VimEnter,TabEnter * let t:positions = {}
         au WinEnter,FocusGained * let &colorcolumn = join(range(1, winwidth("%")), ",")
-        au CursorHold,CursorHoldI * set colorcolumn=0
+        au InsertEnter,InsertLeave,CursorHold,CursorHoldI * set colorcolumn=0
         au CursorMoved,CursorMovedI * if get(t:positions, winnr(), getpos(".")) != getpos(".") | set colorcolumn=0 | endif
         au WinLeave,FocusLost * let t:positions[winnr()] = getpos(".") | set colorcolumn=0
 
@@ -352,13 +352,13 @@
     inoremap <C-F> <ESC>O
 
     " insert pair bracket
-    inoremap <silent> { <C-R>=SmartPairBracketInsertion("{", "}")<CR>
-    inoremap <silent> [ <C-R>=SmartPairBracketInsertion("[", "]")<CR>
-    inoremap <silent> ( <C-R>=SmartPairBracketInsertion("(", ")")<CR>
+    inoremap <silent> { <C-R>=AutoPairParenthesis("{", "}")<CR>
+    inoremap <silent> [ <C-R>=AutoPairParenthesis("[", "]")<CR>
+    inoremap <silent> ( <C-R>=AutoPairParenthesis("(", ")")<CR>
 
     " insert pair quote
-    inoremap <silent> " <C-R>=SmartPairQuoteInsertion('"')<CR>
-    inoremap <silent> ' <C-R>=SmartPairQuoteInsertion("'")<CR>
+    inoremap <silent> " <C-R>=AutoPairQuote('"')<CR>
+    inoremap <silent> ' <C-R>=AutoPairQuote("'")<CR>
 
     inoremap <silent> <C-Z> <ESC>:set nows<CR>:let _ls=@/<CR>/[)}\]>'"`]<CR>
         \:noh<CR>:cal histdel("/",-1)<CR>:let @/=_ls<CR>:unl _ls<CR>:set ws<CR>a
@@ -447,9 +447,6 @@
 
     " print file size info
     nnoremap <silent> <leader>i :call PrintFileSizeInfo()<CR>
-
-    " command-line window
-    nnoremap <silent> <leader>h q:
 
     " quickfix window
     nnoremap <silent> <leader>xx :cwindow<CR>
@@ -682,7 +679,7 @@ END
     endfu
 
     " Automatically insert a closing quote
-    fu! SmartPairQuoteInsertion(quote)
+    fu! AutoPairQuote(quote)
         let line = getline(".")
         let context = line[col(".")-2] . line[col(".")-1]
         if &ft == "vim" && line[:col(".")-2] =~ "^\\s*$"
@@ -696,7 +693,7 @@ END
     endfu
 
     " Automatically insert a closing brace
-    fu! SmartPairBracketInsertion(obr, cbr)
+    fu! AutoPairParenthesis(obr, cbr)
         let line = getline(".")
         let context = line[col(".")-2] . line[col(".")-1]
         if context[1] =~? "\\a" || _count(line, a:obr) != _count(line, a:cbr)
